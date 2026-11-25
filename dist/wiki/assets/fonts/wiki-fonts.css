@@ -1,0 +1,23 @@
+/* 本地字体定义（原远程：fonts.googleapis.com css2，页面内联 CSS 使用 400–700 字重）。
+   采用 google/fonts 开源仓库的可变字体 TTF 直链镜像，覆盖页面用到的 400/500/600/700 全部字重。 */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('inter.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Sora';
+  font-style: normal;
+  font-weight: 100 800;
+  font-display: swap;
+  src: url('sora.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 100 800;
+  font-display: swap;
+  src: url('jetbrains-mono.ttf') format('truetype');
+}

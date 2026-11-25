@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script>
+  try {
+    var t = localStorage.getItem("cy-theme");
+    if (!t) t = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    document.documentElement.setAttribute("data-theme", t);
+  } catch (e) {}
+</script>
+<title>WinLite — 可撤销的 Windows 精简工具 | 作品 | 陈屿</title>
+<meta name="description" content="WinLite 是一个给旧 Windows 笔记本用的精简与调优工具：不做一键优化，每条变更可查、可撤销，动手前自动创建还原点。C# / .NET 8 / WPF，MIT 开源。">
+<meta name="keywords" content="WinLite, C# / .NET 8, WPF + MVVM, PowerShell / CIM, MIT 开源">
+<meta name="author" content="电脑小百科">
+<link rel="canonical" href="https://chenyu.me/works/winlite.html">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<meta name="theme-color" content="#f7f3e9">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="电脑小百科 · 技术笔记">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:title" content="WinLite — 可撤销的 Windows 精简工具 | 作品 | 陈屿">
+<meta property="og:description" content="WinLite 是一个给旧 Windows 笔记本用的精简与调优工具：不做一键优化，每条变更可查、可撤销，动手前自动创建还原点。C# / .NET 8 / WPF，MIT 开源。">
+<meta property="og:url" content="https://chenyu.me/works/winlite.html">
+<meta name="twitter:card" content="summary">
+<link rel="alternate" type="application/rss+xml" title="电脑小百科 · 技术笔记 RSS" href="https://chenyu.me/feed.xml">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23191712'/%3E%3Crect x='12' y='12' width='18' height='18' fill='%23a6432b'/%3E%3Crect x='34' y='34' width='18' height='18' fill='%23f8f6f0'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/fonts.css">
+<link rel="stylesheet" href="../assets/style.css">
+<script src="../assets/main.js" defer></script>
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@graph": [
+        {
+            "@type": "SoftwareApplication",
+            "@id": "https://chenyu.me/works/winlite.html#app",
+            "name": "WinLite",
+            "url": "https://chenyu.me/works/winlite.html",
+            "description": "WinLite 是一个给旧 Windows 笔记本用的精简与调优工具：不做一键优化，每条变更可查、可撤销，动手前自动创建还原点。C# / .NET 8 / WPF，MIT 开源。",
+            "author": {
+                "@id": "https://chenyu.me/#person"
+            },
+            "offers": {
+                "@type": "Offer",
+                "price": "0",
+                "priceCurrency": "CNY"
+            },
+            "applicationCategory": "UtilitiesApplication",
+            "operatingSystem": "Windows 10, Windows 11",
+            "softwareVersion": "1.4"
+        },
+        {
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+                {
+                    "@type": "ListItem",
+                    "position": 1,
+                    "name": "首页",
+                    "item": "https://chenyu.me/"
+                },
+                {
+                    "@type": "ListItem",
+                    "position": 2,
+                    "name": "作品",
+                    "item": "https://chenyu.me/works.html"
+                },
+                {
+                    "@type": "ListItem",
+                    "position": 3,
+                    "name": "WinLite",
+                    "item": "https://chenyu.me/works/winlite.html"
+                }
+            ]
+        }
+    ]
+}
+</script>
+</head>
+<body>
+<a class="skip" href="#main">跳到正文</a>
+<div class="progress" data-progress aria-hidden="true"></div>
+<header class="site-header">
+  <div class="shell header-inner">
+    <a class="brand" href="../index.html" aria-label="电脑小百科的技术笔记，返回首页">
+      <span class="brand-name">电脑小百科</span>
+      <span class="brand-sep">/</span>
+      <span class="brand-meta">技术笔记</span>
+    </a>
+    <nav class="site-nav" aria-label="主导航">
+      <a href="../index.html">首页</a>
+      <a href="../about.html">关于</a>
+      <a href="../blog.html">博客</a>
+      <a href="../column.html">专栏</a>
+      <a href="../works.html" aria-current="page">作品</a>
+    </nav>
+    <button class="theme-toggle" type="button" data-theme-toggle aria-label="切换到深色模式">
+      <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+      <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M19.1 4.9l-1.8 1.8M6.7 17.3l-1.8 1.8" stroke="currentColor" stroke-width="1.4"/></svg>
+    </button>
+  </div>
+</header>
+<main id="main">
+  <div class="shell">
+    <nav class="breadcrumb" aria-label="面包屑" style="padding-top:30px">
+      <a href="../index.html">首页</a><span>/</span><a href="../works.html">作品</a><span>/</span><span aria-current="page">WinLite</span>
+    </nav>
+
+    <header class="post-head">
+      <p class="eyebrow">Works / Utility · 2024 —</p>
+      <h1 class="post-title">WinLite</h1>
+            <p class="page-lede" style="margin-top:22px">一个给旧 Windows 笔记本用的精简与调优工具。它做的每一件事都写在界面上，动手前建还原点，做完能一键回滚。</p>
+                  <p class="post-meta" style="margin-top:22px">
+                <span class="status status--live">开源 · 1.4k star</span>
+                                <span>开源 · MIT</span>
+                <span class="sep">/</span>        <span>C# / .NET 8</span>
+                <span class="sep">/</span>        <span>WPF</span>
+                <span class="sep">/</span>        <span>单文件 12 MB</span>
+                <span class="sep">/</span>        <span>1.4k star</span>
+              </p>
+          </header>
+
+        <section class="section section--spec" aria-label="项目参数">
+      <dl class="spec">
+                <div><dt>起始</dt><dd>2024 年 3 月，最初只是给家里那台旧笔记本写的一个脚本</dd></div>
+                <div><dt>平台</dt><dd>Windows 10 / 11 · x64 · 管理员权限</dd></div>
+                <div><dt>技术</dt><dd>C#、.NET 8、WPF、PowerShell 5.1 兼容、CIM</dd></div>
+                <div><dt>形态</dt><dd>单文件发布，免安装；规则库是可读的 JSON</dd></div>
+                <div><dt>状态</dt><dd>v1.4，仍在维护；issue 会看，不承诺时间</dd></div>
+                <div><dt>代码</dt><dd>github.com/chenyu</dd></div>
+              </dl>
+    </section>
+    
+    
+    <section class="section">
+      <article class="prose" data-prose>
+        <h2 id="origin">起因：一台开机三分钟的机器</h2>
+        <p>家里那台 2013 年的笔记本，4GB 内存，机械硬盘，装完 Windows 10 之后冷启动要三分十二秒。我给它清过启动项、关过服务、删过预装软件，每次都要重新查一遍「这个服务能不能关」，而且关错了没有后悔药。</p>
+        <p>市面上的「一键优化」工具我试过三个，共同点是把改动藏起来：你不知道它关了什么，出了问题也说不清怎么退回去。有一个甚至把打印服务关了，家里老人后来要打印照片，折腾了一晚上。</p>
+        <p>所以我想写一个反过来的工具：不猜、不替他做决定、每一步都能看见。</p>
+
+        <h2 id="design">反向设计：不做「一键优化」</h2>
+        <p>界面上没有那个大按钮。用户看到的是三段式布局：左边是分类（服务、计划任务、启动项、系统组件），中间是一张清单，每一项都有中文说明、影响范围、风险等级和默认建议；右边是变更预览，列出这次操作将要执行的命令原文。</p>
+        <p>「一键优化」的问题不在功能，在决策权。用户点下去，是把判断交给了我；但我并不知道他这台机器上跑着什么、连着什么打印机、用什么输入法。清单式设计把判断还给他，代价是慢一点。</p>
+
+        <h2 id="rollback">可撤销是怎么做到的</h2>
+        <p>三件事：</p>
+        <ul>
+          <li><strong>动手前建还原点。</strong>调用 <code>Checkpoint-Computer</code>，失败就中止，不提供「跳过」选项。</li>
+          <li><strong>每一步写日志。</strong>执行前把原始值记录下来（服务启动类型、注册表键值、计划任务状态），写成一个 JSON，和操作一起落盘。</li>
+          <li><strong>回滚按逆序执行。</strong>日志里每条变更都有配对的反向操作，回滚时倒着跑，中途失败就停在那一步并提示。</li>
+        </ul>
+        <p>规则库是 JSON，一条规则长这样：</p>
+        <pre><code>{
+  "id": "svc.diagtrack",
+  "kind": "service",
+  "name": "DiagTrack",
+  "desc": "遥测服务，关闭可省 30-60MB 内存",
+  "risk": "low",
+  "apply": "sc config DiagTrack start= disabled",
+  "revert": "sc config DiagTrack start= auto"
+}</code></pre>
+        <p>规则和代码分开的好处很实际：用户在 issue 里说「某个服务不该关」，改一行 JSON 就能发版，不用重新编译。代价是规则写错也不会有编译错误，所以每条规则在启动时会做一次静态校验——命令必须以 <code>sc</code>、<code>schtasks</code>、<code>reg</code> 这几个前缀开头，否则拒绝加载。</p>
+
+        <h2 id="tech">技术上的几个选择</h2>
+        <p><strong>WPF 但不用框架。</strong>MVVM 是我手写的，大概六百行，只做了属性通知和命令绑定。为一个单窗口工具引入 Prism 或 MVVM Toolkit，学它的时间比写它长。</p>
+        <p><strong>.NET 8 单文件，但不裁剪。</strong>试过 <code>PublishTrimmed</code>，WPF 的 XAML 反射会漏掉类型，跑起来随机崩。最后用 self-contained 不 trim，包 12MB，能接受。</p>
+        <p><strong>PowerShell 走 5.1。</strong>现场很多机器没装 PowerShell 7，我不想让工具在第一步就报错。所有脚本按 5.1 的语法写，执行前先跑一次 dry-run，只读扫描，确认没有权限问题再真正执行。</p>
+
+        <h2 id="numbers">数字</h2>
+        <p>目标机器：i5-3230M / 4GB / 机械硬盘 / Windows 10 22H2。</p>
+        <ul>
+          <li>冷启动（按下电源到桌面可操作）：3 分 12 秒 → 48 秒；</li>
+          <li>空闲内存：1.9GB → 780MB；</li>
+          <li>系统盘占用：24.6GB → 17.8GB（主要是组件清理和休眠文件）；</li>
+          <li>开机自启项：31 个 → 7 个。</li>
+        </ul>
+        <p>这些数字只对这台机器成立。我从来不把「省了多少」写成通用承诺，因为同样的操作在另一台机器上可能只省 200MB。</p>
+
+        <h2 id="risk">边界与风险</h2>
+        <p>明确不做的几件事：不碰激活、不碰驱动、不删 WinSxS、不做注册表「一键清理」。最后一条的原因很直接：收益低，风险高，出了问题无法解释。</p>
+        <p>高风险项（比如关闭 Windows Defender 的实时保护、禁用系统还原）默认不勾选，勾选时二次确认并提示后果。我宁愿被说「不够彻底」，也不想让一个不懂电脑的人把机器搞成只能重装的状态。</p>
+
+        <h2 id="now">现在的状态</h2>
+        <p>v1.4，1.4k star。issue 每周看一次，功能性的 PR 基本不收，因为维护精力只够保证「三年后还能编译、还能回滚」。这句话写在 README 第一段，省得双方都抱错期待。</p>      </article>
+    </section>
+
+    <section class="section">
+      <div class="split">
+        <div class="rail">
+          <h2 class="rail-title">相关</h2>
+          <p class="rail-note">Links</p>
+        </div>
+        <div>
+                    <nav class="post-nav" aria-label="项目翻页">
+                        <a href="../works.html">
+              <span class="dir">← 返回列表</span>
+              <span class="t">全部作品</span>
+            </a>
+                                    <a href="tinyplayer.html">
+              <span class="dir">下一个项目 →</span>
+              <span class="t">TinyPlayer · Tray Music Player · 2025 —</span>
+            </a>
+                      </nav>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="shell">
+    <div class="wordmark">
+      <span class="wm-name">电脑小百科</span>
+      <span class="wm-meta">Chen Yu · Technical Notes</span>
+    </div>
+    <div class="footer-grid">
+      <div>
+        <p class="footer-name">技术笔记</p>
+        <p class="footer-note">桌面软件、像素游戏，以及把东西做完的过程。更新不固定，写清楚了才发。</p>
+      </div>
+      <div>
+        <p class="f-label">目录</p>
+        <ul class="f-links">
+          <li><a href="../about.html">关于</a></li>
+          <li><a href="../blog.html">博客</a></li>
+          <li><a href="../column.html">专栏</a></li>
+          <li><a href="../works.html">作品</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="f-label">联系</p>
+        <ul class="f-links">
+          <li><a href="mailto:2591735711@qq.com">邮箱</a></li>
+          <li><a href="https://github.com/chenyu" rel="me noopener">GitHub</a></li>
+          <li><a href="../feed.xml">RSS 订阅</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="colophon">
+      <span>© 2021–2026 电脑小百科</span>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,379 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+<channel>
+<title>电脑小百科 · 技术笔记</title>
+<link>https://chenyu.me/</link>
+<description>桌面软件、像素游戏与工程实践的个人技术博客</description>
+<language>zh-cn</language>
+<lastBuildDate>Wed, 18 Nov 2026 00:00:00 +0800</lastBuildDate>
+<atom:link href="https://chenyu.me/feed.xml" rel="self" type="application/rss+xml"/>
+<item>
+<title>把 60 帧塞进一台 2013 年的笔记本</title>
+<link>https://chenyu.me/posts/pixijs-frame-budget.html</link>
+<guid isPermaLink="true">https://chenyu.me/posts/pixijs-frame-budget.html</guid>
+<pubDate>Wed, 18 Nov 2026 00:00:00 +0800</pubDate>
+<category>PixiJS</category>
+<category>性能</category>
+<category>像素数码工坊</category>
+<description>《像素数码工坊》的最低配置是一台 2013 年的 i5 笔记本。记录如何把 16.67ms 的帧预算拆开、把 draw call 从 340 压到 47，以及哪些优化最后被删掉。</description>
+<content:encoded><![CDATA[<p>给《像素数码工坊》定最低配置的那天，我在纸上写了一行字：1280×720、60 帧、i5-3230M + HD 4000 核显。这不是市场调研的结果，是我家里正好有这么一台 2013 年的联想，而且我知道很多人的备用机就是这个水平。</p>
+        <p>定完这条线，后面所有「要不要加个后处理」「要不要上 2 倍素材」的讨论就都有了答案——不用讨论，跑不动。</p>
+
+        <h2 id="goal">先写死一个不体面的目标</h2>
+        <p>目标机器：i5-3230M，4GB 内存，Intel HD Graphics 4000，Windows 10，Chrome。画布 1280×720，窗口化，不锁 devicePixelRatio。这套配置在今天大概是二手市场两百块的水平，但它能跑起来的游戏，在绝大多数人的设备上都不会有问题。</p>
+        <p>我把这条约束写在项目根目录的 <code>BUDGET.md</code> 里，每次想加功能就打开看一眼。文件里只有三行：</p>
+        <pre><code>target: 1280x720 @ 60fps
+device: i5-3230M / HD4000 / 4GB
+frame: 16.67ms, 可用 13.3ms</code></pre>
+        <p>第三条是后来加的。因为前两周我一直在拿 16.67 当预算，写什么都觉得还有余量，结果一到真实场景就掉帧。</p>
+
+        <h2 id="budget">一帧只有 16.67 毫秒，但能用的更少</h2>
+        <p>60 帧意味着每帧 16.67ms，不过浏览器自己要合成、要跟 VSync 对齐，标签页切走再切回来还会有一次 GC。我按实测先划走两成，剩下 13.3ms，再分给四件事。</p>
+
+        <figure class="fig">
+          <svg viewBox="0 0 640 236" role="img" aria-labelledby="chart-title chart-desc">
+            <title id="chart-title">一帧 16.67 毫秒的预算分配</title>
+            <desc id="chart-desc">四条横条分别表示逻辑 3.0 毫秒、场景更新 2.4 毫秒、绘制提交 7.8 毫秒、余量 3.47 毫秒，总宽对应 16.67 毫秒。</desc>
+
+            <text class="head" x="0" y="12">FRAME BUDGET / 16.67 MS</text>
+
+            <line class="bar-outline" x1="600" y1="30" x2="600" y2="196"/>
+            <text class="val" x="600" y="222" text-anchor="end">16.67</text>
+            <text class="val" x="160" y="222" text-anchor="start">0 ms</text>
+
+            <line class="axis" x1="160" y1="30" x2="600" y2="30"/>
+            <line class="axis" x1="160" y1="196" x2="600" y2="196"/>
+
+            <text class="lbl" x="146" y="67" text-anchor="end">逻辑与输入</text>
+            <rect class="bar" x="160" y="54" width="79" height="14"/>
+            <text class="val" x="249" y="65">3.00 ms</text>
+
+            <text class="lbl" x="146" y="103" text-anchor="end">场景更新</text>
+            <rect class="bar" x="160" y="90" width="63" height="14"/>
+            <text class="val" x="233" y="101">2.40 ms</text>
+
+            <text class="lbl" x="146" y="139" text-anchor="end">绘制提交</text>
+            <rect class="bar-accent" x="160" y="126" width="206" height="14"/>
+            <text class="val" x="376" y="137">7.80 ms</text>
+
+            <text class="lbl" x="146" y="175" text-anchor="end">余量</text>
+            <rect class="bar-soft" x="160" y="162" width="92" height="14"/>
+            <text class="val" x="262" y="173">3.47 ms</text>
+          </svg>
+          <figcaption>图 1 · 第三周定的帧预算。绘制占掉一半以上，这也是后来优化的主攻方向。</figcaption>
+        </figure>
+
+        <p>这张表最重要的一行不是最大的那个数，是最后那 3.47ms。它不属于任何人。谁想加功能，先从自己的份额里扣，不要动余量。这个规矩让「加一个小特效」这种请求变得具体：你要 1.5ms，那从哪儿挪？</p>
+        <p>测量方法很土：Chrome DevTools 的 Performance 面板录 30 秒，看 Main 线程的长任务；同时在 ticker 里打点，记录每帧的开始和结束。没用 stats.js，因为它自己的开销就有 1ms 上下，在我这个预算里太贵了。</p>
+
+        <h2 id="static-layer">把不动的图层烘成一张图</h2>
+        <p>游戏里八成的像素是静止的：地板、墙、货架、贴在墙上的价目表。第一版我把它们全做成 Sprite 塞进 <code>app.stage</code>，draw call 直接到了 340。PixiJS 会合批，但前提是纹理和混合模式一致；我的图集切得太碎，顺序又乱，合不上。</p>
+        <p>改法很直接：进房间时把静态层渲染进一张 <code>RenderTexture</code>，之后每帧只画这一张。</p>
+        <pre><code><span class="cmt">// 进房间时烘一次，之后每帧只提交 1 个 sprite</span>
+const layer = RenderTexture.create({
+  width: 1280, height: 720,
+  resolution: 1, antialias: false,
+});
+
+const bake = new Container();
+bake.addChild(floor, walls, shelves, poster);
+
+app.renderer.render({ container: bake, target: layer });
+bake.destroy({ children: true });
+
+const room = new Sprite(layer);
+app.stage.addChild(room);</code></pre>
+        <p>代价是显存多占 1280×720×4，大约 3.5MB，换回来 290 个 draw call。这笔账在任何设备上都划算，包括我自己的台式机。</p>
+        <p>两个坑记一下：<code>resolution</code> 必须跟画布保持一致，别为了「更清晰」设成 2，那样等于每帧多采样四倍像素；烘完一定要 <code>destroy</code> 源容器，否则那些 Sprite 还挂在显示列表外面，纹理也不会释放。</p>
+
+        <h2 id="particles">粒子从 Sprite 换成 Points</h2>
+        <p>修机器的时候会有火花、灰尘、蒸汽。第一版每个粒子一个 Sprite，峰值同时 800 个，帧时间直接多了 4ms。换成 <code>ParticleContainer</code> 之后好一点，但没解决根本问题——它只是降低了单次提交的成本，粒子数量还在那里。</p>
+        <p>真正有用的是回到更底层：一个 <code>Points</code> 对象，所有粒子共用一张纹理，位置、透明度、缩放写进顶点属性，一次提交完成。800 个粒子从 800 次提交变成 1 次。</p>
+        <pre><code><span class="cmt">// 800 个火花，共用一张 8x8 的贴图</span>
+const sparks = new Points(geometry, new TextureShader());
+sparks.blendMode = 'add';
+
+<span class="cmt">// 每帧只更新 attribute buffer，不重建对象</span>
+geometry.getBuffer('aVertexPosition').update();</code></pre>
+        <p>限制也很明确：每个粒子不能单独换纹理，也不能有独立的旋转动画。我接受了，因为火花本来就不需要旋转，而蒸汽用不上叠加混合。</p>
+
+        <h2 id="text">文本只重绘变化的那一行</h2>
+        <p>经营游戏满屏都是数字：余额、时钟、客户耐心、零件价格。第一版用 <code>Text</code>，每帧 <code>setText</code>，哪怕值根本没变。Performance 面板里能看到一片密集的 canvas 重绘，每帧 2.2ms 就这么没了。</p>
+        <p>换成 <code>BitmapText</code> 好了不少，但还不够。最后加了一层脏标记：只有数值真的变了才 <code>setText</code>，而且只更新那一行，不重建整个面板。</p>
+        <pre><code>function setStat(key: string, value: number) {
+  if (cache[key] === value) return;   <span class="cmt">// 没变就什么都不做</span>
+  cache[key] = value;
+  labels[key].text = format(value);
+}</code></pre>
+        <p>界面上的数字一秒最多变两次，而主循环一秒跑六十次。这个差距就是白烧的 CPU。</p>
+
+        <h2 id="small-decisions">三个顺手做对的小决定</h2>
+        <p>有些设置改一行代码就能省下 measurable 的开销，但要在初始化时定，后面改很麻烦：</p>
+        <ul>
+          <li><strong>antialias: false，roundPixels: true。</strong>像素游戏不需要抗锯齿，关掉省一次全屏混合；roundPixels 让精灵落在整数像素上，滚动时不会糊成一片。</li>
+          <li><strong>resolution 固定为 1。</strong>高分屏上不追 devicePixelRatio，用 CSS 放大画布。像素反而更干净，填充率也回到了 2013 年的水平。</li>
+          <li><strong>页面隐藏就停 ticker。</strong>切到别的标签页还跑 60 帧，风扇会响，笔记本会烫。一个 <code>visibilitychange</code> 就够。</li>
+        </ul>
+        <pre><code>app.ticker.maxFPS = 60;
+
+document.addEventListener('visibilitychange', () =&gt; {
+  document.hidden ? app.stop() : app.start();
+});</code></pre>
+
+        <div class="note">
+          <b>补充</b>
+          <code>maxFPS</code> 只能限制上限，不能保证稳定。掉帧的时候先看 Main 线程，再看 GPU；这台 2013 的机器上，九成的问题在 CPU 侧。
+        </div>
+
+        <h2 id="results">结果，以及还欠着的账</h2>
+        <p>在目标机器上跑了一个月，数字大概是这样的：</p>
+        <ul>
+          <li>1280×720 窗口，室内场景稳定 60 帧，复杂场景偶尔 57；</li>
+          <li>draw call 从 340 降到 47，其中静态层 1，角色 12，粒子 1，UI 33；</li>
+          <li>GPU 时间从 11.2ms 降到 6.4ms；</li>
+          <li>主线程 JS 每帧从 6.8ms 降到 2.9ms；</li>
+          <li>内存峰值 210MB，纹理占 96MB。</li>
+        </ul>
+        <p>还没做完的：图集现在切成 12 张，理论上能合到 4 张，能再省一批 draw call；房间切换时的加载会硬卡 400ms，需要做分帧；存档序列化在主线程跑，大存档会掉帧。这些都进了 issue，不打算在 demo 之前动。</p>
+        <p>写完这篇我又回头看了一遍最初那张预算表，四个数字改了两个，结构没变。性能预算不是一堆优化技巧的合集，是你在写第一行代码之前决定的取舍。技巧可以后补，取舍补不了。</p>]]></content:encoded>
+</item>
+<item>
+<title>我的 WPF 应用为什么会吃掉 800 MB 内存</title>
+<link>https://chenyu.me/posts/wpf-memory.html</link>
+<guid isPermaLink="true">https://chenyu.me/posts/wpf-memory.html</guid>
+<pubDate>Tue, 27 Oct 2026 00:00:00 +0800</pubDate>
+<category>WPF</category>
+<category>性能</category>
+<category>C#</category>
+<description>一个只有列表和预览的 WPF 工具，跑两小时后内存从 118MB 涨到 780MB。用 dotMemory 抓了三次快照，找到无上限的缩略图缓存、被 ScrollViewer 破坏的虚拟化，和一个忘了退订的渲染回调。</description>
+<content:encoded><![CDATA[<p>这个工具是给一家做质检的公司写的：左边是扫描件列表，右边是预览，底下几个按钮。功能简单到我觉得不需要做性能测试，上线两周后，客户发来一张任务管理器的截图——内存 780MB，而且还在往上走。</p>
+
+        <h2 id="symptom">现象：一条阶梯，不是一条坡</h2>
+        <p>客户那边的使用方式是：早上开机，导入当天的扫描件（大概三四千份），然后一整天翻着看，中午不关。任务是 7×24 的，机器不关机。</p>
+        <p>内存曲线不是慢慢爬坡，是一段一段往上跳：启动 118MB，导入完 260MB，翻两百份到 390MB，两小时后 780MB。每次跳一下，之后平一会儿，再跳。这个形状很说明问题——不是慢慢泄漏，是某一批对象一直没被释放。</p>
+
+        <div class="note">
+          <b>先说结论</b>
+          三个原因：没有上限的缩略图缓存、被我自己加的一层 ScrollViewer 破坏的虚拟化、以及一个没退订的渲染回调。改完 780MB 降到 214MB。
+        </div>
+
+        <h2 id="measure">先别猜，先量</h2>
+        <p>我一上来怀疑的是图片解码和定时器，但猜错了两样。正确做法是在三个时间点各抓一次 dotMemory 快照：启动后、翻页 200 次、挂机两小时，然后对比对象数量和 Retained Size。快照会告诉你谁在占内存，也能看出两次快照之间新增了多少个实例。</p>
+        <p>结果跟我预期的不一样：占最大头的是 <code>BitmapSource</code>，其次是 <code>ListBoxItem</code> 的可视化树，第三名很意外，是一千多个 <code>CompositionTarget.Rendering</code> 的委托。</p>
+
+        <h2 id="cache">真凶一：一个没有上限的字典</h2>
+        <p>我写了一个缩略图缓存，键是文件路径，值是解码后的 <code>BitmapSource</code>。想法很朴素：翻回去的时候不用重新解码。问题是它没有淘汰策略，而客户一次导入 4000 份。</p>
+        <p>每张 400×300 的预览解码后大约 0.46MB，1200 张就是 550MB。这不是平均情况，是客户真实的操作路径：他们习惯从第一张翻到最后一张核对。</p>
+        <p>改成有上限的 LRU，200 张，超出就丢掉最久没碰过的：</p>
+        <pre><code>sealed class ThumbCache {
+    private readonly int _cap;
+    private readonly LinkedList&lt;string&gt; _order = new();
+    private readonly Dictionary&lt;string, (BitmapSource img, LinkedListNode&lt;string&gt; node)&gt; _map = new();
+
+    public BitmapSource Get(string key, Func&lt;BitmapSource&gt; load) {
+        if (_map.TryGetValue(key, out var hit)) {
+            _order.Remove(hit.node);
+            _order.AddFirst(hit.node);
+            return hit.img;
+        }
+        var img = load();
+        _map[key] = (img, _order.AddFirst(key));
+        if (_map.Count &gt; _cap) {
+            var last = _order.Last!.Value;
+            _order.RemoveLast();
+            _map.Remove(last);
+        }
+        return img;
+    }
+}</code></pre>
+        <p>200 张覆盖了他们的实际视野，一次只看前后十来张。冷启动第一次翻会慢一点，从 32ms 变成 45ms，没人察觉。</p>
+
+        <h2 id="virtualization">真凶二：我自己关掉了虚拟化</h2>
+        <p>列表有 4000 行。我在 ListBox 外面套了一个 <code>ScrollViewer</code>，因为它能让我用一套现成的滚动条样式。</p>
+        <p>这个动作直接让 ListBox 内部的 <code>VirtualizingStackPanel</code> 失效：外层滚动容器给了无限高度，WPF 只能把所有 4000 个 item 都实例化。每行大约 30 个可视化元素，乘起来十几万个，光这一块就是 180MB 左右的托管和非托管内存。</p>
+        <p>改回去，只用 ListBox 自己的滚动，样式通过 <code>ScrollBar</code> 的 Style 覆盖。<code>VirtualizationMode</code> 设成 Recycling，容器进出视口时复用，不再新建：</p>
+        <pre><code>&lt;ListBox ItemsSource="{Binding Files}"
+         VirtualizingPanel.IsVirtualizing="True"
+         VirtualizingPanel.VirtualizationMode="Recycling"
+         ScrollViewer.CanContentScroll="True"&gt;
+  &lt;ListBox.ItemTemplate&gt;
+    ...
+  &lt;/ListBox.ItemTemplate&gt;
+&lt;/ListBox&gt;</code></pre>
+        <p>注意 <code>ScrollViewer.CanContentScroll</code> 要保持 True。设成 False 会退化成像素滚动，虚拟化同样失效——这个坑我以前踩过一次，这次差点又踩。</p>
+
+        <h2 id="event">真凶三：没退订的渲染回调</h2>
+        <p>设置窗口里有一行实时预览，我用了 <code>CompositionTarget.Rendering</code> 每帧刷新。窗口关闭时没退订。WPF 的 Window 关闭不等于对象被回收，这个静态事件上的委托会让整个窗口一直活着。</p>
+        <p>客户来回开了十几次设置，于是积累了十几个回调，每个还在每帧跑，每个还拽着一个看不见的窗口和它的整棵可视化树。</p>
+        <p>改法两条：<code>Closed</code> 里退订；实时性要求不高的地方换成 <code>DispatcherTimer</code>，80ms 一次。预览是给人看的，一秒十二次完全够。</p>
+        <pre><code>public SettingsWindow() {
+    InitializeComponent();
+    CompositionTarget.Rendering += OnRendering;
+    Closed += (_, _) =&gt; CompositionTarget.Rendering -= OnRendering;
+}</code></pre>
+        <p>这里有个容易忽略的点：匿名方法每次都会创建新的委托实例，用 <code>-=</code> 是解不掉的。上面这段之所以能工作，是因为方法组 <code>OnRendering</code> 的委托实例是稳定的——编译器会缓存。如果你想在 lambda 里退订，必须先把委托存到字段里。</p>
+
+        <h2 id="numbers">改完的数字</h2>
+        <ul>
+          <li>挂机两小时：780MB → 214MB；</li>
+          <li>导入 4000 份之后的峰值：260MB → 182MB；</li>
+          <li>Gen 2 GC 次数：每小时约 40 次 → 3 次；</li>
+          <li>4000 行列表的滚动帧率：55fps → 60fps，卡顿消失；</li>
+          <li>连续开关设置窗口 50 次，内存回到基线，不再累积。</li>
+        </ul>
+
+        <h2 id="rules">留下的三条规矩</h2>
+        <p>这个项目之后，我给自己定了三条规矩，后来每个 WPF 项目都照做：</p>
+        <ol>
+          <li>任何缓存都要先写上限，再写淘汰。没有上限的 Dictionary 不叫缓存，叫泄漏。</li>
+          <li>列表外面不加滚动容器。要改滚动条样式，去改 ScrollBar，不要动结构。</li>
+          <li>订阅静态事件的地方，下一行就写退订。写不出来就说明你的委托没地方存。</li>
+        </ol>
+        <p>内存不是一条平滑的曲线，更像台阶。每上一个台阶，都是某一次分配没有回来。看到台阶，就回去找那次分配，别去调 GC 参数。</p>]]></content:encoded>
+</item>
+<item>
+<title>TileMap 换成 TileMapLayer 之后，我踩的五个坑</title>
+<link>https://chenyu.me/posts/godot-tilemap.html</link>
+<guid isPermaLink="true">https://chenyu.me/posts/godot-tilemap.html</guid>
+<pubDate>Tue, 15 Sep 2026 00:00:00 +0800</pubDate>
+<category>Godot</category>
+<category>游戏开发</category>
+<category>GDScript</category>
+<description>Godot 4.6 弃用旧 TileMap 节点后的迁移记录：y-sort 顺序、每层独立碰撞、图集接缝、z_index 与图层关系、寻路网格合并，五个坑和对应的解法。</description>
+<content:encoded><![CDATA[<p>项目从 Godot 4.3 升级到 4.6。升级提示里最刺眼的一条是旧的 <code>TileMap</code> 节点已经弃用，4.6 之后建议全部换成 <code>TileMapLayer</code>。我原以为是把节点换个类型，实际上是把「一张地图五层」拆成「五个节点各自一层」，很多默认行为跟着变了。</p>
+        <p>迁移本身花了半天，改完之后修接缝和排序又花了三天。这篇按踩坑的顺序写。</p>
+
+        <h2 id="why">为什么必须换</h2>
+        <p>4.6 里旧节点还能跑，但编辑器会一直给黄标，导出模板也开始提示。项目还在早期，早换比晚换便宜。我的地图是五层：地面、地毯与地砖、家具、人物与灯具、遮挡物（比如头顶的吊灯和门框）。</p>
+        <p>换成 <code>TileMapLayer</code> 之后，结构变成五个同级节点，每层单独设置纹理、碰撞、排序和导航。好处是清楚，坏处是以前那些「自动继承」的东西全要自己接一遍。</p>
+
+        <h2 id="ysort">坑一：y-sort 不再是地图级别的开关</h2>
+        <p>旧 <code>TileMap</code> 有一个全局的 <code>y_sort_enabled</code>，打开之后同层的图块会按 y 排序。新节点是每层一个开关，而且它只管「这一层内部的图块之间怎么排」，跨层要靠 <code>z_index</code>。</p>
+        <p>我一开始只给家具层开了 y-sort，结果角色永远站在家具后面——因为角色和家具不在同一个排序组里。正确的做法是把地图拆成三段：</p>
+        <ul>
+          <li>地面与地毯：<code>z_index = -1</code>，不需要 y-sort；</li>
+          <li>家具、角色、灯具：<code>z_index = 0</code>，全部开 y-sort，它们才会互相遮挡；</li>
+          <li>遮挡物：<code>z_index = 1</code>，永远在人前面。</li>
+        </ul>
+        <p>关键点是角色也得参与同一套 y-sort。角色是 <code>CharacterBody2D</code>，它的 <code>y_sort_enabled</code> 要打开，同时它的 <code>position.y</code> 要代表「脚底」，不是中心点，否则站在桌子旁边会被桌子拦住半个身子。我最后给每个角色场景加了一个 <code>Marker2D</code> 当脚底锚点，用它的全局 y 去比较。</p>
+        <pre><code><span class="cmt"># 角色根节点的 y 用脚底，而不是贴图中心</span>
+func _process(_delta: float) -&gt; void:
+    var feet := $FootMarker.global_position.y
+    global_position.y = feet</code></pre>
+
+        <h2 id="collision">坑二：每层都会生成自己的碰撞体</h2>
+        <p>旧 <code>TileMap</code> 的所有层共用一个物理体。拆成五个节点之后，每层都会生成自己的 <code>StaticBody2D</code>。我给「地毯」层误开了一个碰撞多边形，结果角色在地毯上走两步就被弹开，找了半小时才想到去看碰撞层。</p>
+        <p>现在的做法是：只有一层负责碰撞（地面与墙），并且把它设成不可见、放在最后绘制；其他层全部清空物理层。这样也顺手解决了另一个问题——家具层的桌腿不应该挡住玩家，真正该挡的是桌子中心那一格。</p>
+        <p>改完记得在调试里打开「可见碰撞形状」，一次性看全，比在场景里逐个点快得多。</p>
+
+        <h2 id="seam">坑三：无缝地图的接缝又回来了</h2>
+        <p>这是最费时间的一个。旧版本里我用了 <code>texture_filter = nearest</code> 和图集边缘留白，地图拼起来看不出缝。换节点之后，接缝又出现了，一条一像素的亮线，斜着看更明显。</p>
+        <p>原因是新节点的纹理设置不再从 TileSet 继承，每层要单独设。还有一个更隐蔽的点：图集里每个图块的四周要留 1px 的 extrusion，不然采样到边缘时会把隔壁图块的像素吸进来，尤其是开了 mipmap 的时候。</p>
+        <p>我的处理顺序：</p>
+        <ol>
+          <li>导入图集时关闭 Filter 和 Mipmaps；</li>
+          <li>每层 <code>texture_filter</code> 设成 Nearest；</li>
+          <li>图集每格四周加 1px 的边缘复制；</li>
+          <li>相机位置取整，避免半像素采样。</li>
+        </ol>
+        <pre><code><span class="cmt"># 相机跟随也取整，否则滚动时整张地图都在抖</span>
+func _process(delta: float) -&gt; void:
+    var target := player.global_position
+    camera.global_position = target.round()</code></pre>
+
+        <h2 id="zorder">坑四：图层顺序不等于节点顺序</h2>
+        <p><code>TileMapLayer</code> 的绘制顺序由节点在场景树里的顺序决定，<code>z_index</code> 会插在这个顺序中间。我调整过一次场景结构，把遮挡层挪到了角色前面，结果所有门框都盖住了 UI——因为 UI 在同一棵 CanvasLayer 里，<code>z_index</code> 比遮挡层低。</p>
+        <p>最后的规矩很简单：地图五层固定放在一个 <code>Node2D</code> 里，只在这个容器内部用 <code>z_index</code> 排；角色放在同一个父节点下；UI 一律走独立的 <code>CanvasLayer</code>。三块互不干扰，谁也别想盖住谁。</p>
+
+        <h2 id="nav">坑五：寻路网格要单独合</h2>
+        <p>原来一个 <code>NavigationRegion2D</code> 直接烘整张地图，五个层的信息一起算。现在是五个节点，如果每层都烘一次，角色会在「地毯可走」和「地面可走」两张网格之间来回跳。</p>
+        <p>解决办法是只让碰撞层参与导航：在 TileSet 里给可行走的图块设 navigation polygon，其他层关闭 navigation layer，然后只对碰撞层烘一次。烘焙完成后用 <code>NavigationAgent2D</code> 调试，看路径是否贴边——如果总是绕着家具走一格，说明家具层的导航没关干净。</p>
+
+        <h2 id="result">换完之后</h2>
+        <ul>
+          <li>接缝消失，1080p 下放大到 3 倍也看不到亮线；</li>
+          <li>同屏 42 个可交互图块加 8 个角色，帧时间从 6.8ms 降到 4.1ms；</li>
+          <li>场景文件更好读：五层各一个节点，改哪层一目了然；</li>
+          <li>新加一层（比如「积水」）只需要复制一个节点，不用再拆图。</li>
+        </ul>
+        <p>如果你也在迁移，建议按这个顺序做：先拆层、跑通绘制，再处理碰撞，最后才是排序和导航。反过来做会同时面对三个变量，很难判断是哪个出的问题。</p>]]></content:encoded>
+</item>
+<item>
+<title>给桌面小工具写一个 200 行状态机</title>
+<link>https://chenyu.me/posts/wpf-state-machine.html</link>
+<guid isPermaLink="true">https://chenyu.me/posts/wpf-state-machine.html</guid>
+<pubDate>Sun, 02 Aug 2026 00:00:00 +0800</pubDate>
+<category>架构</category>
+<category>C#</category>
+<category>TinyPlayer</category>
+<description>TinyPlayer 的托盘、播放和快捷键互相触发，if 套到了第五层。用一张转移表和三个动作函数替掉，200 行 C#，三个月后还能改。</description>
+<content:encoded><![CDATA[<p>不是为了优雅。是因为三个月后我打开这段代码，发现自己已经看不懂了。</p>
+
+        <h2 id="start">起因：一个 if 套了五层</h2>
+        <p>TinyPlayer 的功能很少，但它有三个入口同时改同一份状态：托盘菜单、主窗口上的按钮、全局快捷键。用户按空格暂停，托盘图标要跟着变；用户点托盘切歌，窗口里的进度条要归零；播放失败时，三个入口都得知道现在是错误状态。</p>
+        <p>第一版我是这么写的：</p>
+        <pre><code>if (player.IsPlaying) {
+    if (isDragging) {
+        if (e.Key == Key.Space) { ... }
+    } else {
+        if (deviceLost) { ... }
+        else if (e.Key == Key.Space) { player.Pause(); tray.Icon = Pause; }
+    }
+}</code></pre>
+        <p>你大概能猜到后面发生了什么：加一个「淡入淡出」的功能，改了六处；修一个「切歌时进度条闪一下」的 bug，引入了另一个 bug。问题不在代码丑，在于「现在是什么状态」和「这个事件该做什么」混在一起，每次都要人脑重新推一遍。</p>
+
+        <h2 id="want">我想要的其实不是状态机</h2>
+        <p>我想要的只有一件事：任何一个入口触发的事件，最终都走同一条路，改同一份状态，再由同一处去更新界面。状态机只是实现这件事最省事的形状。</p>
+        <p>所以设计目标只有三条：</p>
+        <ul>
+          <li>状态是有限的，能一眼数完；</li>
+          <li>事件到状态的变化写在一张表里，不散落在各处；</li>
+          <li>副作用（改图标、改窗口、写日志）集中在动作函数里，不写在判断里。</li>
+        </ul>
+
+        <h2 id="tables">三张表：状态、事件、转移</h2>
+        <p>状态四个：<code>Idle</code>（没歌）、<code>Playing</code>、<code>Paused</code>、<code>Faulted</code>（设备丢失或解码失败）。事件六个：<code>Play</code>、<code>Pause</code>、<code>Next</code>、<code>Prev</code>、<code>Seek</code>、<code>DeviceLost</code>。</p>
+        <p>转移表是一个字典，键是「当前状态 + 事件」，值是「下一个状态 + 该做什么」。没有列进去的组合就是忽略——这一点很重要，它让「按下暂停时按上一首」这种行为有了明确的答案，而不是碰运气。</p>
+
+        <h2 id="code">代码</h2>
+        <pre><code>enum PlayerState { Idle, Playing, Paused, Faulted }
+enum PlayerEvent { Play, Pause, Next, Prev, Seek, DeviceLost }
+
+readonly record struct Transition(PlayerState Next, Action? Effect);
+
+static readonly Dictionary&lt;(PlayerState, PlayerEvent), Transition&gt; Table = new()
+{
+    [(Idle,    PlayerEvent.Play)] = new(Playing,  () =&gt; StartPlayback()),
+    [(Paused,  PlayerEvent.Play)] = new(Playing,  () =&gt; Resume()),
+    [(Playing, PlayerEvent.Pause)] = new(Paused,  () =&gt; PausePlayback()),
+    [(Playing, PlayerEvent.Next)] = new(Playing,  () =&gt; PlayNext()),
+    [(Playing, PlayerEvent.Prev)] = new(Playing,  () =&gt; PlayPrev()),
+    [(Paused,  PlayerEvent.Next)] = new(Playing,  () =&gt; PlayNext()),
+    [(Paused,  PlayerEvent.Prev)] = new(Playing,  () =&gt; PlayPrev()),
+    [(Playing, PlayerEvent.DeviceLost)] = new(Faulted, () =&gt; ShowFault()),
+    [(Paused,  PlayerEvent.DeviceLost)] = new(Faulted, () =&gt; ShowFault()),
+    [(Faulted, PlayerEvent.Play)] = new(Playing,  () =&gt; RetryDevice()),
+};
+
+public void Dispatch(PlayerEvent e)
+{
+    if (!Table.TryGetValue((_state, e), out var t)) return;
+
+    _state = t.Next;
+    t.Effect?.Invoke();
+    StateChanged?.Invoke(_state);   <span class="cmt">// 界面只订阅这一个事件</span>
+}</code></pre>
+        <p>四十来行，包含枚举和表。外面再包一层：所有入口（托盘、窗口按钮、热键）只负责把事件丢进一个队列，由 UI 线程按顺序取出来 <code>Dispatch</code>。</p>
+        <p>队列这一步很关键。全局热键的回调在别的线程，托盘图标的事件也可能来自 shell 线程，直接改状态迟早撞上。一个 <code>ConcurrentQueue&lt;PlayerEvent&gt;</code> 加 <code>Dispatcher.BeginInvoke</code>，问题就没了。</p>
+
+        <h2 id="limits">它不擅长的地方</h2>
+        <p>诚实地说，这套东西有两个明确的短板：</p>
+        <p><strong>状态一多就爆炸。</strong>四个状态六个事件是 24 个格子，还能手写。到十二个状态、三十个事件，表格会有 360 行，人就开始抄错。这时候该换成层次状态机，或者把播放器和界面拆成两个独立的状态机。</p>
+        <p><strong>异步流程不好表达。</strong>比如「切歌要等解码完成」，这是一个跨越几秒的过程，不是一次瞬时的状态跳转。我的处理是加一个 <code>Loading</code> 状态，用回调推进；再复杂就该上 <code>async/await</code> 加一个取消令牌，别硬塞进转移表。</p>
+
+        <h2 id="after">三个月后</h2>
+        <p>重构完之后又加了两个功能：淡入淡出、播放列表循环模式。前者只加了一个状态和一个动作，后者只加了两个事件和四行表项。没有改动 <code>Dispatch</code>，也没有在任何一个 if 里翻找「现在到底是什么状态」。</p>
+        <p>代码总量没变短，甚至多了一点。但它变成了一张可以读的表：想知道「播放中拔掉耳机」会发生什么，去表里找一行就行。对我来说，这就是重构的全部意义。</p>]]></content:encoded>
+</item>
+</channel>
+</rss>

@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Agent 全栈 Wiki · 从入门到精通 | 模型 · Agent · RAG · 优化 · Skills</title>
+<style>
+:root{
+  --bg:#0b0f1a; --bg2:#111827; --card:#151e32; --card2:#1a2742; --border:#243656; --border2:#2f4670;
+  --text:#e6edf7; --muted:#94a3b8; --muted2:#64748b; --accent:#6366f1; --accent2:#06b6d4; --accent3:#a855f7;
+  --green:#22c55e; --orange:#f59e0b; --red:#ef4444; --pink:#ec4899;
+  --radius:14px; --sidebar:300px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);line-height:1.7;font-size:15px}
+a{color:#818cf8;text-decoration:none}
+a:hover{text-decoration:underline}
+::selection{background:#6366f1;color:#fff}
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-thumb{background:#334155;border-radius:99px}
+::-webkit-scrollbar-track{background:transparent}
+*{scrollbar-width:thin;scrollbar-color:#334155 transparent}
+
+/* Layout */
+.layout{display:flex;min-height:100vh}
+.sidebar{width:var(--sidebar);flex-shrink:0;background:linear-gradient(180deg,#0f172a 0%,#0b1220 100%);border-right:1px solid var(--border);position:fixed;top:0;left:0;bottom:0;overflow-y:auto;z-index:50;padding:0 0 40px}
+.main{flex:1;margin-left:var(--sidebar);min-width:0}
+.topbar{position:sticky;top:0;z-index:40;background:rgba(11,15,26,.88);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);padding:12px 28px;display:flex;align-items:center;gap:16px}
+.topbar .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:17px;letter-spacing:-.02em;white-space:nowrap}
+.logo-icon{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#6366f1,#06b6d4);display:grid;place-items:center;font-size:19px;flex-shrink:0}
+.searchbox{flex:1;max-width:520px;position:relative}
+.searchbox input{width:100%;background:#0f1b33;border:1px solid var(--border);border-radius:99px;padding:9px 16px 9px 40px;color:var(--text);font-size:14px;outline:none;transition:.2s}
+.searchbox input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(99,102,241,.18)}
+.searchbox .icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:15px}
+.top-actions{margin-left:auto;display:flex;gap:8px;align-items:center}
+.btn{border:1px solid var(--border);background:#0f1b33;color:var(--text);padding:7px 14px;border-radius:99px;font-size:13px;cursor:pointer;white-space:nowrap}
+.btn:hover{border-color:var(--accent)}
+.hamburger{display:none;background:none;border:1px solid var(--border);color:var(--text);border-radius:8px;padding:7px 11px;cursor:pointer;font-size:16px}
+.progressbar{height:3px;background:linear-gradient(90deg,#6366f1,#06b6d4,#a855f7);width:0%;position:fixed;top:0;left:0;z-index:100;transition:width .1s}
+
+/* Sidebar */
+.side-head{padding:22px 20px 14px;border-bottom:1px solid var(--border)}
+.side-head h1{font-size:16px;line-height:1.4}
+.side-head p{font-size:12px;color:var(--muted);margin-top:4px}
+.side-nav{padding:10px 12px}
+.nav-group{margin-bottom:4px}
+.nav-group-title{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted2);padding:14px 10px 6px;font-weight:700}
+.nav-item{display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:9px;color:#cbd5e1;font-size:13.5px;cursor:pointer;border:1px solid transparent;transition:.15s}
+.nav-item:hover{background:#1e293b;color:#fff}
+.nav-item.active{background:linear-gradient(90deg,rgba(99,102,241,.22),rgba(6,182,212,.12));border-color:rgba(99,102,241,.35);color:#fff}
+.nav-item .num{font-size:11px;background:#1e293b;border:1px solid var(--border);border-radius:6px;padding:1px 6px;color:var(--muted);flex-shrink:0}
+.nav-item.active .num{background:var(--accent);color:#fff;border-color:var(--accent)}
+.side-foot{margin:18px 14px 0;padding:14px;background:linear-gradient(135deg,rgba(99,102,241,.18),rgba(168,85,247,.12));border:1px solid rgba(99,102,241,.3);border-radius:12px;font-size:12.5px;color:#c7d2fe}
+.side-foot b{color:#fff}
+
+/* Content */
+.content{max-width:1400px;margin:0 auto;padding:36px 44px 80px}
+.hero{background:linear-gradient(135deg,#1e1b4b 0%,#0f2a4a 55%,#134e4a 100%);border:1px solid var(--border2);border-radius:20px;padding:36px 34px;position:relative;overflow:hidden;margin-bottom:28px}
+.hero::after{content:"";position:absolute;right:-60px;top:-60px;width:260px;height:260px;background:radial-gradient(circle,rgba(99,102,241,.45),transparent 70%);border-radius:50%}
+.hero h2{font-size:34px;line-height:1.2;letter-spacing:-.03em;position:relative;z-index:1}
+.hero h2 span{background:linear-gradient(90deg,#a5b4fc,#67e8f9,#f0abfc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{color:#cbd5e1;margin-top:12px;max-width:640px;position:relative;z-index:1;font-size:15px}
+.hero-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px;position:relative;z-index:1}
+.tag{font-size:12px;padding:5px 11px;border-radius:99px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.08);color:#e2e8f0}
+.hero-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:22px;position:relative;z-index:1}
+.stat{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:13px 14px}
+.stat b{font-size:22px;display:block;line-height:1.1}
+.stat span{font-size:12px;color:#94a3b8}
+
+.chapter{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:30px 30px 26px;margin-bottom:22px;scroll-margin-top:80px}
+.chapter-head{display:flex;gap:16px;align-items:flex-start;margin-bottom:18px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+.ch-num{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;font-size:22px;flex-shrink:0}
+.ch-title h3{font-size:23px;letter-spacing:-.02em;line-height:1.25}
+.ch-title p{color:var(--muted);font-size:13.5px;margin-top:3px}
+.chapter h4{font-size:17px;margin:24px 0 10px;display:flex;align-items:center;gap:8px}
+.chapter h4:first-of-type{margin-top:6px}
+.chapter h5{font-size:15px;margin:18px 0 8px;color:#c7d2fe}
+.chapter p{color:#dbe4f0;margin:8px 0}
+.chapter ul,.chapter ol{margin:8px 0 8px 22px;color:#dbe4f0}
+.chapter li{margin:5px 0}
+.chapter li::marker{color:var(--accent)}
+code.inline{background:#0f1b33;border:1px solid var(--border);padding:1px 7px;border-radius:6px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;color:#a5f3fc}
+pre{background:#0a1120;border:1px solid var(--border);border-radius:12px;padding:16px 18px;overflow-x:auto;margin:12px 0;font-size:13px;line-height:1.65;position:relative}
+pre code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:#e2e8f0}
+.copy-btn{position:absolute;top:10px;right:10px;background:#1e293b;border:1px solid var(--border);color:#cbd5e1;font-size:11px;padding:4px 10px;border-radius:99px;cursor:pointer}
+.copy-btn:hover{background:#334155;color:#fff}
+.kw{color:#c084fc}.str{color:#86efac}.cm{color:#64748b;font-style:italic}.fn{color:#67e8f9}.numc{color:#fbbf24}
+
+.callout{border-radius:12px;padding:14px 16px;margin:14px 0;border:1px solid;font-size:14px;display:flex;gap:11px}
+.callout .ci{font-size:18px;flex-shrink:0;line-height:1.5}
+.callout b{display:block;margin-bottom:2px}
+.callout.tip{background:rgba(34,197,94,.09);border-color:rgba(34,197,94,.35)}
+.callout.warn{background:rgba(245,158,11,.09);border-color:rgba(245,158,11,.35)}
+.callout.info{background:rgba(99,102,241,.10);border-color:rgba(99,102,241,.35)}
+.callout.pro{background:rgba(168,85,247,.10);border-color:rgba(168,85,247,.35)}
+
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13.5px;overflow:hidden;border-radius:12px;border:1px solid var(--border)}
+th{background:#1e293b;color:#fff;text-align:left;padding:11px 13px;font-size:13px}
+td{padding:10px 13px;border-top:1px solid var(--border);color:#dbe4f0;vertical-align:top}
+tr:hover td{background:rgba(255,255,255,.02)}
+.badge{display:inline-block;font-size:11px;padding:2px 8px;border-radius:99px;font-weight:700;white-space:nowrap}
+.b-green{background:rgba(34,197,94,.16);color:#4ade80;border:1px solid rgba(34,197,94,.35)}
+.b-blue{background:rgba(59,130,246,.16);color:#60a5fa;border:1px solid rgba(59,130,246,.35)}
+.b-purple{background:rgba(168,85,247,.16);color:#c084fc;border:1px solid rgba(168,85,247,.35)}
+.b-orange{background:rgba(245,158,11,.16);color:#fbbf24;border:1px solid rgba(245,158,11,.35)}
+.b-gray{background:rgba(148,163,184,.16);color:#94a3b8;border:1px solid rgba(148,163,184,.35)}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:14px 0}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:18px}
+.card h6{font-size:15px;margin-bottom:6px}
+.card p{font-size:13.5px;color:var(--muted)}
+.card .emoji{font-size:24px;margin-bottom:8px;display:block}
+
+.diagram{background:#0a1120;border:1px solid var(--border);border-radius:14px;padding:20px;margin:14px 0;text-align:center;overflow-x:auto}
+.flow{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;font-size:13px}
+.flow-box{background:linear-gradient(135deg,#1e293b,#0f172a);border:1px solid var(--border2);border-radius:10px;padding:9px 14px;font-weight:600;white-space:nowrap}
+.flow-arrow{color:var(--accent2);font-size:18px;font-weight:800}
+.timeline{position:relative;margin:16px 0 8px 10px;padding-left:26px;border-left:2px solid var(--border)}
+.tl-item{position:relative;margin-bottom:16px}
+.tl-item::before{content:"";position:absolute;left:-33px;top:5px;width:12px;height:12px;border-radius:50%;background:var(--accent);border:3px solid var(--bg)}
+.tl-item b{color:#fff}
+.tl-item p{font-size:13.5px;color:var(--muted);margin:2px 0 0}
+.checklist{list-style:none;margin-left:0!important}
+.checklist li{padding-left:26px;position:relative}
+.checklist li::before{content:"✓";position:absolute;left:2px;color:var(--green);font-weight:800}
+.faq details{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:13px 16px;margin:9px 0}
+.faq summary{cursor:pointer;font-weight:600;color:#fff}
+.faq p{font-size:14px;color:var(--muted);margin-top:8px}
+.toc-inline{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.toc-inline a{font-size:12.5px;background:#0f1b33;border:1px solid var(--border);padding:6px 12px;border-radius:99px;color:#cbd5e1}
+.toc-inline a:hover{border-color:var(--accent);color:#fff;text-decoration:none}
+.backtop{position:fixed;right:22px;bottom:22px;width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#06b6d4);color:#fff;border:none;font-size:18px;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.4);display:none;z-index:60}
+.footer{text-align:center;color:var(--muted2);font-size:13px;padding:30px 20px;border-top:1px solid var(--border);margin-top:10px}
+.hidden{display:none!important}
+.no-result{text-align:center;padding:40px 20px;color:var(--muted)}
+
+@media(max-width:900px){
+  .sidebar{transform:translateX(-100%);transition:.25s;box-shadow:0 0 40px rgba(0,0,0,.5)}
+  .sidebar.open{transform:translateX(0)}
+  .main{margin-left:0}
+  .hamburger{display:block}
+  .content{padding:20px 16px 60px}
+  .hero{padding:24px 20px}
+  .hero h2{font-size:26px}
+  .hero-stats{grid-template-columns:1fr 1fr}
+  .grid2,.grid3{grid-template-columns:1fr}
+  .chapter{padding:20px 16px}
+  .topbar{padding:10px 14px}
+  .searchbox{max-width:none}
+}
+/* ===== Appendix A: rank tables (merged from top30-skills-mcp.html) ===== */
+.rank-twrap{overflow-x:auto;border:1px solid var(--border);border-radius:12px;margin:14px 0;background:rgba(11,15,26,.35)}
+.rank-twrap table{min-width:1180px;width:100%;border-collapse:collapse;font-size:13.5px}
+.rank-twrap th,.rank-twrap td{border-bottom:1px solid var(--border);padding:10px 12px;text-align:left;vertical-align:top;line-height:1.55}
+.rank-twrap th{background:rgba(99,102,241,.12);font-size:12.5px;white-space:nowrap}
+.rank-twrap tr:last-child td{border-bottom:none}
+.rank-twrap tbody tr:hover{background:rgba(99,102,241,.07)}
+.rank-twrap td code{background:rgba(6,182,212,.12);color:#7dd3fc;padding:2px 6px;border-radius:6px;font-size:12px;word-break:break-all}
+.rank-twrap td.num,.rank-twrap .num{white-space:nowrap;font-variant-numeric:tabular-nums}
+.rank-twrap .rank{display:inline-block;min-width:30px;height:30px;line-height:30px;text-align:center;border-radius:9px;background:linear-gradient(135deg,#6366f1,#06b6d4);color:#fff;font-weight:700;font-size:13px}
+.rank-twrap .score{margin-top:6px;font-size:12px;color:var(--muted)}
+.rank-twrap .stars{color:var(--muted);font-size:11.5px;margin-top:2px}
+.rank-twrap .badge{display:inline-block;padding:1px 8px;border-radius:999px;font-size:11px;margin:2px 3px 2px 0;border:1px solid transparent;white-space:nowrap}
+.rank-twrap .b-mcp{background:rgba(99,102,241,.16);color:#a5b4fc;border-color:#6366f1}
+.rank-twrap .b-skill{background:rgba(236,72,153,.14);color:#f9a8d4;border-color:#ec4899}
+.rank-twrap .b-off{background:rgba(34,197,94,.14);color:#86efac;border-color:#22c55e}
+.rank-twrap .b-com{background:rgba(148,163,184,.14);color:#cbd5e1;border-color:#64748b}
+.rank-twrap .b-dup{background:rgba(251,191,36,.14);color:#fcd34d;border-color:#f59e0b}
+.rank-twrap .b-audit-ok{background:rgba(34,197,94,.14);color:#86efac;border-color:#22c55e}
+.rank-twrap .b-audit-bad{background:rgba(239,68,68,.14);color:#fca5a5;border-color:#ef4444}
+.rank-twrap .repo{color:var(--muted);font-size:11.5px;margin-top:3px}
+.rank-twrap a{color:#8ab4ff;white-space:nowrap}
+#rank-toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:16px 0 6px}
+#rankSearch{flex:1;min-width:240px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 14px;color:var(--text);font-size:13.5px;outline:none}
+#rankSearch:focus{border-color:var(--accent)}
+#rankTabs{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+#rankTabs .rtab{cursor:pointer;background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:999px;padding:7px 14px;font-size:12.5px}
+#rankTabs .rtab.active{background:linear-gradient(135deg,var(--accent),var(--accent2));border-color:transparent;color:#fff}
+#rankCount{color:var(--muted);font-size:12px}
+@media(max-width:900px){.rank-twrap table{min-width:900px}}
+</style>
+</head>
+<body>
+<div class="progressbar" id="progressbar"></div>
+
+<div class="layout">
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="side-head">
+      <h1>🤖 AI Agent 全栈 Wiki</h1>
+      <p>从入门到精通 · 模型 / Agent / RAG / 优化 / Skills</p>
+    </div>
+    <nav class="side-nav" id="sideNav">
+      <div class="nav-group">
+        <div class="nav-group-title">🚀 开始</div>
+        <div class="nav-item" data-target="home"><span class="num">00</span> 首页导览</div>
+        <div class="nav-item" data-target="roadmap"><span class="num">★</span> 学习路线图</div>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-title">第一章 · 入门基础</div>
+        <div class="nav-item" data-target="ch1"><span class="num">01</span> 什么是大模型</div>
+        <div class="nav-item" data-target="ch1-2"><span class="num">1.2</span> Transformer 原理</div>
+        <div class="nav-item" data-target="ch1-3"><span class="num">1.3</span> Token 与上下文</div>
+        <div class="nav-item" data-target="ch1-4"><span class="num">1.4</span> 提示词工程</div>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-title">第二章 · 先进模型</div>
+        <div class="nav-item" data-target="ch2"><span class="num">02</span> 模型全景 2025-2026</div>
+        <div class="nav-item" data-target="ch2-2"><span class="num">2.2</span> 闭源旗舰对比</div>
+        <div class="nav-item" data-target="ch2-3"><span class="num">2.3</span> 开源模型与选型</div>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-title">第三章 · Agent 智能体</div>
+        <div class="nav-item" data-target="ch3"><span class="num">03</span> Agent 架构总览</div>
+        <div class="nav-item" data-target="ch3-2"><span class="num">3.2</span> ReAct 与工具调用</div>
+        <div class="nav-item" data-target="ch3-3"><span class="num">3.3</span> MCP 协议</div>
+        <div class="nav-item" data-target="ch3-4"><span class="num">3.4</span> 记忆与多智能体</div>
+        <div class="nav-item" data-target="ch3-5"><span class="num">3.5</span> 框架对比与实战</div>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-title">第四章 · RAG 与向量库</div>
+        <div class="nav-item" data-target="ch4"><span class="num">04</span> RAG 原理</div>
+        <div class="nav-item" data-target="ch4-2"><span class="num">4.2</span> Embedding 向量化</div>
+        <div class="nav-item" data-target="ch4-3"><span class="num">4.3</span> 向量数据库对比</div>
+        <div class="nav-item" data-target="ch4-4"><span class="num">4.4</span> 检索优化进阶</div>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-title">第五章 · 模型优化</div>
+        <div class="nav-item" data-target="ch5"><span class="num">05</span> 优化全景图</div>
+        <div class="nav-item" data-target="ch5-2"><span class="num">5.2</span> 微调 LoRA / QLoRA</div>
+        <div class="nav-item" data-target="ch5-3"><span class="num">5.3</span> 量化与推理加速</div>
+        <div class="nav-item" data-target="ch5-4"><span class="num">5.4</span> 蒸馏与对齐 RLHF</div>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-title">第六章 · Skills 技能</div>
+        <div class="nav-item" data-target="ch6"><span class="num">06</span> 什么是 Skill</div>
+        <div class="nav-item" data-target="ch6-2"><span class="num">6.2</span> Skill vs Tool vs MCP</div>
+        <div class="nav-item" data-target="ch6-3"><span class="num">6.3</span> 编写 SKILL.md</div>
+        <div class="nav-item" data-target="ch6-4"><span class="num">6.4</span> Skill 实战案例库</div>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-title">第七章 · 实战进阶</div>
+        <div class="nav-item" data-target="ch7"><span class="num">07</span> 三大实战项目</div>
+        <div class="nav-item" data-target="ch7-2"><span class="num">7.2</span> 生产部署清单</div>
+        <div class="nav-item" data-target="faq"><span class="num">?</span> FAQ 与面试题</div>
+        <div class="nav-item" data-target="glossary"><span class="num">📖</span> 术语表与工具箱</div>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-title">附录 A · 生态榜单</div>
+        <div class="nav-item" data-target="rank"><span class="num">A</span> Skills + MCP 榜单</div>
+        <div class="nav-item" data-target="rank-mcp"><span class="num">A1</span> MCP Servers Top 30</div>
+        <div class="nav-item" data-target="rank-skill"><span class="num">A2</span> Skills Top 30</div>
+        <div class="nav-item" data-target="rank-howto"><span class="num">A3</span> 接入方法速查</div>
+      </div>
+    </nav>
+    <div class="side-foot">
+      <b>💡 学习建议</b><br>
+      按 01 → 07 顺序阅读，每章末尾有实战任务。配合右侧搜索快速定位知识点。
+    </div>
+  </aside>
+
+  <!-- ===== MAIN ===== -->
+  <div class="main">
+    <div class="topbar">
+      <button class="hamburger" id="hamburger">☰</button>
+      <div class="logo"><div class="logo-icon">🧠</div> AI Agent Wiki</div>
+      <div class="searchbox">
+        <span class="icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="搜索知识点：如 LoRA、向量库、MCP、Skill...">
+      </div>
+      <div class="top-actions">
+        <button class="btn" onclick="window.print()">🖨 打印 / PDF</button>
+      </div>
+    </div>
+
+    <div class="content" id="content">
+
+      <!-- HERO -->
+      <div class="hero" id="home">
+        <h2>从零到精通：<br><span>先进 AI 模型 × Agent 智能体 × Skills</span></h2>
+        <p>一本为入门者与进阶开发者准备的实战 Wiki。系统整理大模型原理、Agent 构建、RAG 与向量数据库、模型微调与量化优化，以及 2025 年兴起的 Agent Skills 技能系统——全部配代码、表格与避坑指南。</p>
+        <div class="hero-tags">
+          <span class="tag">🤖 LLM 大模型</span><span class="tag">🕸 Agent 智能体</span><span class="tag">🗄 向量数据库</span>
+          <span class="tag">⚡ 模型优化</span><span class="tag">🧩 Skills 技能</span><span class="tag">🔌 MCP 协议</span><span class="tag">📚 RAG</span>
+        </div>
+        <div class="hero-stats">
+          <div class="stat"><b>7</b><span>大章节 · 30+ 小节</span></div>
+          <div class="stat"><b>20+</b><span>模型与工具对比</span></div>
+          <div class="stat"><b>15+</b><span>可运行代码示例</span></div>
+          <div class="stat"><b>30天</b><span>完整学习路线</span></div>
+        </div>
+      </div>
+
+      <div id="noResult" class="no-result hidden">😕 没有找到相关章节，换个关键词试试（如：微调、检索、记忆）</div>
+
+      <!-- ROADMAP -->
+      <div class="chapter" id="roadmap">
+        <div class="chapter-head">
+          <div class="ch-num" style="background:linear-gradient(135deg,#6366f1,#06b6d4)">🗺️</div>
+          <div class="ch-title"><h3>学习路线图：四阶段精通路径</h3><p>建议按阶段推进，每个阶段都有明确产出物</p></div>
+        </div>
+        <div class="timeline">
+          <div class="tl-item"><b>阶段一 · 入门打地基（第 1-7 天）</b><p>搞懂 Token、提示词、调用 API。产出：用任意大模型 API 写一个命令行聊天机器人。</p></div>
+          <div class="tl-item"><b>阶段二 · 玩转模型与 RAG（第 8-15 天）</b><p>对比主流模型、搭建向量库、做第一个 RAG 问答系统。产出：个人文档问答助手。</p></div>
+          <div class="tl-item"><b>阶段三 · 构建 Agent（第 16-23 天）</b><p>掌握 ReAct、工具调用、MCP、记忆与多智能体。产出：能自动查资料、写代码的 Agent。</p></div>
+          <div class="tl-item"><b>阶段四 · 优化与 Skills（第 24-30 天）</b><p>LoRA 微调、量化部署、编写自己的 Skill。产出：一个可分发的 Skill + 部署上线。</p></div>
+        </div>
+        <div class="callout tip"><span class="ci">🎯</span><div><b>核心心法</b>不要试图一次学完。先跑通一个最小闭环（API → Prompt → RAG → Agent），再回头补原理。能跑起来的系统是最好的老师。</div></div>
+      </div>
+
+      <!-- CH1 -->
+      <div class="chapter" id="ch1">
+        <div class="chapter-head">
+          <div class="ch-num" style="background:linear-gradient(135deg,#22c55e,#84cc16)">🌱</div>
+          <div class="ch-title"><h3>第一章 · 入门基础：什么是大模型</h3><p>从零理解 LLM —— 你需要知道的全部地基知识</p></div>
+        </div>
+        <div class="toc-inline">
+          <a href="#ch1">1.1 大模型本质</a><a href="#ch1-2">1.2 Transformer</a><a href="#ch1-3">1.3 Token 与上下文</a><a href="#ch1-4">1.4 提示词工程</a>
+        </div>
+
+        <h4 id="ch1-1">1.1 大语言模型（LLM）的本质</h4>
+        <p>大语言模型本质上是一个<b>超级强大的“下一个词预测器”</b>。它在海量文本上预训练，学会了语言的统计规律，然后通过指令微调（SFT）和人类反馈对齐（RLHF）学会“听懂并执行指令”。</p>
+        <div class="diagram">
+          <div class="flow">
+            <span class="flow-box">📄 海量文本<br><small>网页/书籍/代码</small></span><span class="flow-arrow">→</span>
+            <span class="flow-box">🎓 预训练<br><small>预测下一个 Token</small></span><span class="flow-arrow">→</span>
+            <span class="flow-box">📝 指令微调 SFT<br><small>学会听指令</small></span><span class="flow-arrow">→</span>
+            <span class="flow-box">👍 RLHF 对齐<br><small>学会说人话、守规矩</small></span><span class="flow-arrow">→</span>
+            <span class="flow-box" style="border-color:#22c55e">🤖 ChatGPT / Claude<br><small>可用的 AI 助手</small></span>
+          </div>
+        </div>
+        <div class="grid3">
+          <div class="card"><span class="emoji">🧩</span><h6>参数（Parameters）</h6><p>模型内部的可学习权重数量。如 7B = 70 亿参数。参数越多，容量越大，但成本也越高。</p></div>
+          <div class="card"><span class="emoji">🎯</span><h6>涌现能力（Emergence）</h6><p>规模超过临界点后，模型突然学会推理、翻译、写代码等训练时未明确教过的新能力。</p></div>
+          <div class="card"><span class="emoji">🌡️</span><h6>温度（Temperature）</h6><p>控制输出随机性。0 ≈ 稳定确定；1+ ≈ 发散创意。写代码用 0.2，写文案用 0.8。</p></div>
+        </div>
+
+        <h4 id="ch1-2">1.2 Transformer 架构一图流</h4>
+        <p>2017 年论文《Attention Is All You Need》提出 Transformer，成为所有现代大模型的骨架。核心是<b>自注意力机制（Self-Attention）</b>：让每个词都能“看到”句子中其他所有词，从而理解上下文关系。</p>
+        <div class="diagram">
+          <div class="flow">
+            <span class="flow-box">输入 Token</span><span class="flow-arrow">→</span>
+            <span class="flow-box">词嵌入 Embedding<br><small>+ 位置编码</small></span><span class="flow-arrow">→</span>
+            <span class="flow-box">多头自注意力<br><small>Q / K / V</small></span><span class="flow-arrow">→</span>
+            <span class="flow-box">前馈网络 FFN</span><span class="flow-arrow">→</span>
+            <span class="flow-box">× N 层堆叠</span><span class="flow-arrow">→</span>
+            <span class="flow-box" style="border-color:#06b6d4">输出概率分布</span>
+          </div>
+          <p style="font-size:12.5px;color:var(--muted);margin-top:10px">Q（查询）决定关注谁 · K（键）决定被谁关注 · V（值）决定传递什么信息 —— 这就是注意力的精髓</p>
+        </div>
+        <div class="callout info"><span class="ci">📌</span><div><b>入门只需记住三点</b>① 注意力让模型理解“谁和谁有关”；② 层数堆叠让理解由浅入深；③ 训练就是不断调整参数，让预测越来越准。细节可后续再深入。</div></div>
+
+        <h4 id="ch1-3">1.3 Token 与上下文窗口</h4>
+        <table>
+          <tr><th>概念</th><th>解释</th><th>实用要点</th></tr>
+          <tr><td><b>Token</b></td><td>文本切分后的最小单位，约 0.75 个英文单词 / 1-2 个汉字</td><td>计费按 Token；中文通常比英文贵</td></tr>
+          <tr><td><b>上下文窗口</b></td><td>模型一次能“看到”的最大 Token 数</td><td>GPT-5 / Claude / Gemini 普遍 200K-1M；超长需 RAG 切分</td></tr>
+          <tr><td><b>Embedding</b></td><td>把文本变成向量（数字数组），语义相近则向量相近</td><td>向量库检索的基础，见第四章</td></tr>
+          <tr><td><b>幻觉 Hallucination</b></td><td>模型一本正经地编造事实</td><td>用 RAG、工具调用、降低温度来缓解</td></tr>
+        </table>
+        <pre><code><span class="cm"># 快速估算 Token 数（Python）</span>
+<span class="kw">import</span> tiktoken
+enc = tiktoken.get_encoding(<span class="str">"cl100k_base"</span>)
+text = <span class="str">"你好，世界！Hello World"</span>
+tokens = enc.encode(text)
+<span class="fn">print</span>(<span class="fn">len</span>(tokens), tokens)  <span class="cm"># 了解计费与长度限制</span></code></pre>
+
+        <h4 id="ch1-4">1.4 提示词工程：入门到进阶</h4>
+        <p>提示词（Prompt）是你与模型沟通的“编程语言”。掌握以下模式，效果提升立竿见影：</p>
+        <table>
+          <tr><th>技巧</th><th>示例</th><th>适用场景</th></tr>
+          <tr><td><b>角色设定</b></td><td>“你是一名资深 Python 工程师…”</td><td>所有场景，稳定输出风格</td></tr>
+          <tr><td><b>Few-shot 少样本</b></td><td>先给 2-3 个“输入→输出”示例</td><td>格式固定、分类任务</td></tr>
+          <tr><td><b>Chain-of-Thought</b></td><td>“请一步步思考后再给答案”</td><td>数学、推理、复杂决策</td></tr>
+          <tr><td><b>结构化输出</b></td><td>要求返回 JSON / Markdown 表格</td><td>程序调用、数据提取</td></tr>
+          <tr><td><b>分隔符</b></td><td>用 <code class="inline">"""</code> 包裹待处理文本</td><td>防止指令注入、边界清晰</td></tr>
+        </table>
+        <pre><code><span class="cm"># 黄金提示词模板</span>
+prompt = <span class="str">"""
+你是一名严谨的数据分析师。
+任务：分析以下用户反馈，输出 JSON 格式。
+要求：
+1. sentiment 只能是 positive / negative / neutral
+2. keywords 最多 3 个
+3. 用中文回答
+
+用户反馈：
+\"\"\"{user_text}\"\"\"
+"""</span></code></pre>
+        <div class="callout warn"><span class="ci">⚠️</span><div><b>避坑：提示词不是万能药</b>当任务复杂、需要实时数据或精确计算时，靠堆提示词不如上 RAG + 工具调用（Agent）。提示词解决“表达”问题，Agent 解决“行动”问题。</div></div>
+      </div>
+
+      <!-- CH2 -->
+      <div class="chapter" id="ch2">
+        <div class="chapter-head">
+          <div class="ch-num" style="background:linear-gradient(135deg,#a855f7,#ec4899)">🚀</div>
+          <div class="ch-title"><h3>第二章 · 先进模型全景（2025-2026）</h3><p>主流模型对比、能力边界与选型决策指南</p></div>
+        </div>
+        <div class="toc-inline">
+          <a href="#ch2">2.1 模型格局</a><a href="#ch2-2">2.2 闭源旗舰</a><a href="#ch2-3">2.3 开源与选型</a>
+        </div>
+
+        <h4>2.1 当前模型格局：三大趋势</h4>
+        <div class="grid3">
+          <div class="card"><span class="emoji">🧠</span><h6>推理模型崛起</h6><p>o 系列、DeepSeek-R1、Claude 思考模式——模型先“想”再答，数学/代码/推理大幅跃升。</p></div>
+          <div class="card"><span class="emoji">👁️</span><h6>原生多模态</h6><p>文本、图像、音频、视频统一理解与生成，GPT-4o / Gemini / Qwen-VL 为代表。</p></div>
+          <div class="card"><span class="emoji">🛠️</span><h6>Agent 原生能力</h6><p>工具调用、函数调用、长上下文、记忆成为标配，模型为 Agent 而生。</p></div>
+        </div>
+
+        <h4 id="ch2-2">2.2 闭源旗舰模型对比</h4>
+        <table>
+          <tr><th>模型</th><th>厂商</th><th>核心优势</th><th>上下文</th><th>适合场景</th></tr>
+          <tr><td><b>GPT-5 系列</b></td><td>OpenAI</td><td>综合能力最强、工具生态成熟、推理出色</td><td>400K</td><td>通用 Agent、复杂任务首选</td></tr>
+          <tr><td><b>Claude Opus 4.x</b></td><td>Anthropic</td><td>代码与长文最强、写作细腻、稳定可靠</td><td>200K-1M</td><td>编程、文档分析、企业级应用</td></tr>
+          <tr><td><b>Gemini 3 / 2.5 Pro</b></td><td>Google</td><td>超长上下文、多模态、性价比高</td><td>1M+</td><td>海量文档、视频理解</td></tr>
+          <tr><td><b>DeepSeek V4 / R1</b></td><td>深度求索</td><td>开源开放、推理强、价格极低</td><td>128K-256K</td><td>推理、成本敏感场景</td></tr>
+          <tr><td><b>Qwen3 系列</b></td><td>阿里通义</td><td>中文强、开源全尺寸、Agent 能力好</td><td>256K</td><td>中文应用、本地部署</td></tr>
+          <tr><td><b>Grok 4</b></td><td>xAI</td><td>实时信息、推理、幽默风格</td><td>256K</td><td>实时问答、社交场景</td></tr>
+        </table>
+        <div class="callout info"><span class="ci">💡</span><div><b>选型口诀</b>要最强综合能力 → GPT-5 / Claude；要超长文档 → Gemini；要便宜推理 → DeepSeek；要中文与私有化 → Qwen / 开源模型。没有银弹，按任务与预算选。</div></div>
+
+        <h4 id="ch2-3">2.3 开源模型与选型决策树</h4>
+        <p>开源模型（Llama、Qwen、DeepSeek、Mistral、Gemma 等）可本地部署、自由微调，是企业私有化的核心。选型时看四点：<b>能力、许可、硬件、生态</b>。</p>
+        <div class="diagram">
+          <div class="flow">
+            <span class="flow-box">需要私有化/离线？</span><span class="flow-arrow">→</span>
+            <span class="flow-box">是 → 选开源<br><small>Qwen / Llama / DeepSeek</small></span><span class="flow-arrow">→</span>
+            <span class="flow-box">否 → 选闭源 API<br><small>GPT / Claude / Gemini</small></span><span class="flow-arrow">→</span>
+            <span class="flow-box">再看预算与延迟<br><small>决定模型大小</small></span>
+          </div>
+        </div>
+        <table>
+          <tr><th>规模</th><th>显存需求（量化后）</th><th>典型用途</th></tr>
+          <tr><td>7B - 14B</td><td>8-16GB（单卡可跑）</td><td>个人项目、边缘设备、快速原型</td></tr>
+          <tr><td>32B - 70B</td><td>40-80GB（多卡/服务器）</td><td>企业应用、专业领域</td></tr>
+          <tr><td>200B+</td><td>集群级</td><td>前沿研究、超复杂推理</td></tr>
+        </table>
+        <pre><code><span class="cm"># 用 Ollama 本地跑开源模型（最快上手）</span>
+<span class="cm"># ollama pull qwen3:8b</span>
+<span class="cm"># ollama run qwen3:8b</span>
+
+<span class="kw">import</span> requests
+resp = requests.<span class="fn">post</span>(<span class="str">"http://localhost:11434/api/generate"</span>, json={
+    <span class="str">"model"</span>: <span class="str">"qwen3:8b"</span>,
+    <span class="str">"prompt"</span>: <span class="str">"用一句话解释什么是 Agent"</span>,
+    <span class="str">"stream"</span>: <span class="kw">False</span>
+})
+<span class="fn">print</span>(resp.json()[<span class="str">"response"</span>])</code></pre>
+      </div>
+
+      <!-- CH3 -->
+      <div class="chapter" id="ch3">
+        <div class="chapter-head">
+          <div class="ch-num" style="background:linear-gradient(135deg,#06b6d4,#3b82f6)">🕸️</div>
+          <div class="ch-title"><h3>第三章 · Agent 智能体构建</h3><p>从“会聊天”到“会干活”——Agent 的完整架构与实战</p></div>
+        </div>
+        <div class="toc-inline">
+          <a href="#ch3">3.1 架构总览</a><a href="#ch3-2">3.2 ReAct 与工具</a><a href="#ch3-3">3.3 MCP 协议</a><a href="#ch3-4">3.4 记忆与多智能体</a><a href="#ch3-5">3.5 框架与实战</a>
+        </div>
+
+        <h4>3.1 Agent 是什么？核心架构</h4>
+        <p><b>Agent（智能体）= LLM + 规划 + 工具 + 记忆</b>。普通聊天机器人只会生成文本；Agent 能<b>自主地感知环境、规划步骤、调用工具、执行动作、观察结果并循环迭代</b>，直到完成目标。</p>
+        <div class="diagram">
+          <div class="flow">
+            <span class="flow-box">👤 用户目标</span><span class="flow-arrow">→</span>
+            <span class="flow-box">🧠 LLM 大脑<br><small>规划与决策</small></span><span class="flow-arrow">→</span>
+            <span class="flow-box">🛠️ 工具调用<br><small>搜索/代码/数据库</small></span><span class="flow-arrow">→</span>
+            <span class="flow-box">👀 观察结果</span><span class="flow-arrow">→</span>
+            <span class="flow-box" style="border-color:#22c55e">🔁 循环直到完成</span>
+          </div>
+        </div>
+        <div class="grid2">
+          <div class="card"><h6>🧠 大脑（LLM）</h6><p>负责理解、推理、规划。决定“下一步做什么”。</p></div>
+          <div class="card"><h6>🛠️ 工具（Tools）</h6><p>搜索、计算、查库、调 API、操作文件——Agent 的“手脚”。</p></div>
+          <div class="card"><h6>💾 记忆（Memory）</h6><p>短期（对话）+ 长期（向量库）+ 情景（经验），让 Agent 持续学习。</p></div>
+          <div class="card"><h6>📋 规划（Planning）</h6><p>把大目标拆成小步骤，动态调整策略。</p></div>
+        </div>
+
+        <h4 id="ch3-2">3.2 ReAct 模式与工具调用（Function Calling）</h4>
+        <p><b>ReAct = Reasoning + Acting</b>：模型交替进行“思考（Thought）→ 行动（Action）→ 观察（Observation）”。这是目前最主流的 Agent 范式。</p>
+        <pre><code><span class="cm"># ReAct 循环伪代码</span>
+history = []
+<span class="kw">while not</span> done:
+    thought = llm(<span class="fn">think</span>(goal, history))        <span class="cm"># 思考：我需要查天气</span>
+    action  = llm(<span class="fn">decide</span>(thought))             <span class="cm"># 决定：调用 get_weather()</span>
+    obs     = tools[action.name](**action.args)  <span class="cm"># 执行工具</span>
+    history.<span class="fn">append</span>((thought, action, obs))    <span class="cm"># 观察并记录</span>
+    <span class="kw">if</span> llm.<span class="fn">is_done</span>(history): done = <span class="kw">True</span></code></pre>
+        <pre><code><span class="cm"># 现代 Function Calling（以 OpenAI 风格为例）</span>
+tools = [{
+  <span class="str">"type"</span>: <span class="str">"function"</span>,
+  <span class="str">"function"</span>: {
+    <span class="str">"name"</span>: <span class="str">"get_weather"</span>,
+    <span class="str">"description"</span>: <span class="str">"查询指定城市天气"</span>,
+    <span class="str">"parameters"</span>: {
+      <span class="str">"type"</span>: <span class="str">"object"</span>,
+      <span class="str">"properties"</span>: {<span class="str">"city"</span>: {<span class="str">"type"</span>: <span class="str">"string"</span>}},
+      <span class="str">"required"</span>: [<span class="str">"city"</span>]
+    }
+  }
+}]
+response = client.chat.completions.<span class="fn">create</span>(
+    model=<span class="str">"gpt-5"</span>, messages=messages, tools=tools)
+<span class="cm"># 模型返回 tool_calls，程序执行后把结果喂回模型</span></code></pre>
+
+        <h4 id="ch3-3">3.3 MCP 协议：Agent 的“USB 接口”</h4>
+        <p><b>MCP（Model Context Protocol，模型上下文协议）</b>由 Anthropic 于 2024 年底提出，是连接 LLM 与外部工具/数据源的<b>开放标准</b>。它像 USB 一样，让任何模型都能即插即用任何工具。</p>
+        <div class="diagram">
+          <div class="flow">
+            <span class="flow-box">🤖 Agent / LLM</span><span class="flow-arrow">⇄ MCP Client</span><span class="flow-arrow">⇄</span>
+            <span class="flow-box">🔌 MCP Server<br><small>工具/资源/提示模板</small></span><span class="flow-arrow">→</span>
+            <span class="flow-box">📁 文件系统 · 🗄 数据库<br>🌐 浏览器 · 📧 邮件 · ☁️ 云服务</span>
+          </div>
+        </div>
+        <table>
+          <tr><th>MCP 概念</th><th>含义</th><th>类比</th></tr>
+          <tr><td><b>Tools</b></td><td>模型可调用的函数</td><td>USB 设备驱动</td></tr>
+          <tr><td><b>Resources</b></td><td>模型可读取的数据</td><td>文件 / 数据库</td></tr>
+          <tr><td><b>Prompts</b></td><td>预置的提示模板</td><td>快捷指令</td></tr>
+        </table>
+        <div class="callout tip"><span class="ci">🔌</span><div><b>实战价值</b>生态已有数千个 MCP Server（GitHub、数据库、Notion、浏览器自动化等）。接入 MCP = 一行配置获得新工具，无需重复造轮子。</div></div>
+
+        <h4 id="ch3-4">3.4 记忆系统与多智能体协作</h4>
+        <h5>记忆的三种类型</h5>
+        <table>
+          <tr><th>类型</th><th>存什么</th><th>实现方式</th></tr>
+          <tr><td><b>短期记忆</b></td><td>当前对话上下文</td><td>消息列表 / 上下文窗口</td></tr>
+          <tr><td><b>长期记忆</b></td><td>用户偏好、知识、经验</td><td>向量数据库 + 摘要压缩</td></tr>
+          <tr><td><b>情景记忆</b></td><td>过去做过的任务轨迹</td><td>事件日志 + 反思（Reflexion）</td></tr>
+        </table>
+        <h5>多智能体（Multi-Agent）模式</h5>
+        <div class="grid3">
+          <div class="card"><span class="emoji">👨‍💼</span><h6>主管模式</h6><p>一个“经理” Agent 分派任务给多个“专家” Agent（搜索/代码/写作）。</p></div>
+          <div class="card"><span class="emoji">🔄</span><h6>流水线模式</h6><p>Agent A 输出 → Agent B 接力 → Agent C 审核，像流水线一样。</p></div>
+          <div class="card"><span class="emoji">💬</span><h6>辩论模式</h6><p>多个 Agent 互相质疑、辩论，最终达成更可靠的结论。</p></div>
+        </div>
+
+        <h4 id="ch3-5">3.5 主流框架对比与代码实战</h4>
+        <table>
+          <tr><th>框架</th><th>定位</th><th>优势</th><th>适合人群</th></tr>
+          <tr><td><b>LangGraph</b></td><td>图编排 Agent</td><td>状态管理强、可控性高、生产级</td><td>复杂工作流开发者</td></tr>
+          <tr><td><b>OpenAI Agents SDK</b></td><td>官方轻量框架</td><td>简单、与 GPT 深度集成</td><td>快速原型</td></tr>
+          <tr><td><b>CrewAI</b></td><td>多智能体协作</td><td>角色扮演直观、上手快</td><td>业务流程自动化</td></tr>
+          <tr><td><b>AutoGen</b></td><td>多智能体对话</td><td>灵活、研究友好</td><td>学术与实验</td></tr>
+          <tr><td><b>Dify / Coze</b></td><td>低代码平台</td><td>拖拽搭建、无需编码</td><td>产品/运营/非程序员</td></tr>
+        </table>
+        <pre><code><span class="cm"># 最小 Agent 实战：自动查资料并总结（LangGraph 风格）</span>
+<span class="kw">from</span> langgraph.prebuilt <span class="kw">import</span> create_react_agent
+<span class="kw">from</span> langchain_core.tools <span class="kw">import</span> tool
+
+<span class="kw">@tool</span>
+<span class="kw">def</span> <span class="fn">search</span>(query: str) -> str:
+    <span class="str">"""搜索网页获取最新信息"""</span>
+    <span class="kw">return</span> <span class="str">f"关于 {query} 的搜索结果..."</span>  <span class="cm"># 替换为真实搜索 API</span>
+
+agent = <span class="fn">create_react_agent</span>(model, tools=[search])
+result = agent.<span class="fn">invoke</span>({<span class="str">"messages"</span>: [(<span class="str">"user"</span>, <span class="str">"帮我调研向量数据库选型"</span>)]})
+<span class="fn">print</span>(result[<span class="str">"messages"</span>][-1].content)</code></pre>
+        <div class="callout warn"><span class="ci">🛡️</span><div><b>Agent 生产避坑</b>① 必须设最大步数与超时防死循环；② 工具调用要做权限校验与沙箱；③ 关键操作（付款、删除）必须人工确认；④ 全程日志追踪便于排查。</div></div>
+      </div>
+
+      <!-- CH4 -->
+      <div class="chapter" id="ch4">
+        <div class="chapter-head">
+          <div class="ch-num" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">🗄️</div>
+          <div class="ch-title"><h3>第四章 · RAG 与向量数据库</h3><p>让大模型“查资料再回答”——企业级知识库的核心技术</p></div>
+        </div>
+        <div class="toc-inline">
+          <a href="#ch4">4.1 RAG 原理</a><a href="#ch4-2">4.2 Embedding</a><a href="#ch4-3">4.3 向量库对比</a><a href="#ch4-4">4.4 检索优化</a>
+        </div>
+
+        <h4>4.1 RAG 原理：检索增强生成</h4>
+        <p><b>RAG = Retrieval-Augmented Generation</b>。先从你的知识库中检索相关片段，再把片段连同问题一起交给大模型生成答案。解决幻觉、知识过期、私有数据三大痛点。</p>
+        <div class="diagram">
+          <div class="flow">
+            <span class="flow-box">📄 文档</span><span class="flow-arrow">→</span>
+            <span class="flow-box">✂️ 切分 Chunking</span><span class="flow-arrow">→</span>
+            <span class="flow-box">🔢 向量化 Embedding</span><span class="flow-arrow">→</span>
+            <span class="flow-box">🗄 向量数据库</span><span class="flow-arrow">→</span>
+            <span class="flow-box">🔍 检索 Top-K</span><span class="flow-arrow">→</span>
+            <span class="flow-box" style="border-color:#f59e0b">🤖 LLM 生成答案</span>
+          </div>
+        </div>
+
+        <h4 id="ch4-2">4.2 Embedding 向量化模型</h4>
+        <table>
+          <tr><th>模型</th><th>厂商</th><th>维度</th><th>特点</th></tr>
+          <tr><td><b>text-embedding-3</b></td><td>OpenAI</td><td>3072 / 可缩减</td><td>效果好、支持维度缩减省存储</td></tr>
+          <tr><td><b>Cohere embed</b></td><td>Cohere</td><td>1024</td><td>多语言、检索优化</td></tr>
+          <tr><td><b>bge / e5 系列</b></td><td>智源 / 开源</td><td>768-1024</td><td>开源免费、中文效果好</td></tr>
+          <tr><td><b>Qwen Embedding</b></td><td>阿里</td><td>1024-4096</td><td>中文 SOTA、可本地部署</td></tr>
+        </table>
+        <div class="callout info"><span class="ci">📐</span><div><b>关键理解</b>Embedding 把“语义”变成“坐标”。“猫”和“狗”向量接近，“猫”和“汽车”相距遥远。检索就是找坐标最近的邻居（相似度搜索）。</div></div>
+
+        <h4 id="ch4-3">4.3 向量数据库全对比（重点！）</h4>
+        <table>
+          <tr><th>数据库</th><th>类型</th><th>部署</th><th>优势</th><th>适合场景</th></tr>
+          <tr><td><b>Pinecone</b></td><td>云托管</td><td>SaaS</td><td>零运维、扩展性强</td><td>快速上线、初创团队</td></tr>
+          <tr><td><b>Milvus</b></td><td>开源</td><td>自托管 / 云</td><td>海量级、分布式、功能全</td><td>大规模生产系统</td></tr>
+          <tr><td><b>Qdrant</b></td><td>开源</td><td>自托管 / 云</td><td>过滤检索强、API 友好</td><td>带条件的复杂检索</td></tr>
+          <tr><td><b>Chroma</b></td><td>开源嵌入式</td><td>本地 / 嵌入</td><td>极简、零配置</td><td>学习、原型、小项目</td></tr>
+          <tr><td><b>FAISS</b></td><td>库（非 DB）</td><td>嵌入</td><td>速度极快、算法丰富</td><td>研究、离线检索</td></tr>
+          <tr><td><b>pgvector</b></td><td>Postgres 插件</td><td>自托管</td><td>与业务数据同库、事务一致</td><td>已有 PG 技术栈</td></tr>
+          <tr><td><b>Weaviate</b></td><td>开源</td><td>自托管 / 云</td><td>混合检索、模块化</td><td>多模态、混合搜索</td></tr>
+          <tr><td><b>Elasticsearch</b></td><td>搜索引擎</td><td>自托管 / 云</td><td>关键词+向量混合、生态大</td><td>已有 ES 的团队</td></tr>
+        </table>
+        <div class="callout tip"><span class="ci">🎯</span><div><b>选型建议</b>学习/原型 → Chroma；已有 Postgres → pgvector；生产大规模 → Milvus / Qdrant；想省事 → Pinecone。先用 Chroma 跑通，再按规模迁移。</div></div>
+
+        <h4>4.4 文档处理与检索优化进阶</h4>
+        <h5>文档切分（Chunking）策略</h5>
+        <ul>
+          <li><b>固定长度</b>：简单但可能切断语义，适合结构松散的文本</li>
+          <li><b>按结构切分</b>：按标题/段落/表格切分，保留上下文（推荐）</li>
+          <li><b>语义切分</b>：用 Embedding 相似度找自然边界，效果最好但成本高</li>
+          <li><b>重叠切分</b>：相邻块重叠 10-20%，避免边界信息丢失</li>
+        </ul>
+        <h5>检索优化四件套</h5>
+        <div class="grid2">
+          <div class="card"><h6>🔀 混合检索 Hybrid</h6><p>向量检索（语义）+ BM25（关键词）融合，兼顾语义与精确匹配。</p></div>
+          <div class="card"><h6>🔄 Rerank 重排</h6><p>先粗排 Top-50，再用精排模型（如 bge-reranker）选出 Top-5，精度大涨。</p></div>
+          <div class="card"><h6>❓ 查询改写</h6><p>用 LLM 把用户口语问题改写成适合检索的查询，或生成多个子查询。</p></div>
+          <div class="card"><h6>📊 评估驱动</h6><p>建评估集测 Recall / MRR / 答案准确率，用数据指导优化而非凭感觉。</p></div>
+        </div>
+        <pre><code><span class="cm"># 完整 RAG 最小实现（Chroma + OpenAI）</span>
+<span class="kw">import</span> chromadb
+<span class="kw">from</span> openai <span class="kw">import</span> OpenAI
+
+client = OpenAI()
+db = chromadb.<span class="fn">PersistentClient</span>(path=<span class="str">"./vecdb"</span>)
+col = db.<span class="fn">get_or_create_collection</span>(<span class="str">"docs"</span>)
+
+<span class="cm"># 1. 入库：切分 → 向量化 → 存入</span>
+docs = [<span class="str">"向量数据库用于存储 Embedding..."</span>, <span class="str">"RAG 先检索再生成..."</span>]
+embs = [client.embeddings.<span class="fn">create</span>(model=<span class="str">"text-embedding-3-small"</span>,
+        input=d).data[0].embedding <span class="kw">for</span> d <span class="kw">in</span> docs]
+col.<span class="fn">add</span>(ids=[<span class="fn">str</span>(i) <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="fn">len</span>(docs))],
+      embeddings=embs, documents=docs)
+
+<span class="cm"># 2. 问答：检索 → 拼 Prompt → 生成</span>
+q = <span class="str">"什么是向量数据库？"</span>
+q_emb = client.embeddings.<span class="fn">create</span>(model=<span class="str">"text-embedding-3-small"</span>,
+        input=q).data[0].embedding
+hits = col.<span class="fn">query</span>(query_embeddings=[q_emb], n_results=<span class="numc">3</span>)
+context = <span class="str">"\n"</span>.<span class="fn">join</span>(hits[<span class="str">"documents"</span>][<span class="numc">0</span>])
+resp = client.chat.completions.<span class="fn">create</span>(model=<span class="str">"gpt-5"</span>, messages=[
+    {<span class="str">"role"</span>: <span class="str">"system"</span>, <span class="str">"content"</span>: <span class="str">"只根据资料回答，不知道就说不知道"</span>},
+    {<span class="str">"role"</span>: <span class="str">"user"</span>, <span class="str">"content"</span>: <span class="fn">f</span><span class="str">"资料：{context}\n问题：{q}"</span>}])
+<span class="fn">print</span>(resp.choices[<span class="numc">0</span>].message.content)</code></pre>
+      </div>
+
+      <!-- CH5 -->
+      <div class="chapter" id="ch5">
+        <div class="chapter-head">
+          <div class="ch-num" style="background:linear-gradient(135deg,#ef4444,#f97316)">⚡</div>
+          <div class="ch-title"><h3>第五章 · 模型优化与微调</h3><p>让模型更准、更快、更便宜——从微调到量化的完整工具箱</p></div>
+        </div>
+        <div class="toc-inline">
+          <a href="#ch5">5.1 全景图</a><a href="#ch5-2">5.2 微调</a><a href="#ch5-3">5.3 量化与加速</a><a href="#ch5-4">5.4 蒸馏与对齐</a>
+        </div>
+
+        <h4>5.1 优化全景图：先判断该用哪种</h4>
+        <div class="diagram">
+          <div class="flow">
+            <span class="flow-box">效果不够？</span><span class="flow-arrow">→</span>
+            <span class="flow-box">先优化 Prompt<br><small>成本最低</small></span><span class="flow-arrow">→</span>
+            <span class="flow-box">还不够？加 RAG<br><small>补知识</small></span><span class="flow-arrow">→</span>
+            <span class="flow-box">风格/格式不对？<br>微调 SFT/LoRA</span><span class="flow-arrow">→</span>
+            <span class="flow-box" style="border-color:#ef4444">太慢太贵？<br>量化 + 推理优化</span>
+          </div>
+        </div>
+        <div class="callout warn"><span class="ci">🧭</span><div><b>黄金原则</b>优化顺序：<b>Prompt → RAG → 微调 → 量化/加速</b>。每一步先验证收益再进入下一步。很多“模型不行”的问题，其实是 Prompt 或数据问题。</div></div>
+
+        <h4 id="ch5-2">5.2 微调：SFT、LoRA、QLoRA</h4>
+        <table>
+          <tr><th>方法</th><th>原理</th><th>显存</th><th>适用场景</th></tr>
+          <tr><td><b>全量微调 SFT</b></td><td>更新全部参数</td><td>极高</td><td>数据充足、追求极致效果</td></tr>
+          <tr><td><b>LoRA</b></td><td>只训练低秩增量矩阵，冻结原参数</td><td>低</td><td>风格/格式定制、快速迭代 ⭐</td></tr>
+          <tr><td><b>QLoRA</b></td><td>LoRA + 4bit 量化基座</td><td>极低（单卡可跑 65B）</td><td>个人/小团队、消费级显卡</td></tr>
+          <tr><td><b>PEFT</b></td><td>参数高效微调统称</td><td>低</td><td>LoRA 等方法的总称</td></tr>
+        </table>
+        <pre><code><span class="cm"># QLoRA 微调示例（HuggingFace + PEFT）</span>
+<span class="kw">from</span> transformers <span class="kw">import</span> AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
+<span class="kw">from</span> peft <span class="kw">import</span> LoraConfig, get_peft_model
+
+model_id = <span class="str">"Qwen/Qwen3-8B"</span>
+bnb = BitsAndBytesConfig(load_in_4bit=<span class="kw">True</span>, bnb_4bit_quant_type=<span class="str">"nf4"</span>)
+model = AutoModelForCausalLM.<span class="fn">from_pretrained</span>(model_id, quantization_config=bnb,
+                               device_map=<span class="str">"auto"</span>)
+lora = LoraConfig(r=<span class="numc">16</span>, lora_alpha=<span class="numc">32</span>, lora_dropout=<span class="numc">0.05</span>,
+                  target_modules=[<span class="str">"q_proj"</span>,<span class="str">"v_proj"</span>], task_type=<span class="str">"CAUSAL_LM"</span>)
+model = <span class="fn">get_peft_model</span>(model, lora)
+<span class="cm"># 用你的指令数据（JSONL）训练即可，训练完只保存 LoRA 权重（几十 MB）</span></code></pre>
+        <h5>微调数据准备要点</h5>
+        <ul>
+          <li>数据质量 &gt; 数量：500 条高质量样本胜过 5000 条噪声</li>
+          <li>格式统一：<code class="inline">{"instruction": "...", "output": "..."}</code> 或 ChatML 格式</li>
+          <li>覆盖多样性：不同问法、不同难度、包含边界情况</li>
+          <li>留验证集：监控过拟合，r=16-64、lr=1e-4~2e-4 是常用起点</li>
+        </ul>
+
+        <h4 id="ch5-3">5.3 量化与推理加速</h4>
+        <h5>量化：用更低精度存模型</h5>
+        <table>
+          <tr><th>精度</th><th>体积（7B 模型）</th><th>效果损失</th><th>工具</th></tr>
+          <tr><td>FP16</td><td>~14GB</td><td>无</td><td>—</td></tr>
+          <tr><td>INT8</td><td>~7GB</td><td>极小</td><td>TensorRT-LLM</td></tr>
+          <tr><td>INT4 / GGUF Q4</td><td>~4GB</td><td>轻微</td><td>llama.cpp / Ollama ⭐</td></tr>
+          <tr><td>AWQ / GPTQ</td><td>~4GB</td><td>轻微</td><td>AutoAWQ</td></tr>
+        </table>
+        <h5>推理加速技术</h5>
+        <div class="grid2">
+          <div class="card"><h6>🚀 vLLM</h6><p>PagedAttention + 连续批处理，吞吐提升数倍，生产部署首选。</p></div>
+          <div class="card"><h6>💾 KV Cache</h6><p>缓存已生成 Token 的中间结果，避免重复计算，延迟大降。</p></div>
+          <div class="card"><h6>📦 批处理 Batching</h6><p>多个请求一起推理，GPU 利用率暴涨，适合高并发场景。</p></div>
+          <div class="card"><h6>✂️ 推测解码</h6><p>小模型先猜、大模型验证，生成速度提升 2-3 倍。</p></div>
+        </div>
+        <pre><code><span class="cm"># vLLM 一行部署高性能推理服务</span>
+<span class="cm"># vllm serve Qwen/Qwen3-8B --port 8000 --max-model-len 32768</span>
+<span class="cm"># 然后用 OpenAI 兼容接口调用，代码无需改动</span>
+<span class="kw">from</span> openai <span class="kw">import</span> OpenAI
+client = <span class="fn">OpenAI</span>(base_url=<span class="str">"http://localhost:8000/v1"</span>, api_key=<span class="str">"x"</span>)
+<span class="fn">print</span>(client.chat.completions.<span class="fn">create</span>(
+    model=<span class="str">"Qwen/Qwen3-8B"</span>,
+    messages=[{<span class="str">"role"</span>: <span class="str">"user"</span>, <span class="str">"content"</span>: <span class="str">"你好"</span>}]).choices[<span class="numc">0</span>].message.content)</code></pre>
+
+        <h4 id="ch5-4">5.4 知识蒸馏与对齐（RLHF / DPO）</h4>
+        <div class="grid2">
+          <div class="card"><h6>🍶 知识蒸馏 Distillation</h6><p>让大模型（教师）教小模型（学生）模仿其输出。小模型获得接近大模型的效果，成本骤降。DeepSeek、DistilBERT 等均源于此。</p></div>
+          <div class="card"><h6>👍 RLHF / DPO 对齐</h6><p>用人类偏好数据让模型“更符合人类期望”：RLHF 先训奖励模型再强化学习；DPO 更简单直接，工程上更易落地。</p></div>
+        </div>
+        <div class="callout pro"><span class="ci">🎓</span><div><b>进阶视角</b>微调解决“会不会”，对齐解决“听不听话、靠不靠谱”。生产系统两者都需要：先 SFT 学会任务，再 DPO 学会偏好。</div></div>
+      </div>
+
+      <!-- CH6 -->
+      <div class="chapter" id="ch6">
+        <div class="chapter-head">
+          <div class="ch-num" style="background:linear-gradient(135deg,#ec4899,#a855f7)">🧩</div>
+          <div class="ch-title"><h3>第六章 · Skills 技能系统</h3><p>2025 年兴起的 Agent 能力扩展范式——让 Agent 学会专业技能</p></div>
+        </div>
+        <div class="toc-inline">
+          <a href="#ch6">6.1 什么是 Skill</a><a href="#ch6-2">6.2 四者对比</a><a href="#ch6-3">6.3 编写 SKILL.md</a><a href="#ch6-4">6.4 实战案例库</a>
+        </div>
+
+        <h4>6.1 什么是 Skill（技能）？</h4>
+        <p><b>Skill</b> 是 Anthropic 在 2025 年提出的 Agent 能力扩展机制：把某项专业能力打包成一个<b>可复用、可分发的“技能包”</b>，包含操作说明（SKILL.md）、脚本、模板与资源。Agent 按需加载 Skill，就能瞬间学会一项专业技能。</p>
+        <div class="diagram">
+          <div class="flow">
+            <span class="flow-box">🤖 通用 Agent</span><span class="flow-arrow">+</span>
+            <span class="flow-box">🧩 Skill：PDF 处理</span><span class="flow-arrow">+</span>
+            <span class="flow-box">🧩 Skill：代码审查</span><span class="flow-arrow">+</span>
+            <span class="flow-box">🧩 Skill：数据分析</span><span class="flow-arrow">=</span>
+            <span class="flow-box" style="border-color:#ec4899">⭐ 专业级 Agent</span>
+          </div>
+        </div>
+        <p>核心理念：<b>渐进式披露（Progressive Disclosure）</b>——Agent 先只看到 Skill 的简介（name + description），需要时再加载完整说明与脚本，既省上下文又灵活可靠。</p>
+
+        <h4 id="ch6-2">6.2 Skill vs Tool vs MCP vs Prompt 四者对比</h4>
+        <table>
+          <tr><th>概念</th><th>本质</th><th>粒度</th><th>类比</th><th>何时用</th></tr>
+          <tr><td><b>Prompt</b></td><td>一次性指令</td><td>单次任务</td><td>口头吩咐</td><td>简单、临时任务</td></tr>
+          <tr><td><b>Tool（工具）</b></td><td>可调用函数</td><td>单个动作</td><td>螺丝刀</td><td>需要执行具体操作</td></tr>
+          <tr><td><b>MCP</b></td><td>连接协议</td><td>外部系统</td><td>USB 接口</td><td>接第三方服务/数据</td></tr>
+          <tr><td><b>Skill（技能）</b></td><td>能力包（说明+脚本+资源）</td><td>一整套工作流</td><td>专业培训手册</td><td>可复用的专业能力 ⭐</td></tr>
+        </table>
+        <div class="callout info"><span class="ci">🔑</span><div><b>一句话区分</b>Prompt 是“做这件事”，Tool 是“用这个工具”，MCP 是“接上这个系统”，Skill 是“学会这项专业技能”。四者可组合：Skill 内部可以调用 Tool 和 MCP。</div></div>
+
+        <h4 id="ch6-3">6.3 如何编写你的第一个 Skill</h4>
+        <p>一个 Skill 就是一个文件夹，核心是 <code class="inline">SKILL.md</code> 文件。结构如下：</p>
+        <pre><code>my-skill/
+├── SKILL.md          <span class="cm"># 必需：技能说明（元数据 + 操作指南）</span>
+├── scripts/          <span class="cm"># 可选：可执行脚本</span>
+│   └── process.py
+├── references/       <span class="cm"># 可选：参考资料（按需加载）</span>
+│   └── guide.md
+└── assets/           <span class="cm"># 可选：模板、图片等资源</span></code></pre>
+        <pre><code><span class="cm"># SKILL.md 示例：一个“周报生成”技能</span>
+---
+name: weekly-report
+description: 生成结构化周报。当用户要求写周报、总结本周工作时使用。
+---
+
+<span class="cm"># 周报生成技能</span>
+
+## 工作流程
+1. 收集本周任务清单（向用户询问或从 git log 提取）
+2. 按「已完成 / 进行中 / 下周计划」分类
+3. 使用 assets/template.md 模板生成报告
+4. 保存为 weekly-report-YYYY-WW.md
+
+## 规范
+- 每条任务用「动词 + 产出」格式，如「完成 XX 模块上线」
+- 包含数据指标（如：接口延迟从 200ms 降至 80ms）
+- 语气专业简洁，避免口语化</code></pre>
+        <h5>编写 Skill 的五大原则</h5>
+        <ol>
+          <li><b>描述写清楚触发条件</b>：description 决定 Agent 何时加载，写“当用户…时使用”</li>
+          <li><b>说明要具体可执行</b>：写步骤、命令、格式，而非空泛建议</li>
+          <li><b>脚本优先于文字</b>：重复性操作写成脚本，Agent 只需调用</li>
+          <li><b>保持精简</b>：SKILL.md 控制在 500 行内，细节拆到 references/</li>
+          <li><b>给示例</b>：一个好的输入→输出示例胜过十句解释</li>
+        </ol>
+
+        <h4 id="ch6-4">6.4 Skill 实战案例库（拿来即用）</h4>
+        <table>
+          <tr><th>Skill</th><th>能力</th><th>包含内容</th></tr>
+          <tr><td><b>pdf-processor</b></td><td>提取/合并/拆分 PDF</td><td>SKILL.md + extract.py + merge.py</td></tr>
+          <tr><td><b>code-reviewer</b></td><td>按团队规范审查代码</td><td>审查清单 + 常见问题库</td></tr>
+          <tr><td><b>data-analyst</b></td><td>CSV 分析并出图表</td><td>分析流程 + matplotlib 模板</td></tr>
+          <tr><td><b>doc-writer</b></td><td>按模板写技术文档</td><td>文档模板 + 风格指南</td></tr>
+          <tr><td><b>meeting-notes</b></td><td>会议记录转纪要与待办</td><td>纪要模板 + 待办提取规则</td></tr>
+          <tr><td><b>ppt-maker</b></td><td>大纲转演示文稿</td><td>版式规范 + python-pptx 脚本</td></tr>
+        </table>
+        <pre><code><span class="cm"># Skill 的加载机制（伪代码）</span>
+<span class="cm"># 1. Agent 启动时只读所有 Skill 的 name + description（省 token）</span>
+skills = <span class="fn">load_skill_index</span>(<span class="str">"./skills/"</span>)  <span class="cm"># → [{name, description}, ...]</span>
+
+<span class="cm"># 2. 用户说“帮我把这几个 PDF 合并一下”</span>
+<span class="cm"># 3. Agent 匹配到 pdf-processor，加载其完整 SKILL.md</span>
+skill = <span class="fn">load_skill</span>(<span class="str">"pdf-processor"</span>)  <span class="cm"># → 完整说明 + 脚本路径</span>
+
+<span class="cm"># 4. 按说明执行：调用 scripts/merge.py 完成任务</span>
+<span class="fn">run</span>(<span class="str">"python scripts/merge.py a.pdf b.pdf -o out.pdf"</span>)</code></pre>
+        <div class="callout tip"><span class="ci">💡</span><div><b>Skill 的未来</b>Skill 正在成为 Agent 生态的“App Store”：可安装、可组合、可分发。学会写 Skill，等于学会了把你的专业能力产品化。</div></div>
+      </div>
+
+      <!-- CH7 -->
+      <div class="chapter" id="ch7">
+        <div class="chapter-head">
+          <div class="ch-num" style="background:linear-gradient(135deg,#3b82f6,#06b6d4)">🎓</div>
+          <div class="ch-title"><h3>第七章 · 实战项目与进阶</h3><p>三个从 0 到 1 的完整项目 + 生产部署清单</p></div>
+        </div>
+        <div class="toc-inline">
+          <a href="#ch7">7.1 三大实战项目</a><a href="#ch7-2">7.2 生产部署清单</a><a href="#faq">7.3 FAQ</a>
+        </div>
+
+        <h4>7.1 三大实战项目（按难度递进）</h4>
+        <div class="grid3">
+          <div class="card"><span class="emoji">📚</span><h6>项目一：个人知识库</h6><p><b>技术：</b>RAG + Chroma + Streamlit<br><b>功能：</b>上传 PDF/Markdown，智能问答并标注来源<br><b>周期：</b>2-3 天 · 入门必做</p></div>
+          <div class="card"><span class="emoji">🤖</span><h6>项目二：智能客服 Agent</h6><p><b>技术：</b>Agent + 工具调用 + 向量库<br><b>功能：</b>查订单、答疑、转人工，带记忆与兜底<br><b>周期：</b>1 周 · 进阶</p></div>
+          <div class="card"><span class="emoji">💻</span><h6>项目三：代码助手 + Skill</h6><p><b>技术：</b>MCP + Skills + 微调<br><b>功能：</b>读代码库、按规范审查、自动生成测试<br><b>周期：</b>2 周 · 精通</p></div>
+        </div>
+        <h5>项目一快速启动步骤</h5>
+        <ol>
+          <li>安装依赖：<code class="inline">pip install chromadb openai streamlit pypdf</code></li>
+          <li>写文档解析 + 切分 + 入库脚本（参考第四章代码）</li>
+          <li>写检索 + 问答逻辑，强制模型“只根据资料回答”</li>
+          <li>用 Streamlit 套个界面，部署到 Streamlit Cloud 免费上线</li>
+          <li>进阶：加混合检索 + Rerank，测准确率</li>
+        </ol>
+
+        <h4 id="ch7-2">7.2 生产级部署清单</h4>
+        <ul class="checklist">
+          <li>评估先行：建评估集，测准确率/延迟/成本基线</li>
+          <li>可观测性：全链路日志、Token 用量统计、失败告警</li>
+          <li>安全：Prompt 注入防护、工具权限最小化、敏感数据脱敏</li>
+          <li>成本：缓存（Prompt Cache）、小模型分流、量化部署</li>
+          <li>兜底：超时重试、降级策略、人工接管通道</li>
+          <li>版本管理：Prompt、Skill、模型版本全部可回滚</li>
+        </ul>
+
+        <h4 id="faq">7.3 常见问题与面试高频题</h4>
+        <div class="faq">
+          <details><summary>Q1：RAG 和微调怎么选？</summary><p>需要注入新知识/实时数据 → RAG；需要改变风格/格式/行为 → 微调。两者常组合使用：微调后的模型 + RAG 检索。</p></details>
+          <details><summary>Q2：向量数据库和普通数据库的区别？</summary><p>普通数据库按精确值查（如 id=123）；向量数据库按语义相似度查（如“找和这句话最像的内容”）。前者查“相等”，后者查“相近”。</p></details>
+          <details><summary>Q3：Agent 和普通聊天机器人的区别？</summary><p>聊天机器人只生成文本；Agent 能规划、调用工具、执行动作并循环迭代。核心差异是“行动能力”。</p></details>
+          <details><summary>Q4：Skill 和 MCP 有冲突吗？</summary><p>不冲突。MCP 是连接协议（接系统），Skill 是能力包（教方法）。Skill 内部完全可以调用 MCP 提供的工具。</p></details>
+          <details><summary>Q5：本地部署开源模型需要什么配置？</summary><p>8B 模型量化后约需 8GB 显存，消费级显卡可跑；70B 需 40GB+，建议用云 GPU 或 API。</p></details>
+          <details><summary>Q6：如何缓解大模型幻觉？</summary><p>① RAG 提供事实依据 ② 降低温度 ③ 要求模型标注来源/承认不知道 ④ 工具调用查实时数据 ⑤ 输出后做校验。</p></details>
+        </div>
+      </div>
+
+      <!-- GLOSSARY -->
+            <!-- ===== 附录 A：Skills & MCP 生态榜单（合并自 top30-skills-mcp.html） ===== -->
+      <div class="chapter" id="rank">
+        <div class="chapter-head">
+          <div class="ch-num" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">🏆</div>
+          <div class="ch-title"><h3>附录 A · 生态榜单：Top 30 Skills + Top 30 MCP</h3><p>每条都写清「能做什么 → 怎么装 / 怎么连 → 去哪儿看原文」，命令可直接复制</p></div>
+        </div>
+        <div class="toc-inline">
+          <a href="#rank-mcp">A.1 MCP Top 30</a><a href="#rank-skill">A.2 Skills Top 30</a><a href="#rank-howto">A.3 接入方法速查</a>
+        </div>
+
+        <div class="callout warn"><span class="ci">📏</span><div><b>排名口径（重要）：</b>这不是行业统一官方排名，两个生态都没有权威排行榜。Skills 榜来自 skills.sh 的 All-time 安装量（Skills CLI 匿名安装遥测，快照 2026-11-24），安装量 ≠ 质量 ≠ 安全，且存在同名镜像仓（第 20–23、29–30 名即同一批内容的两份发布）；MCP 榜来自 mcp.so Top 100 综合分（快照 2026-11-21）＝搜索需求 50% + GitHub Stars 35% + 目录质量检查 15%，月搜索量反映「有人在找」，不等于生产采用度。标「官方」= 厂商自营，其余为社区项目。</div></div>
+
+        <div id="rank-toolbar">
+          <input id="rankSearch" type="text" placeholder="🔍 过滤榜单：如 Playwright、figma、tdd、数据库、视频、游戏…">
+          <div id="rankTabs">
+            <button class="rtab active" data-f="all">全部 60 条</button>
+            <button class="rtab" data-f="mcp">🔌 MCP Top 30</button>
+            <button class="rtab" data-f="skill">🧩 Skills Top 30</button>
+            <span id="rankCount"></span>
+          </div>
+        </div>
+
+        <h4 id="rank-mcp">A.1 MCP Servers Top 30</h4>
+        <p>MCP（Model Context Protocol）是「工具/数据接口标准」。两种接入形态：<b>本地 stdio</b>（<code>npx</code> / <code>uvx</code> / <code>docker</code> 拉起进程，写进客户端配置）与 <b>远程 HTTP</b>（官方托管端点 + OAuth，零部署）。下表「实现 / 连接」列就是可直接抄的接法。</p>
+        <div class="rank-twrap"><table>
+        <tr><th>#<br>分数</th><th>名称 / 作者</th><th>功能（能做什么）</th><th>实现方法 / 连接方式</th><th>热度</th><th>链接</th></tr>
+        <tr data-type="mcp"><td><span class="rank">1</span><div class="score">84</div></td><td><b>Playwright MCP</b> <span class="badge b-mcp">MCP</span> <span class="badge b-com">社区</span><div class="repo">microsoft</div></td><td>浏览器自动化与端到端测试：打开页面、点击、填表、截图、抓渲染后内容；基于无障碍树快照而非纯像素，操作更稳、token 更省。</td><td class="impl">本地 stdio：<code>npx @playwright/mcp@latest</code>（可加 <code>--headless</code>、<code>--isolated</code>）</td><td class="num">12.1K/月<div class="stars">★ 34.8K</div></td><td><a href="https://mcp.so/servers/playwright-mcp" target="_blank">mcp.so</a><br><a href="https://github.com/microsoft/playwright-mcp" target="_blank">GitHub</a></td></tr>
+<tr data-type="mcp"><td><span class="rank">2</span><div class="score">80</div></td><td><b>GitHub MCP Server</b> <span class="badge b-mcp">MCP</span> <span class="badge b-off">官方</span><div class="repo">github 官方</div></td><td>仓库全操作：读写文件、Issue/PR 增删改查与评审、Actions、代码搜索、Discussions、Projects。</td><td class="impl">远程（推荐）：<code>https://api.githubcopilot.com/mcp/</code> + OAuth / PAT；本地：<code>docker run -i --rm -e GITHUB_PERSONAL_ACCESS_TOKEN ghcr.io/github/github-mcp-server</code></td><td class="num">6.6K/月<div class="stars">★ 31.3K</div></td><td><a href="https://mcp.so/servers/github-mcp-server" target="_blank">mcp.so</a><br><a href="https://github.com/github/github-mcp-server" target="_blank">GitHub</a></td></tr>
+<tr data-type="mcp"><td><span class="rank">3</span><div class="score">80</div></td><td><b>Figma MCP (Framelink)</b> <span class="badge b-mcp">MCP</span> <span class="badge b-com">社区</span><div class="repo">GLips（社区）</div></td><td>把 Figma 文件的布局、样式、内容（而非截图）喂给编码 Agent，按设计稿 1:1 写代码；两个工具：取文件/节点数据、批量下载图标与图片。</td><td class="impl">本地 stdio：<code>npx -y figma-developer-mcp --stdio</code>，token 用 <code>FIGMA_API_KEY</code> 或 <code>--figma-api-key=</code>（最小权限 file_content:read）</td><td class="num">9.9K/月<div class="stars">★ 15.3K</div></td><td><a href="https://mcp.so/servers/figma-context-mcp" target="_blank">mcp.so</a><br><a href="https://github.com/GLips/Figma-Context-MCP" target="_blank">GitHub</a></td></tr>
+<tr data-type="mcp"><td><span class="rank">4</span><div class="score">79</div></td><td><b>Context7</b> <span class="badge b-mcp">MCP</span> <span class="badge b-off">官方</span><div class="repo">upstash 官方</div></td><td>按库名+版本实时拉取最新文档与示例代码，治「模型记的是旧 API」；在提示里写 use context7 即可触发。</td><td class="impl">远程：<code>https://mcp.context7.com/mcp</code>；本地：<code>npx -y @upstash/context7-mcp</code>（可加 API key 提额）</td><td class="num">3.6K/月<div class="stars">★ 58.7K</div></td><td><a href="https://mcp.so/servers/context7-mcp" target="_blank">mcp.so</a><br><a href="https://github.com/upstash/context7" target="_blank">GitHub</a></td></tr>
+<tr data-type="mcp"><td><span class="rank">5</span><div class="score">79</div></td><td><b>Chrome DevTools MCP</b> <span class="badge b-mcp">MCP</span> <span class="badge b-off">官方</span><div class="repo">Google ChromeDevTools 官方</div></td><td>让 Agent 真正控制、调试、profile 一个真实 Chrome：性能 trace、网络请求、控制台、DOM 与截图，33 个工具。</td><td class="impl">本地 stdio：<code>npx -y chrome-devtools-mcp@latest</code>（可加 <code>--channel=canary|beta</code> 指定浏览器）</td><td class="num">3.6K/月<div class="stars">★ 53.6K</div></td><td><a href="https://mcp.so/servers/chrome-devtools-mcp" target="_blank">mcp.so</a><br><a href="https://github.com/ChromeDevTools/chrome-devtools-mcp" target="_blank">GitHub</a></td></tr>
+<tr data-type="mcp"><td><span class="rank">6</span><div class="score">74</div></td><td><b>Serena</b> <span class="badge b-mcp">MCP</span> <span class="badge b-com">社区</span><div class="repo">oraios（社区）</div></td><td>给 Agent 的「IDE」：LSP 级符号检索、引用查找、精准编辑、项目记忆，不用整文件读就能改代码。</td><td class="impl">本地 stdio：<code>uvx --from git+https://github.com/oraios/serena serena start-mcp-server</code>（需 uv）</td><td class="num">2.4K/月<div class="stars">★ 26.2K</div></td><td><a href="https://mcp.so/servers/serena" target="_blank">mcp.so</a><br><a href="https://github.com/oraios/serena" target="_blank">GitHub</a></td></tr>
+<tr data-type="mcp"><td><span class="rank">7</span><div class="score">73</div></td><td><b>PixelLab MCP</b> <span class="badge b-mcp">MCP</span> <span class="badge b-off">官方</span><div class="repo">pixellab-code 官方</div></td><td>像素美术生产线：4/8 方向角色、动画、Wang 与横版图集、等距地块、地图物件，141 个工具；按 PixelLab 账户余额计费。</td><td class="impl">远程 streamable-http：<code>https://api.pixellab.ai/mcp</code>，头 <code>Authorization: Bearer $PIXELLAB_API_TOKEN</code></td><td class="num">6.6K/月<div class="stars">★ 4.3K</div></td><td><a href="https://mcp.so/servers/pixellab-mcp" target="_blank">mcp.so</a><br><a href="https://github.com/pixellab-code/pixellab-mcp" target="_blank">GitHub</a></td></tr>
+<tr data-type="mcp"><td><span class="rank">8</span><div class="score">73</div></td><td><b>Blender MCP</b> <span class="badge b-mcp">MCP</span> <span class="badge b-com">社区</span><div class="repo">ahujasid（社区）</div></td><td>自然语言驱动 Blender：建模型、改材质、布置场景、跑脚本并截图，适合快速出资产。</td><td class="impl">本地 stdio：<code>uvx blender-mcp</code> + 在 Blender 内装配套 addon（Blender 需保持打开）</td><td class="num">1.9K/月<div class="stars">★ 23.6K</div></td><td><a href="https://mcp.so/servers/blender-mcp" target="_blank">mcp.so</a><br><a href="https://github.com/ahujasid/blender-mcp" target="_blank">GitHub</a></td></tr>
+<tr data-type="mcp"><td><span class="rank">9</span><div class="score">71</div></td><td><b>Notion MCP</b> <span class="badge b-mcp">MCP</span> <span class="badge b-off">官方</span><div class="repo">makenotion 官方</div></td><td>读写页面、查数据库、搜索工作区、评论，把文档库接进 Agent（22 个工具）。</td><td class="impl">远程 OAuth（推荐）：<code>https://mcp.notion.com/mcp</code>；本地：<code>npx -y @notionhq/notion-mcp-server</code> + Notion integration token</td><td class="num">3.6K/月<div class="stars">★ 4.5K</div></td><td><a href="https://mcp.so/servers/notion-mcp-server" target="_blank">mcp.so</a><br><a href="https://github.com/makenotion/notion-mcp-server" target="_blank">GitHub</a></td></tr>
+<tr data-type="mcp"><td><span class="rank">10</span><div class="score">70</div></td><td><b>Supabase MCP</b> <span class="badge b-mcp">MCP</span> <span class="badge b-com">社区</span><div class="repo">supabase-community</div></td><td>Postgres 全栈操作：列表/建表、执行 SQL、查日志、管 Auth 与 Edge Functions，可限定项目与只读。</td><td class="impl">远程：<code>https://mcp.supabase.com/mcp?project_ref=&lt;ref&gt;</code>；本地：<code>npx -y @supabase/mcp-server-supabase@latest --project-ref=&lt;ref&gt;</code> + <code>SUPABASE_ACCESS_TOKEN</code></td><td class="num">4.4K/月<div class="stars">★ 2.8K</div></td><td><a href="https://mcp.so/servers/supabase-mcp" target="_blank">mcp.so</a><br><a href="https://github.com/supabase-community/supabase-mcp" target="_blank">GitHub</a></td></tr>
+<tr data-type="mcp"><td><span class="rank">11</span><div class="score">69</div></td><td><b>Atlassian MCP (Jira/Confluence)</b> <span class="badge b-mcp">MCP</span> <span class="badge b-com">社区</span><div class="repo">sooperset（社区）</div></td><td>Jira issue 检索/创建/流转、Confluence 读页与搜索，Cloud 与 Server/Data Center 都能用。</td><td class="impl">本地 stdio：<code>uvx mcp-atlassian</code>，env 填 <code>JIRA_URL / JIRA_USERNAME / JIRA_API_TOKEN</code>（DC 用 <code>JIRA_PERSONAL_TOKEN</code>）</td><td class="num">2.4K/月<div class="stars">★ 5.5K</div></td><td><a href="https://mcp.so/servers/mcp-atlassian" target="_blank">mcp.so</a><br><a href="https://github.com/sooperset/mcp-atlassian" target="_blank">GitHub</a></td></tr>
+<tr data-type="mcp"><td><span class="rank">12</span><div class="score">69</div></td><td><b>AWS MCP Servers</b> <span class="badge b-mcp">MCP</span> <span class="badge b-off">官方</span><div class="repo">awslabs 官方</div></td><td>按服务拆分的官方包集合：文档检索、Lambda、S3、DynamoDB、Cost Explorer、Bedrock 等，用 AWS 凭证链授权。</td><td class="impl">本地 stdio（uv）：<code>uvx awslabs.core-mcp-server@latest</code> 等，具体包名与 IAM 权限按服务查 README</td><td class="num">1.6K/月<div class="stars">★ 9.4K</div></td><td><a href="https://mcp.so/servers/mcp" target="_blank">mcp.so</a><br><a href="https://github.com/awslabs/mcp" target="_blank">GitHub</a></td></tr>
+<tr data-type="mcp"><td><span class="rank">13</span><div class="score">69</div></td><td><b>Unity MCP (MCP for Unity)</b> <span class="badge b-mcp">MCP</span> <span class="badge b-com">社区</span><div class="repo">CoplayDev / justinpbarnett</div></td><td>AI 进 Unity 编辑器：管资产、搭场景、改 C# 脚本、跑测试，约 50 个工具入口；社区项目，非 Unity 官方。</td><td class="impl">Unity Package Manager → Add package from git URL：<code>https://github.com/CoplayDev/unity-mcp.git?path=/MCPForUnity#main</code>，再 Window → MCP for Unity → Configure All Detected Clients</td><td class="num">1.3K/月<div class="stars">★ 12.2K</div></td><td><a href="https://mcp.so/servers/unity-mcp" target="_blank">mcp.so</a><br><a href="https://github.com/CoplayDev/unity-mcp" target="_blank">GitHub</a></td></tr>
+<tr data-type="mcp"><td><span class="rank">14</span><div class="score">68</div></td><td><b>Obsidian MCP</b> <span class="badge b-mcp">MCP</span> <span class="badge b-com">社区</span><div class="repo">MarkusPfundstein（社区）</div></td><td>通过 Obsidian Local REST API 插件读写笔记库：列文件、读文件、全文搜索、按标题/块追加或插内容、删文件（7 工具）。</td><td class="impl">本地 stdio：<code>uvx mcp-obsidian</code>，env <code>OBSIDIAN_API_KEY / OBSIDIAN_HOST(127.0.0.1) / OBSIDIAN_PORT(27124)</code>；Obsidian 需开着</td><td class="num">2.4K/月<div class="stars">★ 4.0K</div></td><td><a href="https://mcp.so/servers/mcp-obsidian" target="_blank">mcp.so</a><br><a href="https://github.com/MarkusPfundstein/mcp-obsidian" target="_blank">GitHub</a></td></tr>
+<tr data-type="mcp"><td><span class="rank">15</span><div class="score">68</div></td><td><b>BrowserTools MCP</b> <span class="badge b-mcp">MCP</span> <span class="badge b-com">社区</span><div class="repo">AgentDeskAI（社区）</div></td><td>把浏览器控制台的日志、网络请求、DOM 快照、截图、Lighthouse 审计送进 IDE，让 Agent 看得到前端真实报错。</td><td class="impl">本地 stdio：<code>npx -y @agentdeskai/browser-tools-mcp@latest</code> + 装配套 Chrome 扩展</td><td class="num">1.6K/月<div class="stars">★ 7.3K</div></td><td><a href="https://mcp.so/servers/browser-tools-mcp" target="_blank">mcp.so</a><br><a href="https://github.com/AgentDeskAI/browser-tools-mcp" target="_blank">GitHub</a></td></tr>
+<tr data-type="mcp"><td><span class="rank">16</span><div class="score">68</div></td><td><b>Next.js MCP (next-devtools)</b> <span class="badge b-mcp">MCP</span> <span class="badge b-off">官方</span><div class="repo">vercel 官方</div></td><td>连你正在跑的 Next.js 16+ dev server：取实时运行错误、路由、组件树、日志，并指到本地版本对应的官方文档（4 个工具）。</td><td class="impl">本地 stdio：<code>npx -y next-devtools-mcp@latest</code>（需 Next.js 16+ 项目在运行）</td><td class="num">5.4K/月<div class="stars">★ 829</div></td><td><a href="https://mcp.so/servers/next-devtools-mcp" target="_blank">mcp.so</a><br><a href="https://github.com/vercel/next-devtools-mcp" target="_blank">GitHub</a></td></tr>
+<tr data-type="mcp"><td><span class="rank">17</span><div class="score">67</div></td><td><b>Firecrawl MCP</b> <span class="badge b-mcp">MCP</span> <span class="badge b-off">官方</span><div class="repo">mendableai 官方</div></td><td>网页数据全流程：搜索、抓单页、整站爬取、结构化抽取、批量任务，返回干净 Markdown。</td><td class="impl">本地：<code>npx -y firecrawl-mcp</code> + <code>FIRECRAWL_API_KEY</code>；也有官方远程端点（云端部署版）</td><td class="num">1.3K/月<div class="stars">★ 6.9K</div></td><td><a href="https://mcp.so/servers/firecrawl-mcp-server" target="_blank">mcp.so</a><br><a href="https://github.com/mendableai/firecrawl-mcp-server" target="_blank">GitHub</a></td></tr>
+<tr data-type="mcp"><td><span class="rank">18</span><div class="score">67</div></td><td><b>Slack MCP</b> <span class="badge b-mcp">MCP</span> <span class="badge b-com">社区</span><div class="repo">korotovsky（社区）</div></td><td>读频道/线程/DM 历史、发消息与回复、搜索；主打无需额外审批的 token 直连与 GovSlack 支持。</td><td class="impl">本地 stdio / Docker：<code>slack-mcp-server</code> 包 + <code>SLACK_MCP_XOXP_TOKEN</code>（或 xoxb）环境变量，具体参数见 README</td><td class="num">2.9K/月<div class="stars">★ 1.7K</div></td><td><a href="https://mcp.so/servers/slack-mcp-server" target="_blank">mcp.so</a><br><a href="https://github.com/korotovsky/slack-mcp-server" target="_blank">GitHub</a></td></tr>
+<tr data-type="mcp"><td><span class="rank">19</span><div class="score">66</div></td><td><b>Exa MCP</b> <span class="badge b-mcp">MCP</span> <span class="badge b-off">官方</span><div class="repo">exa-labs 官方</div></td><td>为 Agent 设计的语义搜索与网页抓取：按语义找页面、取正文、公司/人/论文研究，比关键词搜索更贴任务。</td><td class="impl">远程：<code>https://mcp.exa.ai/mcp?exaApiKey=&lt;key&gt;</code>；本地：<code>npx -y exa-mcp-server</code> + <code>EXA_API_KEY</code></td><td class="num">1.3K/月<div class="stars">★ 4.7K</div></td><td><a href="https://mcp.so/servers/exa-mcp-server" target="_blank">mcp.so</a><br><a href="https://github.com/exa-labs/exa-mcp-server" target="_blank">GitHub</a></td></tr>
+<tr data-type="mcp"><td><span class="rank">20</span><div class="score">65</div></td><td><b>n8n MCP</b> <span class="badge b-mcp">MCP</span> <span class="badge b-com">社区</span><div class="repo">leonardsellem（社区）</div></td><td>接你的 n8n 实例：列工作流、看模板与节点文档、触发与管理执行，把自动化流程当工具给 Agent。</td><td class="impl">本地 stdio：Node 包方式运行（<code>n8n-mcp-server</code>），env 填 <code>N8N_API_URL</code> 与 <code>N8N_API_KEY</code></td><td class="num">2.4K/月<div class="stars">★ 1.6K</div></td><td><a href="https://mcp.so/servers/n8n-mcp-server" target="_blank">mcp.so</a><br><a href="https://github.com/leonardsellem/n8n-mcp-server" target="_blank">GitHub</a></td></tr>
+<tr data-type="mcp"><td><span class="rank">21</span><div class="score">65</div></td><td><b>Godot MCP</b> <span class="badge b-mcp">MCP</span> <span class="badge b-com">社区</span><div class="repo">Coding-Solo（社区）</div></td><td>Godot 引擎闭环：启动编辑器、跑项目、取调试输出、建场景/加节点/载精灵、导出 MeshLibrary，14 个工具。</td><td class="impl">本地 stdio：<code>npx @coding-solo/godot-mcp</code>（可设 <code>GODOT_PATH</code>、<code>DEBUG=true</code>）</td><td class="num">1.3K/月<div class="stars">★ 4.6K</div></td><td><a href="https://mcp.so/servers/godot-mcp" target="_blank">mcp.so</a><br><a href="https://github.com/Coding-Solo/godot-mcp" target="_blank">GitHub</a></td></tr>
+<tr data-type="mcp"><td><span class="rank">22</span><div class="score">64</div></td><td><b>shadcn/ui MCP</b> <span class="badge b-mcp">MCP</span> <span class="badge b-off">官方</span><div class="repo">Jpisnice（社区，非官方）</div></td><td>让 Agent 知道 shadcn/ui 组件的结构、用法和安装方式，兼容 React / Svelte 5 / Vue / React Native。</td><td class="impl">本地 stdio：npx 方式运行该包（见 README 的配置块）；项目若用官方 CLI，可选官方 <code>npx shadcn@latest mcp init</code></td><td class="num">1.3K/月<div class="stars">★ 2.8K</div></td><td><a href="https://mcp.so/servers/shadcn-ui-mcp-unofficial" target="_blank">mcp.so</a><br><a href="https://github.com/Jpisnice/shadcn-ui-mcp-server" target="_blank">GitHub</a></td></tr>
+<tr data-type="mcp"><td><span class="rank">23</span><div class="score">63</div></td><td><b>Grafana MCP</b> <span class="badge b-mcp">MCP</span> <span class="badge b-off">官方</span><div class="repo">grafana 官方</div></td><td>仪表盘、Prometheus/Loki 查询、告警规则与路由、OnCall、Incident 全都能操作，80 个工具，运维排障神器。</td><td class="impl">本地 stdio：<code>uvx mcp-grafana</code>，env <code>GRAFANA_URL</code> + <code>GRAFANA_SERVICE_ACCOUNT_TOKEN</code></td><td class="num">1.0K/月<div class="stars">★ 3.2K</div></td><td><a href="https://mcp.so/servers/mcp-grafana" target="_blank">mcp.so</a><br><a href="https://github.com/grafana/mcp-grafana" target="_blank">GitHub</a></td></tr>
+<tr data-type="mcp"><td><span class="rank">24</span><div class="score">63</div></td><td><b>Blockbench MCP Plugin</b> <span class="badge b-mcp">MCP</span> <span class="badge b-com">社区</span><div class="repo">jasonjgardner（社区）</div></td><td>在 Blockbench 里建/贴图/动画低模：插件版驱动打开的编辑器，另有 headless stdio 版可脱机改、校验、转换、渲染 .bbmodel。</td><td class="impl">插件版：Blockbench → File > Plugins > Load Plugin from URL 粘 <code>https://jasonjgardner.github.io/blockbench-mcp-plugin/mcp.js</code>，客户端连 <code>http://localhost:3000/bb-mcp</code></td><td class="num">4.4K/月<div class="stars">★ 257</div></td><td><a href="https://mcp.so/servers/blockbench-mcp-plugin" target="_blank">mcp.so</a><br><a href="https://github.com/jasonjgardner/blockbench-mcp-plugin" target="_blank">GitHub</a></td></tr>
+<tr data-type="mcp"><td><span class="rank">25</span><div class="score">62</div></td><td><b>Postgres MCP Pro</b> <span class="badge b-mcp">MCP</span> <span class="badge b-com">社区</span><div class="repo">crystaldba（社区）</div></td><td>不只是执行 SQL：表结构智能、EXPLAIN 计划分析、pg_stat_statements 找慢查询、hypopg 模拟索引、索引调优建议，可切只读模式给生产库。</td><td class="impl">Docker：<code>docker run -i --rm -e DATABASE_URI crystaldba/postgres-mcp --access-mode=restricted</code>；或 <code>uvx postgres-mcp --access-mode=restricted</code></td><td class="num">880/月<div class="stars">★ 3.0K</div></td><td><a href="https://mcp.so/servers/postgres-mcp" target="_blank">mcp.so</a><br><a href="https://github.com/crystaldba/postgres-mcp" target="_blank">GitHub</a></td></tr>
+<tr data-type="mcp"><td><span class="rank">26</span><div class="score">62</div></td><td><b>Mux MCP</b> <span class="badge b-mcp">MCP</span> <span class="badge b-off">官方</span><div class="repo">muxinc 官方</div></td><td>视频平台操作：上传视频、管直播、查 Mux Data 播放分析；「Code Mode」设计，只暴露 search_docs 和 execute 两个工具，后者可跑 TypeScript 调完整 Mux SDK。</td><td class="impl">远程 OAuth（推荐）：<code>https://mcp.mux.com</code>；本地：<code>npx -y @mux/mcp@latest</code> + <code>MUX_TOKEN_ID/MUX_TOKEN_SECRET</code></td><td class="num">4.4K/月<div class="stars">★ 182</div></td><td><a href="https://mcp.so/servers/mux-mcp" target="_blank">mcp.so</a><br><a href="https://github.com/muxinc/mux-ts" target="_blank">GitHub</a></td></tr>
+<tr data-type="mcp"><td><span class="rank">27</span><div class="score">61</div></td><td><b>Linear MCP</b> <span class="badge b-mcp">MCP</span> <span class="badge b-com">社区</span><div class="repo">jerhadf（社区）</div></td><td>Linear 项目管理接入：建/改 issue、查团队与项目、按状态筛选，把任务流交给 Agent。</td><td class="impl">本地 stdio：npx 方式运行该包（见 README），需 <code>LINEAR_API_KEY</code></td><td class="num">2.9K/月<div class="stars">★ 345</div></td><td><a href="https://mcp.so/servers/linear-mcp-server" target="_blank">mcp.so</a><br><a href="https://github.com/jerhadf/linear-mcp-server" target="_blank">GitHub</a></td></tr>
+<tr data-type="mcp"><td><span class="rank">28</span><div class="score">61</div></td><td><b>Salesforce MCP</b> <span class="badge b-mcp">MCP</span> <span class="badge b-off">官方</span><div class="repo">salesforcecli 官方</div></td><td>接 Salesforce org：查/改对象与记录、跑 SOQL、看元数据，凭 org 授权（`sf` 登录态）操作。</td><td class="impl">通过 Salesforce CLI 扩展启动（Node 包 + <code>sf</code> 已授权 org），配置见 README / Salesforce DX 文档</td><td class="num">2.4K/月<div class="stars">★ 437</div></td><td><a href="https://mcp.so/servers/mcp-salesforcecli" target="_blank">mcp.so</a><br><a href="https://github.com/salesforcecli/mcp" target="_blank">GitHub</a></td></tr>
+<tr data-type="mcp"><td><span class="rank">29</span><div class="score">61</div></td><td><b>Apple Notes MCP</b> <span class="badge b-mcp">MCP</span> <span class="badge b-com">社区</span><div class="repo">RafalWilinski（社区）</div></td><td>对 Apple Notes 做 RAG：列出笔记夹、读取与全文搜索笔记，让 Agent 引用你本机笔记；仅 macOS。</td><td class="impl">本地运行（macOS + AppleScript 自动化权限），首次运行需在系统设置里给终端/客户端授权，命令见 README</td><td class="num">2.4K/月<div class="stars">★ 401</div></td><td><a href="https://mcp.so/servers/mcp-apple-notes" target="_blank">mcp.so</a><br><a href="https://github.com/RafalWilinski/mcp-apple-notes" target="_blank">GitHub</a></td></tr>
+<tr data-type="mcp"><td><span class="rank">30</span><div class="score">61</div></td><td><b>Docker MCP Toolkit & Gateway</b> <span class="badge b-mcp">MCP</span> <span class="badge b-off">官方</span><div class="repo">docker 官方</div></td><td>用容器跑 MCP 的总闸：从 Docker MCP Catalog 选服务器、组 profile、由 gateway 统一暴露一个端点，隔离性好、可审计。</td><td class="impl">本地：<code>docker mcp gateway run --profile &lt;名字&gt;</code>，再 <code>docker mcp client connect &lt;claude-code|cursor|...&gt;</code>；需 Docker Desktop 开 MCP Toolkit</td><td class="num">1.0K/月<div class="stars">★ 1.6K</div></td><td><a href="https://mcp.so/servers/docker-mcp-gateway" target="_blank">mcp.so</a><br><a href="https://github.com/docker/mcp-gateway" target="_blank">GitHub</a></td></tr>
+      </table></div>
+
+        <h4 id="rank-skill">A.2 Agent Skills Top 30</h4>
+        <p>Skill = 一个文件夹 + <code>SKILL.md</code>（name/description/步骤）+ 可选脚本与参考文件，安装后由 Agent 按需自动加载。统一用 Skills CLI 安装，装到 Claude Code / Cursor / Codex / Copilot / Gemini CLI 等 20+ 客户端。</p>
+        <div class="rank-twrap"><table>
+        <tr><th>#</th><th>名称 / 仓库</th><th>功能（教会 Agent 什么）</th><th>实现方法 / 安装命令</th><th>安装量</th><th>安全审计</th><th>链接</th></tr>
+        <tr data-type="skill"><td><span class="rank">1</span></td><td><b>find-skills</b> <span class="badge b-skill">Skill</span> <span class="badge b-off">官方</span><div class="repo">vercel-labs/skills</div></td><td>元技能：教 Agent 自己发现、评估、安装 Skill。先查 skills.sh 榜（装量 1K+、官方源、Stars），再用浏览器/CLI 搜；用户问「有没有做 X 的 skill」时自动接手。</td><td><code class="cmd">npx skills add https://github.com/vercel-labs/skills --skill find-skills</code></td><td class="num">452 万</td><td><span class="badge b-audit-bad">Snyk ⚠</span></td><td><a href="https://www.skills.sh/vercel-labs/skills/find-skills" target="_blank">skills.sh</a></td></tr>
+<tr data-type="skill"><td><span class="rank">2</span></td><td><b>hyperframes-cli</b> <span class="badge b-skill">Skill</span> <span class="badge b-com">社区</span><div class="repo">heygen-com/hyperframes</div></td><td>HyperFrames 视频工程的 CLI：init 建项目（9 套模板）、check 结构校验、lint 检查文字溢出/裁切、preview 热重载、render 出 MP4/WebM（draft/standard/high 三档画质）。需 Node 22+ 与 FFmpeg。</td><td><code class="cmd">npx skills add https://github.com/heygen-com/hyperframes --skill hyperframes-cli</code></td><td class="num">170 万</td><td><span class="badge b-audit-bad">Snyk ⚠</span></td><td><a href="https://www.skills.sh/heygen-com/hyperframes/hyperframes-cli" target="_blank">skills.sh</a></td></tr>
+<tr data-type="skill"><td><span class="rank">3</span></td><td><b>agent-browser</b> <span class="badge b-skill">Skill</span> <span class="badge b-off">官方</span><div class="repo">vercel-labs/agent-browser</div></td><td>给 Agent 的浏览器自动化 CLI：CDP + 无障碍树快照 + @eN 元素引用，支持无头 Chromium、真实 Chrome 配置档、云端浏览器；导航/点击/填表/取数/Cookie/执行 JS 等命令族，会话可跨命令保持。</td><td><code class="cmd">npx skills add https://github.com/vercel-labs/agent-browser --skill agent-browser<br>（另装 CLI：npm i -g agent-browser && agent-browser install）</code></td><td class="num">168 万</td><td><span class="badge b-audit-bad">Snyk ⚠</span></td><td><a href="https://www.skills.sh/vercel-labs/agent-browser/agent-browser" target="_blank">skills.sh</a></td></tr>
+<tr data-type="skill"><td><span class="rank">4</span></td><td><b>hyperframes</b> <span class="badge b-skill">Skill</span> <span class="badge b-com">社区</span><div class="repo">heygen-com/hyperframes</div></td><td>用 HTML 写视频：GSAP 时间线 + data-* 计时，框架负责片段显隐、音画同步、可精确 seek 的确定性渲染；字幕/TTS 旁白、音频驱动动效、场景转场、变量参数化、design.md 设计系统。</td><td><code class="cmd">npx skills add https://github.com/heygen-com/hyperframes --skill hyperframes</code></td><td class="num">166 万</td><td><span class="badge b-audit-bad">Snyk ⚠</span></td><td><a href="https://www.skills.sh/heygen-com/hyperframes/hyperframes" target="_blank">skills.sh</a></td></tr>
+<tr data-type="skill"><td><span class="rank">5</span></td><td><b>design-mobile-apps</b> <span class="badge b-skill">Skill</span> <span class="badge b-com">社区</span><div class="repo">designed-by-ai/skills</div></td><td>借 sleek.design 的 REST API（/api/v1/*，Bearer SLEEK_API_KEY）从一段需求简报直接产出移动端界面，取回 HTML 与渲染图；含设备登录、分页、错误信封等接口约定。</td><td><code class="cmd">npx skills add https://github.com/designed-by-ai/skills --skill design-mobile-apps</code></td><td class="num">161 万</td><td><span class="badge b-audit-bad">Snyk ✗</span></td><td><a href="https://www.skills.sh/designed-by-ai/skills/design-mobile-apps" target="_blank">skills.sh</a></td></tr>
+<tr data-type="skill"><td><span class="rank">6</span></td><td><b>grill-me</b> <span class="badge b-skill">Skill</span> <span class="badge b-com">社区</span><div class="repo">mattpocock/skills</div></td><td>开工前的「拷问」：把方案拆成决策树，沿着分支一路追问到共识；有代码可查时自己去代码库找答案，减少来回。等价于 grilling 的快捷入口。</td><td><code class="cmd">npx skills add https://github.com/mattpocock/skills --skill grill-me</code></td><td class="num">160 万</td><td><span class="badge b-audit-ok">Snyk ✓</span></td><td><a href="https://www.skills.sh/mattpocock/skills/grill-me" target="_blank">skills.sh</a></td></tr>
+<tr data-type="skill"><td><span class="rank">7</span></td><td><b>media-use</b> <span class="badge b-skill">Skill</span> <span class="badge b-com">社区</span><div class="repo">heygen-com/hyperframes</div></td><td>视频项目里的素材总入口：一条 media-use resolve 命令按用途找或生成图片/视频/音频/配音，落成本地 assets/ 文件并记账，渲染时不再联网抓取。</td><td><code class="cmd">npx skills add https://github.com/heygen-com/hyperframes --skill media-use</code></td><td class="num">157 万</td><td><span class="badge b-audit-bad">Socket ⚠ / Snyk ✗</span></td><td><a href="https://www.skills.sh/heygen-com/hyperframes/media-use" target="_blank">skills.sh</a></td></tr>
+<tr data-type="skill"><td><span class="rank">8</span></td><td><b>reddit-automation</b> <span class="badge b-skill">Skill</span> <span class="badge b-com">社区</span><div class="repo">flowkit-labs/skills</div></td><td>在 Reddit 上找「真的需要你产品」的帖子，并起草值得发的回复：强调披露身份、先有用再提产品，两步法（筛帖 → 写回复）避免刷屏。</td><td><code class="cmd">npx skills add https://github.com/flowkit-labs/skills --skill reddit-automation</code></td><td class="num">153 万</td><td><span class="badge b-audit-bad">Snyk ⚠</span></td><td><a href="https://www.skills.sh/flowkit-labs/skills/reddit-automation" target="_blank">skills.sh</a></td></tr>
+<tr data-type="skill"><td><span class="rank">9</span></td><td><b>hyperframes-registry</b> <span class="badge b-skill">Skill</span> <span class="badge b-com">社区</span><div class="repo">heygen-com/hyperframes</div></td><td>视频组件市场：catalog --query 用自然语言搜动效/转场/字幕样式，add &lt;name&gt; 装进项目。block 是独立子合成（需 data-composition-src/-id/-start/-duration 接线），component 是可直接粘的片段。</td><td><code class="cmd">npx skills add https://github.com/heygen-com/hyperframes --skill hyperframes-registry</code></td><td class="num">144 万</td><td><span class="badge b-audit-bad">Snyk ✗</span></td><td><a href="https://www.skills.sh/heygen-com/hyperframes/hyperframes-registry" target="_blank">skills.sh</a></td></tr>
+<tr data-type="skill"><td><span class="rank">10</span></td><td><b>grill-with-docs</b> <span class="badge b-skill">Skill</span> <span class="badge b-com">社区</span><div class="repo">mattpocock/skills</div></td><td>带文档的拷问：读 GLOSSARY.md 术语表与 docs/adr/ 决策记录，用具体场景压测设计、挑出术语冲突，并把结论回写术语表/ADR（内部调用 grilling + domain-modeling）。</td><td><code class="cmd">npx skills add https://github.com/mattpocock/skills --skill grill-with-docs</code></td><td class="num">137 万</td><td><span class="badge b-audit-ok">Snyk ✓</span></td><td><a href="https://www.skills.sh/mattpocock/skills/grill-with-docs" target="_blank">skills.sh</a></td></tr>
+<tr data-type="skill"><td><span class="rank">11</span></td><td><b>improve-codebase-architecture</b> <span class="badge b-skill">Skill</span> <span class="badge b-com">社区</span><div class="repo">mattpocock/skills</div></td><td>找架构摩擦点并提出「深化模块」重构：按 Ousterhout 深模块原则定位浅模块、耦合、没测的接缝；并行子代理产出多套接口方案（极简/灵活/调用者优先/端口适配器），最后开 GitHub issue RFC。</td><td><code class="cmd">npx skills add https://github.com/mattpocock/skills --skill improve-codebase-architecture</code></td><td class="num">130 万</td><td><span class="badge b-audit-bad">Snyk ⚠</span></td><td><a href="https://www.skills.sh/mattpocock/skills/improve-codebase-architecture" target="_blank">skills.sh</a></td></tr>
+<tr data-type="skill"><td><span class="rank">12</span></td><td><b>tdd</b> <span class="badge b-skill">Skill</span> <span class="badge b-com">社区</span><div class="repo">mattpocock/skills</div></td><td>真·TDD 纪律：垂直切片（一个测试 → 一段实现 → 再来），测试走公开接口验行为、重构后不变；先和用户确认 seam 再写测试，绿了才重构。</td><td><code class="cmd">npx skills add https://github.com/mattpocock/skills --skill tdd</code></td><td class="num">128 万</td><td><span class="badge b-audit-ok">Snyk ✓</span></td><td><a href="https://www.skills.sh/mattpocock/skills/tdd" target="_blank">skills.sh</a></td></tr>
+<tr data-type="skill"><td><span class="rank">13</span></td><td><b>setup-matt-pocock-skills</b> <span class="badge b-skill">Skill</span> <span class="badge b-com">社区</span><div class="repo">mattpocock/skills</div></td><td>一次性给仓库装配置：issue tracker 在哪（GitHub/GitLab/本地 markdown）、triage 五个角色的标签词、GLOSSARY.md 与 ADR 放哪；写 `## Agent skills` 块 + docs/agents/ 三份文档供其他 skill 读。</td><td><code class="cmd">npx skills add https://github.com/mattpocock/skills --skill setup-matt-pocock-skills</code></td><td class="num">118 万</td><td><span class="badge b-audit-ok">Snyk ✓</span></td><td><a href="https://www.skills.sh/mattpocock/skills/setup-matt-pocock-skills" target="_blank">skills.sh</a></td></tr>
+<tr data-type="skill"><td><span class="rank">14</span></td><td><b>handoff</b> <span class="badge b-skill">Skill</span> <span class="badge b-com">社区</span><div class="repo">mattpocock/skills</div></td><td>把当前会话压成一份交接文档（写入系统临时目录而非工作区），列出下个 Agent 该调用哪些 skill，已有产物只引用路径/链接不复制，并脱敏 API key、密码、个人信息。</td><td><code class="cmd">npx skills add https://github.com/mattpocock/skills --skill handoff</code></td><td class="num">117 万</td><td><span class="badge b-audit-ok">Snyk ✓</span></td><td><a href="https://www.skills.sh/mattpocock/skills/handoff" target="_blank">skills.sh</a></td></tr>
+<tr data-type="skill"><td><span class="rank">15</span></td><td><b>frontend-design</b> <span class="badge b-skill">Skill</span> <span class="badge b-off">官方</span><div class="repo">anthropics/skills</div></td><td>反「AI 味」前端：先定美学方向（粗野/极繁/复古未来/奢华/自然有机…），再谈排版、CSS 变量配色、动效、空间构成与质感；明确避开常见字体与紫渐变套路，产出可直接跑的 HTML/CSS/React/Vue。</td><td><code class="cmd">npx skills add https://github.com/anthropics/skills --skill frontend-design</code></td><td class="num">116 万</td><td><span class="badge b-audit-ok">Snyk ✓</span></td><td><a href="https://www.skills.sh/anthropics/skills/frontend-design" target="_blank">skills.sh</a></td></tr>
+<tr data-type="skill"><td><span class="rank">16</span></td><td><b>grilling</b> <span class="badge b-skill">Skill</span> <span class="badge b-com">社区</span><div class="repo">mattpocock/skills</div></td><td>grill-me 的底层方法：把设计画成决策树，按「前沿」分批提问（每轮只问前提已定的问题），每题编号并附推荐答案，等你答完再问下一轮。</td><td><code class="cmd">npx skills add https://github.com/mattpocock/skills --skill grilling</code></td><td class="num">116 万</td><td><span class="badge b-audit-ok">Snyk ✓</span></td><td><a href="https://www.skills.sh/mattpocock/skills/grilling" target="_blank">skills.sh</a></td></tr>
+<tr data-type="skill"><td><span class="rank">17</span></td><td><b>ui-taste</b> <span class="badge b-skill">Skill</span> <span class="badge b-com">社区</span><div class="repo">uizze.sh（uizze/uizze）</div></td><td>界面审美 playbook：新做、打磨、简化、审查四条路径，按网页/原生分派审查清单；只给指导不渲染，渲染结果需自己对比。可选接付费 Uizze MCP 取参考素材，不接也能用。Apache-2.0，改编自 Impeccable。</td><td><code class="cmd">npx skills add https://uizze.sh/ --skill ui-taste</code></td><td class="num">112 万</td><td><span class="badge b-audit-ok">仅 Markdown</span></td><td><a href="https://github.com/uizze/uizze" target="_blank">skills.sh</a></td></tr>
+<tr data-type="skill"><td><span class="rank">18</span></td><td><b>prototype</b> <span class="badge b-skill">Skill</span> <span class="badge b-com">社区</span><div class="repo">mattpocock/skills</div></td><td>一次性原型，只为回答一个问题：问「逻辑/状态模型对不对」→ 单文件 HTML 状态机，可给非开发者点；问「长什么样」→ 同路由多套 UI 变体可切换。数据只在内存，结论拿到就删或回灌生产码。</td><td><code class="cmd">npx skills add https://github.com/mattpocock/skills --skill prototype</code></td><td class="num">112 万</td><td><span class="badge b-audit-ok">Snyk ✓</span></td><td><a href="https://www.skills.sh/mattpocock/skills/prototype" target="_blank">skills.sh</a></td></tr>
+<tr data-type="skill"><td><span class="rank">19</span></td><td><b>triage</b> <span class="badge b-skill">Skill</span> <span class="badge b-com">社区</span><div class="repo">mattpocock/skills</div></td><td>issue 分诊状态机：bug/enhancement + needs-triage、needs-info、ready-for-agent、ready-for-human、wontfix 五态；含复现测试、信息不足时的 grilling、agent brief 模板，评论必须署名「AI 生成」。</td><td><code class="cmd">npx skills add https://github.com/mattpocock/skills --skill triage</code></td><td class="num">111 万</td><td><span class="badge b-audit-bad">Trust Hub ⚠ / Snyk ⚠</span></td><td><a href="https://www.skills.sh/mattpocock/skills/triage" target="_blank">skills.sh</a></td></tr>
+<tr data-type="skill"><td><span class="rank">20</span></td><td><b>ai-video-generation</b> <span class="badge b-skill">Skill</span> <span class="badge b-com">社区</span><div class="repo">101-skills/superpowers（源自 inference-sh/skills）</div></td><td>用 inference.sh 的 belt CLI 调 40+ 视频模型，例如 `belt app run google/veo-3-1-fast`；先 belt login 授权，按 app 计费。</td><td><code class="cmd">npx skills add https://github.com/101-skills/superpowers --skill ai-video-generation<br>（配套：npx skills add belt-sh/cli）</code></td><td class="num">107 万</td><td><span class="badge b-audit-ok">Snyk ✓</span></td><td><a href="https://www.skills.sh/101-skills/superpowers/ai-video-generation" target="_blank">skills.sh</a></td></tr>
+<tr data-type="skill"><td><span class="rank">21</span></td><td><b>ai-image-generation</b> <span class="badge b-skill">Skill</span> <span class="badge b-com">社区</span><div class="repo">101-skills/superpowers（源自 inference-sh/skills）</div></td><td>同一套 belt CLI 调 50+ 图像模型，例如 `belt app run falai/flux-dev-lora --input '{"prompt":"…"}'`；LoRA、超分、抠图等按 app 名切换。</td><td><code class="cmd">npx skills add https://github.com/101-skills/superpowers --skill ai-image-generation</code></td><td class="num">107 万</td><td><span class="badge b-audit-bad">Snyk ✗</span></td><td><a href="https://www.skills.sh/101-skills/superpowers/ai-image-generation" target="_blank">skills.sh</a></td></tr>
+<tr data-type="skill"><td><span class="rank">22</span></td><td><b>twitter-automation</b> <span class="badge b-skill">Skill</span> <span class="badge b-com">社区</span><div class="repo">101-skills/superpowers（源自 inference-sh/skills）</div></td><td>X/Twitter 自动化：发帖、串推、读互动数据走 belt 的 x/* app（如 `belt app run x/post-create`），账号授权在 inference.sh 后台完成。</td><td><code class="cmd">npx skills add https://github.com/101-skills/superpowers --skill twitter-automation</code></td><td class="num">107 万</td><td><span class="badge b-audit-bad">Snyk ⚠</span></td><td><a href="https://www.skills.sh/101-skills/superpowers/twitter-automation" target="_blank">skills.sh</a></td></tr>
+<tr data-type="skill"><td><span class="rank">23</span></td><td><b>ai-avatar-video</b> <span class="badge b-skill">Skill</span> <span class="badge b-com">社区</span><div class="repo">101-skills/superpowers（源自 inference-sh/skills）</div></td><td>数字人/口播视频：用 belt 调口播与唇形同步类 app，支持形象库与脚本驱动。</td><td><code class="cmd">npx skills add https://github.com/101-skills/superpowers --skill ai-avatar-video</code></td><td class="num">107 万</td><td><span class="badge b-audit-bad">Snyk ⚠</span></td><td><a href="https://www.skills.sh/101-skills/superpowers/ai-avatar-video" target="_blank">skills.sh</a></td></tr>
+<tr data-type="skill"><td><span class="rank">24</span></td><td><b>domain-modeling</b> <span class="badge b-skill">Skill</span> <span class="badge b-com">社区</span><div class="repo">mattpocock/skills</div></td><td>主动做领域建模：挑战模糊术语、构造边界场景，一有共识就写进 GLOSSARY.md 与 docs/adr/；多上下文用 GLOSSARY-MAP.md 分域。</td><td><code class="cmd">npx skills add https://github.com/mattpocock/skills --skill domain-modeling</code></td><td class="num">102 万</td><td><span class="badge b-audit-ok">Snyk ✓</span></td><td><a href="https://www.skills.sh/mattpocock/skills/domain-modeling" target="_blank">skills.sh</a></td></tr>
+<tr data-type="skill"><td><span class="rank">25</span></td><td><b>hyperframes-animation</b> <span class="badge b-skill">Skill</span> <span class="badge b-com">社区</span><div class="repo">heygen-com/hyperframes</div></td><td>动效知识库：rules（原子配方）、blueprints（多段镜头模板）、transitions（场景转场）、techniques（动效设计手法）、adapters（各运行时 API），按需加载而不是一次灌满上下文。</td><td><code class="cmd">npx skills add https://github.com/heygen-com/hyperframes --skill hyperframes-animation</code></td><td class="num">101 万</td><td><span class="badge b-audit-ok">Snyk ✓</span></td><td><a href="https://www.skills.sh/heygen-com/hyperframes/hyperframes-animation" target="_blank">skills.sh</a></td></tr>
+<tr data-type="skill"><td><span class="rank">26</span></td><td><b>codebase-design</b> <span class="badge b-skill">Skill</span> <span class="badge b-com">社区</span><div class="repo">mattpocock/skills</div></td><td>深模块设计词汇与原则：module / interface / depth / seam / adapter / leverage / locality，配删除测试、「接口即测试面」；强制统一用词，避免 component、service、API 等混用。</td><td><code class="cmd">npx skills add https://github.com/mattpocock/skills --skill codebase-design</code></td><td class="num">99.3 万</td><td><span class="badge b-audit-ok">Snyk ✓</span></td><td><a href="https://www.skills.sh/mattpocock/skills/codebase-design" target="_blank">skills.sh</a></td></tr>
+<tr data-type="skill"><td><span class="rank">27</span></td><td><b>teach</b> <span class="badge b-skill">Skill</span> <span class="badge b-com">社区</span><div class="repo">mattpocock/skills</div></td><td>长期教学空间：MISSION.md 定目标、lessons/*.html 每课一个、reference/ 速查卡、learning-records/ 记录已学（类似 ADR）、RESOURCES.md 书单，按最近发展区排课。</td><td><code class="cmd">npx skills add https://github.com/mattpocock/skills --skill teach</code></td><td class="num">98.6 万</td><td><span class="badge b-audit-ok">Snyk ✓</span></td><td><a href="https://www.skills.sh/mattpocock/skills/teach" target="_blank">skills.sh</a></td></tr>
+<tr data-type="skill"><td><span class="rank">28</span></td><td><b>diagnosing-bugs</b> <span class="badge b-skill">Skill</span> <span class="badge b-com">社区</span><div class="repo">mattpocock/skills</div></td><td>硬 bug 纪律：第一步不惜代价搭一个「对这个 bug 会红」的紧反馈回路，之后二分、假设验证、插桩都只是消费者；展示命令/日志前必须脱敏。</td><td><code class="cmd">npx skills add https://github.com/mattpocock/skills --skill diagnosing-bugs</code></td><td class="num">96.9 万</td><td><span class="badge b-audit-ok">Snyk ✓</span></td><td><a href="https://www.skills.sh/mattpocock/skills/diagnosing-bugs" target="_blank">skills.sh</a></td></tr>
+<tr data-type="skill"><td><span class="rank">29</span></td><td><b>ai-image-generation</b> <span class="badge b-skill">Skill</span> <span class="badge b-com">社区</span> <span class="badge b-dup">镜像</span><div class="repo">magentosh/superpowers（inference-sh 的镜像仓）</div></td><td>与第 21 名内容相同的镜像发布（同一批 inference.sh skill，仅仓库不同）。装一个即可，别重复装。</td><td><code class="cmd">npx skills add https://github.com/magentosh/superpowers --skill ai-image-generation</code></td><td class="num">96.7 万</td><td><span class="badge b-audit-bad">Snyk ✗</span></td><td><a href="https://www.skills.sh/magentosh/superpowers/ai-image-generation" target="_blank">skills.sh</a></td></tr>
+<tr data-type="skill"><td><span class="rank">30</span></td><td><b>ai-video-generation</b> <span class="badge b-skill">Skill</span> <span class="badge b-com">社区</span> <span class="badge b-dup">镜像</span><div class="repo">magentosh/superpowers（inference-sh 的镜像仓）</div></td><td>与第 20 名内容相同的镜像发布。看功能请参考 #20，本条只用于说明榜单为何重复。</td><td><code class="cmd">npx skills add https://github.com/magentosh/superpowers --skill ai-video-generation</code></td><td class="num">96.6 万</td><td><span class="badge b-audit-ok">Snyk ✓</span></td><td><a href="https://www.skills.sh/magentosh/superpowers/ai-video-generation" target="_blank">skills.sh</a></td></tr>
+      </table></div>
+
+        <div class="callout tip"><span class="ci">📌</span><div>这榜的几个明显特征：① 一人一仓通吃——mattpocock/skills 一家占了 11 个席位，构成一整套「拷问 → 建模 → TDD → 分诊 → 教学」的工程方法论；② 视频/图像生成类（hyperframes 全家桶 + inference.sh 系列）合计超 1000 万安装，说明「用 Agent 做内容」已是主流用法；③ 纯方法论 Skill（只给指令、不带脚本）占了多数，风险相对低，但仍要读一遍 SKILL.md。</div></div>
+
+        <h4 id="rank-howto">A.3 接入方法速查：Skill 与 MCP 到底怎么接</h4>
+        <p><b>装 Skill（1 条命令）</b>：先用 <code>npx skills find &lt;关键词&gt;</code> 或到 skills.sh 找；再 <code>npx skills add &lt;owner/repo 或仓库 URL&gt; --skill &lt;名字&gt;</code>（<code>-g</code> 装到用户级跨项目、<code>-y</code> 跳过确认、<code>-a claude-code -a cursor</code> 指定客户端）；用的时候直接提要求，Agent 按 SKILL.md 的 description 自动触发，也可显式点名。</p>
+        <pre><code># ① 找 Skill：官方 CLI 搜索（skills.sh 目录同源）
+npx skills find "tdd"
+
+# ② 装 Skill：--skill 可省略（装全部）；-g 用户级跨项目；-y 跳过确认；-a 指定客户端
+npx skills add anthropics/skills --skill tdd -y -a claude-code -a cursor
+# ③ More forms: install from a URL / install the whole repo at user level / view and update
+npx skills add https://github.com/anthropics/skills --skill tdd
+npx skills add anthropics/skills -g
+npx skills list
+npx skills update</code></pre>
+        <p><b>连 MCP（三步）</b>：① 选形态——有官方远程端点就优先远程（OAuth、零部署），没有就本地 stdio；② 写配置——Claude Desktop → <code>claude_desktop_config.json</code>，Cursor → <code>.cursor/mcp.json</code>，VS Code → <code>.vscode/mcp.json</code>，Claude Code → <code>claude mcp add …</code>；③ 重启客户端，在工具列表里确认工具已加载（数量对不上就是没连上）。</p>
+        <pre><code># Form 1 · Local stdio: write it into the client config file, restart the client to take effect
+# Claude Desktop: %APPDATA%\Claude\claude_desktop_config.json
+# (Cursor is .cursor/mcp.json, VS Code is .vscode/mcp.json, same format)
+{
+  "mcpServers": {
+    "playwright": { "command": "npx", "args": ["@playwright/mcp@latest"] },
+    "context7":   { "command": "npx", "args": ["@upstash/context7-mcp"] },
+    "fetch":      { "command": "uvx", "args": ["mcp-server-fetch"] },
+    "time":       { "command": "uvx", "args": ["mcp-server-time", "--local-timezone=Asia/Shanghai"] }
+  }
+}
+
+# Form 2 · Remote endpoint (recommended if the vendor provides one: OAuth login, zero local deployment)
+{
+  "mcpServers": {
+    "notion":   { "url": "https://mcp.notion.com/mcp" },
+    "context7": { "url": "https://mcp.context7.com/mcp" }
+  }
+}
+
+# Claude Code (terminal) can also connect with one command
+claude mcp add playwright -- npx @playwright/mcp@latest
+claude mcp list</code></pre>
+        <div class="callout warn"><span class="ci">🔒</span><div>关于重复条目：第 20–23 名（101-skills/superpowers）与第 29–30 名（magentosh/superpowers）内容同源，都来自 <a href="https://www.skills.sh/inference-sh/skills/ai-image-generation" target="_blank">inference-sh/skills</a>，只是被不同仓库重新发布，所以占了 6 个坑位。<b>去重后真正值得补位的</b>是飞书官方技能套件：<code>lark-doc</code>(93.8 万)、<code>lark-shared</code>、<code>lark-drive</code>、<code>lark-base</code>、<code>lark-im</code>、<code>lark-sheets</code> 等十余个，都在 93 万+ 安装、来源 <code>open.feishu.cn</code>（<a href="https://www.skills.sh/open.feishu.cn/lark-doc" target="_blank">看看 lark-doc</a>）。另外 <a href="https://www.skills.sh/obra/superpowers/brainstorming" target="_blank">obra/superpowers</a> 的 <code>brainstorming</code>、<code>systematic-debugging</code> 与 <a href="https://www.skills.sh/anthropics/skills/skill-creator" target="_blank">anthropics/skills 的 skill-creator</a> 也是高频实用项。</div></div>
+        <div class="callout tip"><span class="ci">🧨</span><div><code>grill-me</code>（把需求问清楚）→ <code>domain-modeling</code>（定术语与边界）→ <code>tdd</code>（写测试驱动实现）→ <code>diagnosing-bugs</code>（出问题先搭反馈回路）→ <code>handoff</code>（换 Agent 不丢上下文）；工具层配 <code>Context7</code>（最新文档）+ <code>Playwright / Chrome DevTools</code>（真浏览器验证）+ <code>GitHub</code>（提交与 PR）。</div></div>
+      </div>
+
+<div class="chapter" id="glossary">
+        <div class="chapter-head">
+          <div class="ch-num" style="background:linear-gradient(135deg,#64748b,#334155)">📖</div>
+          <div class="ch-title"><h3>附录 · 术语表与工具箱</h3><p>随时查阅的核心术语与推荐工具</p></div>
+        </div>
+        <table>
+          <tr><th>术语</th><th>一句话解释</th></tr>
+          <tr><td><b>LLM</b></td><td>大语言模型，预测下一个 Token 的神经网络</td></tr>
+          <tr><td><b>Token</b></td><td>文本的最小切分单位，计费与长度的度量</td></tr>
+          <tr><td><b>Embedding</b></td><td>把文本变成语义向量</td></tr>
+          <tr><td><b>RAG</b></td><td>检索增强生成：先查资料再回答</td></tr>
+          <tr><td><b>Agent</b></td><td>能自主规划、调用工具、执行任务的智能体</td></tr>
+          <tr><td><b>MCP</b></td><td>模型上下文协议，连接模型与外部工具的标准</td></tr>
+          <tr><td><b>Skill</b></td><td>可复用的 Agent 技能包（SKILL.md + 脚本 + 资源）</td></tr>
+          <tr><td><b>LoRA / QLoRA</b></td><td>参数高效微调方法，低成本定制模型</td></tr>
+          <tr><td><b>量化</b></td><td>用更低精度存储模型，换取更小体积与更快速度</td></tr>
+          <tr><td><b>vLLM</b></td><td>高性能推理引擎，生产部署常用</td></tr>
+          <tr><td><b>ReAct</b></td><td>思考-行动交替的 Agent 循环模式</td></tr>
+          <tr><td><b>RLHF / DPO</b></td><td>用人类偏好对齐模型行为的方法</td></tr>
+        </table>
+        <h5>推荐工具箱</h5>
+        <div class="grid3">
+          <div class="card"><h6>🔌 开发</h6><p>LangGraph · Dify · Coze · Ollama · vLLM</p></div>
+          <div class="card"><h6>🗄 数据</h6><p>Chroma · Milvus · Qdrant · pgvector · FAISS</p></div>
+          <div class="card"><h6>🎓 训练</h6><p>HuggingFace · PEFT · LLaMA-Factory · Axolotl</p></div>
+        </div>
+        <div class="callout pro"><span class="ci">🚀</span><div><b>下一步行动</b>选一个项目（推荐项目一：个人知识库）今天就动手跑通。遇到问题回到本 Wiki 对应章节查阅。祝你早日从“AI 使用者”进阶为“AI 构建者”！</div></div>
+      </div>
+
+      <div class="footer">
+        AI Agent 全栈 Wiki · 从入门到精通 · 模型 / Agent / RAG / 优化 / Skills<br>
+        本页面为静态单文件 Wiki，可离线使用、自由分发 · 建议结合官方文档持续更新
+      </div>
+    </div>
+  </div>
+</div>
+
+<button class="backtop" id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<script>
+// Sidebar navigation
+const navItems = document.querySelectorAll('.nav-item');
+const sidebar = document.getElementById('sidebar');
+navItems.forEach(item => {
+  item.addEventListener('click', () => {
+    const target = document.getElementById(item.dataset.target);
+    if (target) target.scrollIntoView({behavior:'smooth', block:'start'});
+    navItems.forEach(n => n.classList.remove('active'));
+    item.classList.add('active');
+    sidebar.classList.remove('open');
+  });
+});
+document.getElementById('hamburger').addEventListener('click', () => sidebar.classList.toggle('open'));
+
+// Scroll spy + progress + backtop
+const chapters = document.querySelectorAll('.chapter, .hero');
+window.addEventListener('scroll', () => {
+  const st = window.scrollY;
+  const h = document.documentElement.scrollHeight - window.innerHeight;
+  document.getElementById('progressbar').style.width = (h > 0 ? (st/h*100) : 0) + '%';
+  document.getElementById('backTop').style.display = st > 600 ? 'block' : 'none';
+  let current = 'home';
+  chapters.forEach(ch => { if (ch.offsetTop <= st + 140) current = ch.id; });
+  navItems.forEach(n => n.classList.toggle('active', n.dataset.target === current));
+}, {passive:true});
+
+// Search filter
+const searchInput = document.getElementById('searchInput');
+const noResult = document.getElementById('noResult');
+searchInput.addEventListener('input', () => {
+  const q = searchInput.value.trim().toLowerCase();
+  let visible = 0;
+  document.querySelectorAll('.chapter').forEach(ch => {
+    const match = !q || ch.textContent.toLowerCase().includes(q);
+    ch.classList.toggle('hidden', !match);
+    if (match) visible++;
+  });
+  noResult.classList.toggle('hidden', visible > 0);
+  if (q) document.getElementById('home').scrollIntoView({behavior:'smooth'});
+});
+
+// Appendix A: rank table filter (60 rows)
+(function(){
+  const q = document.getElementById('rankSearch');
+  const countEl = document.getElementById('rankCount');
+  const chapter = document.getElementById('rank');
+  if (!q || !chapter) return;
+  const rows = Array.from(chapter.querySelectorAll('tr[data-type]'));
+  let filter = 'all';
+  function apply() {
+    const v = q.value.trim().toLowerCase();
+    let shown = 0;
+    rows.forEach(tr => {
+      const typeOk = filter === 'all' || tr.dataset.type === filter;
+      const textOk = !v || tr.textContent.toLowerCase().includes(v);
+      const on = typeOk && textOk;
+      tr.style.display = on ? '' : 'none';
+      if (on) shown++;
+    });
+    countEl.textContent = '当前显示 ' + shown + ' / 60 条';
+  }
+  q.addEventListener('input', apply);
+  document.querySelectorAll('#rankTabs .rtab').forEach(t => {
+    t.addEventListener('click', () => {
+      document.querySelectorAll('#rankTabs .rtab').forEach(x => x.classList.remove('active'));
+      t.classList.add('active');
+      filter = t.dataset.f;
+      apply();
+    });
+  });
+  apply();
+})();
+
+// Copy code buttons
+document.querySelectorAll('pre').forEach(pre => {
+  const btn = document.createElement('button');
+  btn.className = 'copy-btn';
+  btn.textContent = '复制';
+  btn.addEventListener('click', () => {
+    navigator.clipboard.writeText(pre.querySelector('code').innerText).then(() => {
+      btn.textContent = '已复制 ✓';
+      setTimeout(() => btn.textContent = '复制', 1500);
+    });
+  });
+  pre.appendChild(btn);
+});
+</script>
+</body>
+</html>
