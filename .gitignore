@@ -21,7 +21,8 @@ tmp/
 
 # MCP 产物目录（久伴 Agent 自动添加）
 Aitemp/
-*.php
-tools/
-blog/public/
-.github/
+
+# 源码目录显式保留：*.php / tools/ / blog/public/ / .github 曾被误写进忽略名单，
+# 导致重新 init 仓库时 app/lib、app/templates、public/*.php、.github/workflows
+# 全部漏提交（推 GitHub 时才会发现少了一堆文件）。敏感配置由上面的
+# app/config.php 精确排除即可，不需要整类忽略。
