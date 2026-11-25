@@ -23,4 +23,5 @@ tmp/
 Aitemp/
 *.php
 tools/
-web-code/blog/public/
+blog/public/
+.github/
