@@ -1,0 +1,20 @@
+# 生成产物：由后台「生成静态站」写入，GitHub Actions 会强制提交自己那份
+dist/
+
+# 本地配置，含数据库密码，绝不入库
+app/config.php
+
+# 后台上传的图片：留在主机上，静态产物由 dist/ 同步
+app/assets/uploads/
+
+# 临时截图 / 预览文件
+.preview-*
+.studio-*
+
+# 系统垃圾
+.DS_Store
+Thumbs.db
+desktop.ini
+.jbagent/
+tmp/
+*.log
