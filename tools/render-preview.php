@@ -140,9 +140,22 @@ foreach (['404.html', 'about.html', 'column.html'] as $static) {
     }
 }
 
+$assetSrc = CY_APP . '/assets';
 @mkdir($out . '/assets', 0775, true);
-foreach (glob(CY_APP . '/assets/*') ?: [] as $asset) {
-    copy($asset, $out . '/assets/' . basename($asset));
+$assetItems = new RecursiveIteratorIterator(
+    new RecursiveDirectoryIterator($assetSrc, FilesystemIterator::SKIP_DOTS),
+    RecursiveIteratorIterator::SELF_FIRST
+);
+foreach ($assetItems as $item) {
+    /** @var SplFileInfo $item */
+    $rel = substr(str_replace('\\', '/', $item->getPathname()), strlen(str_replace('\\', '/', $assetSrc)) + 1);
+    $target = $out . '/assets/' . $rel;
+    if ($item->isDir()) {
+        @mkdir($target, 0775, true);
+        continue;
+    }
+    @mkdir(dirname($target), 0775, true);
+    copy($item->getPathname(), $target);
 }
 echo "          assets/\n";
 
