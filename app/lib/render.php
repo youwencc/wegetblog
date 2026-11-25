@@ -78,8 +78,7 @@ function page_head(array $o): void
 
     echo '<link rel="alternate" type="application/rss+xml" title="' . h((string) cfg('site.name')) . ' RSS" href="' . h(site_url('feed.xml')) . '">' . "\n";
     echo '<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 64 64\'%3E%3Crect width=\'64\' height=\'64\' fill=\'%23191712\'/%3E%3Crect x=\'12\' y=\'12\' width=\'18\' height=\'18\' fill=\'%23a6432b\'/%3E%3Crect x=\'34\' y=\'34\' width=\'18\' height=\'18\' fill=\'%23f8f6f0\'/%3E%3C/svg%3E">' . "\n";
-    echo '<link rel="preconnect" href="https://miaoda.feishu.cn" crossorigin>' . "\n";
-    echo '<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@500;600;700&family=Noto+Sans+SC:wght@300;400;500&display=swap">' . "\n";
+    echo '<link rel="stylesheet" href="assets/fonts.css">' . "\n";
     echo '<link rel="stylesheet" href="' . $root . 'assets/style.css">' . "\n";
     echo '<script src="' . $root . 'assets/main.js" defer></script>' . "\n";
     if ($jsonldStr !== '') {

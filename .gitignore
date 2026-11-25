@@ -1,5 +1,5 @@
-# 生成产物：由后台「生成静态站」写入，GitHub Actions 会强制提交自己那份
-dist/
+# 发布产物：随代码提交并部署到 GitHub Pages
+# dist/
 
 # 本地配置，含数据库密码，绝不入库
 app/config.php
@@ -18,3 +18,8 @@ desktop.ini
 .jbagent/
 tmp/
 *.log
+
+# MCP 产物目录（久伴 Agent 自动添加）
+Aitemp/
+*.php
+tools/

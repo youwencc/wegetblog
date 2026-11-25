@@ -106,12 +106,12 @@ check('作品 3 个', $stats['works'] === 3, (string) $stats['works']);
 
 $published = publish_site();
 check('生成首页', is_file(dist_path('index.html')));
+check('手写 wiki 未被清理', is_file(dist_path('wiki/git.html')) && is_file(dist_path('wiki/ai-agent-wiki.html')));
 check('生成文章页', is_file(dist_path('posts/pixijs-frame-budget.html')));
 check('生成作品页', is_file(dist_path('works/tinyplayer.html')));
 check('生成 sitemap', is_file(dist_path('sitemap.xml')));
 check('生成 feed', is_file(dist_path('feed.xml')));
 check('生成 404', is_file(dist_path('404.html')));
-check('生成 .nojekyll', is_file(dist_path('.nojekyll')));
 check('复制 assets', is_file(dist_path('assets/style.css')));
 
 $index = (string) file_get_contents(dist_path('index.html'));

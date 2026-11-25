@@ -1,0 +1,37 @@
+name: Deploy to GitHub Pages
+
+# 陈屿 · 技术笔记 静态站部署（本地生成 dist/ 后手动 push，本工作流只负责发布）
+#
+# 流程：push 时把仓库里的 dist/ 打包上传 → GitHub Pages 只发布 dist/。
+#       PHP 源码（含数据库配置）永远不会出现在 Pages 上，仓库公开也安全。
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Upload dist/ for Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

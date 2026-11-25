@@ -1,11 +1,11 @@
 # 陈屿 · 技术笔记
 
-个人技术博客。前台是纯静态 HTML，后台是 PHP 8.2 + MySQL，内容写完生成整站，再通过 GitHub Actions 同步到 GitHub Pages。
+个人技术博客。前台是纯静态 HTML，后台是 PHP 8.2 + MySQL，内容写完生成整站 `dist/`，手动提交推送到 GitHub Pages。
 
 - 前台：无框架、无构建、无统计脚本，一份 CSS、一份 JS
 - 后台：文章 / 作品 / 分类的增删改，作品可上传封面与正文插图，发布时生成 `dist/`
 - 站点设置：顶部导航、页脚链接与备案、首页 Logbook、各页 SEO（含关于/专栏等内页）
-- 部署：主机存 PHP 与数据库，Pages 只发布静态文件
+- 部署：本地生成 `dist/` 入库，Pages 直接发布
 
 ## 目录
 
@@ -34,7 +34,7 @@ blog/
 ├─ public/               虚拟主机 Web 根
 │  ├─ admin.php          后台
 │  └─ install.php        一次性初始化
-├─ dist/                 生成的静态站（gitignore，Actions 会提交自己那份）
+├─ dist/                 生成的静态站（发布产物，随代码提交）
 ├─ tools/
 │  ├─ password.php       生成后台密码哈希
 │  ├─ publish.php        命令行生成静态站
@@ -42,9 +42,8 @@ blog/
 │  ├─ selftest.php       建表 / 导入 / CRUD / 生成 全流程自检
 │  └─ extract-seed.mjs   从旧静态页提取种子
 ├─ docs/
-│  ├─ DEPLOY.md          虚拟主机 + Pages 部署
-│  └─ GITHUB_SYNC.md     FTP 同步工作流说明
-├─ .github/workflows/ftp-sync.yml
+│  └─ DEPLOY.md          本地生成 + Pages 部署说明
+├─ .github/workflows/deploy-pages.yml
 └─ index.html …          重构前的手写静态版，留作参考；线上用的是 dist/
 ```
 
@@ -73,7 +72,7 @@ php tools/render-preview.php .preview-dist
 2. 填标题、slug、描述、栏目、标签、日期，状态选「已发布」
 3. 正文写 HTML；每个 `<h2>` 带 `id`，右侧目录会自动生成
 4. 保存 → 回列表 → 点「生成静态站」
-5. 等 Actions 同步（最多 30 分钟），或手动触发一次
+5. `git add dist/` → commit → push，Pages 随即部署
 
 作品的「参数表」是一行一条 `名称 | 内容`，「要点」每行一条，列表里只展示前三条。
 作品编辑器支持「封面图」和「往正文插入图片」：图片上传到 `app/assets/uploads/works/`，发布时随 `assets/` 一起进 `dist/`。
@@ -110,11 +109,11 @@ php tools/render-preview.php .preview-dist
 
 ## 安全
 
-后台密码用 `password_hash`，表单全部校验 CSRF，slug 限定 `[a-z0-9-]`，正文只接受管理员提交的 HTML。`app/` 不在 Web 根内，`config.php` 与 `dist/` 都不进 Git。上线后删除 `install.php`。
+后台密码用 `password_hash`，表单全部校验 CSRF，slug 限定 `[a-z0-9-]`，正文只接受管理员提交的 HTML。`app/` 不在 Web 根内；`config.php` 不进 Git，`dist/` 是发布产物、随代码提交。上线后删除 `install.php`。
 
 ## 已知边界
 
 - 没有图片上传，图片走外链或手动放进 `app/assets/`
 - 没有全文搜索，只有标签筛选
 - 删除内容后需要手动再生成一次静态站
-- 同步是定时的，不是保存即上线
+- 发布后需要手动 commit + push，不是保存即上线

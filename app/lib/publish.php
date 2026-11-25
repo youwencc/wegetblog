@@ -101,7 +101,8 @@ function publish_site(): array
     $works = works('published');
     $stats = site_stats();
 
-    // 先清掉会随 slug 变动的目录，避免遗留旧页
+    // 先清掉会随 slug 变动的目录与具名文件，避免遗留旧页。
+    // 注意：dist/wiki/ 是手写静态内容，不属于生成范围，任何清理都不允许触碰它。
     remove_tree($dist . '/posts');
     remove_tree($dist . '/works');
     foreach (['index.html', 'blog.html', 'works.html', 'sitemap.xml', 'feed.xml', '404.html'] as $stale) {
@@ -161,7 +162,6 @@ function publish_site(): array
     $write['sitemap.xml'] = render_sitemap($posts, $works, $stats);
     $write['feed.xml']    = render_feed($posts);
     $write['robots.txt']  = render_robots();
-    $write['.nojekyll']   = '';
 
     foreach ($write as $rel => $html) {
         write_out($rel, $html);

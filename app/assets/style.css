@@ -1523,24 +1523,21 @@ html[data-theme="dark"] .theme-toggle .i-moon { display: none; }
 }
 
 .columns {
-  column-count: 2;
-  column-gap: clamp(30px, 5vw, 58px);
-  column-rule: 1px solid var(--rule);
+  max-width: 690px;
+  margin-inline: auto;
   font-family: var(--serif);
-  font-size: 16px;
+  font-size: 17px;
   line-height: 2.05;
   color: var(--ink);
   text-align: justify;
 }
 .columns p {
   margin: 0 0 1.5em;
-  break-inside: avoid-column;
   orphans: 2;
   widows: 2;
 }
 .columns p:first-child { margin-top: 0; }
 .columns .pull {
-  break-inside: avoid-column;
   font-size: 17px;
   line-height: 1.85;
   color: var(--accent);
@@ -1643,7 +1640,7 @@ html[data-theme="dark"] .theme-toggle .i-moon { display: none; }
   .notes { grid-template-columns: 1fr; }
   .stack { grid-template-columns: 1fr; }
   .footer-grid { grid-template-columns: 1fr; gap: 26px; }
-  .columns { column-count: 1; column-rule: 0; text-align: left; font-size: 16.5px; }
+  .columns { text-align: left; font-size: 16.5px; }
   .colophon { flex-direction: column; }
   .wordmark { flex-direction: column; align-items: flex-start; gap: 10px; }
   .wm-meta { text-align: left; padding-bottom: 0; }

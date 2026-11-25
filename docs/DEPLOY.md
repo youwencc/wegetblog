@@ -1,36 +1,34 @@
 # 部署说明
 
-这套站点的结构是「后端在虚拟主机，前端在 GitHub Pages」：
+这套站点的结构是「本地 PHP + MySQL 生成静态站，GitHub Pages 发布」：
 
 ```
-虚拟主机（PHP 8.2 + MySQL）
-├─ app/                 逻辑、模板、配置，放在 Web 根之外
+本地（PHP 8.2 + MySQL，phpStudy）
+├─ app/                 逻辑、模板、配置
 │  ├─ config.php        数据库与站点配置（不提交 Git）
 │  ├─ lib/ bootstrap / content / render / publish / install
 │  ├─ templates/        首页、博客、作品、详情页模板
 │  ├─ assets/           style.css、main.js（生成时复制到 dist）
 │  └─ content/seed.json 现有 4 篇文章 + 3 个作品
-├─ public/              Web 根（绑定域名的目录）
+├─ public/              后台入口
 │  ├─ admin.php         后台：文章/作品增删改 + 生成静态站
 │  └─ install.php       一次性初始化：建表、导入、生成
-└─ dist/                生成的静态站，FTP_DIR 指向这里
+└─ dist/                生成的静态站，发布产物，随代码提交
 
-GitHub Actions ──FTP 拉取 dist/ ──► 只提交静态文件 ──► GitHub Pages
+本地生成 dist/ ──commit + push──► GitHub Pages
 ```
 
-后台写的每一篇内容都先落到 MySQL，点「生成静态站」后写成 HTML，再由工作流同步到 Pages。PHP 源码和数据库密码不会进入 Pages，所以仓库公开也没关系。
+后台写的每一篇内容都先落到 MySQL，点「生成静态站」后写成 HTML，commit + push 后 Pages 立即部署。PHP 源码和数据库密码不会出现在 Pages 上，所以仓库公开也没关系。
 
 ## 一、准备数据库
 
-在主机控制面板（宝塔 / cPanel / DirectAdmin）里新建 MySQL 数据库，记下：
+本地 phpStudy 里建 MySQL 数据库，记下主机、端口、库名、用户名、密码。字符集选 `utf8mb4`：
 
-- 主机：多数虚拟主机是 `localhost`，少数是独立地址
-- 端口：一般 3306
-- 库名、用户名、密码
+```bash
+mysql -u root -p -e "CREATE DATABASE chenyu_blog CHARACTER SET utf8mb4"
+```
 
-字符集选 `utf8mb4`。如果面板不给建库权限，就在 phpMyAdmin 里手动建。
-
-## 二、上传文件
+## 二、初始化与写配置
 
 用 FTP 或面板的文件管理器上传：
 
@@ -120,7 +118,7 @@ https://你的域名/install.php?key=配置里的 install_key
 - **分类**：名称、slug、描述、排序；删除不删文章，只改成未分类
 - **作品**：名称、slug、英文名、lede、状态标签、要点、meta、参数表（每行 `名称 | 内容`）、封面图、正文插图、正文、相关段落
 - **站点设置**：顶部导航、页脚链接/备案、首页 Logbook、全站与各页 SEO（首页、博客、作品、关于、专栏）
-- **生成静态站**：把当前数据库内容写成 `dist/`，包括首页、博客、作品、详情页、sitemap、RSS、404、`.nojekyll`
+- **生成静态站**：把当前数据库内容写成 `dist/`，包括首页、博客、作品、详情页、sitemap、RSS、404
 
 保存文章时自动重算字数和阅读分钟。`slug` 决定 URL，改 slug 等于换地址，旧链接会 404，尽量别改已发布的。
 
@@ -140,28 +138,26 @@ https://你的域名/install.php?key=配置里的 install_key
 ### 发布状态
 
 - 草稿：只存在数据库，不生成页面，不进 sitemap / RSS
-- 已发布：需要有发布日期，生成后立刻对 Pages 生效（等下一次工作流同步）
+- 已发布：需要有发布日期，生成 `dist/` 并 push 后即上线
 
 删除文章或作品后，记得再点一次「生成静态站」，否则 `dist/` 里还留着旧页面。
 
-## 六、把 dist 同步到 GitHub Pages
+## 六、发布到 GitHub Pages
 
-1. 仓库根目录放 `.github/workflows/ftp-sync.yml`（本项目已带）
-2. 仓库 Settings → Secrets and variables → Actions，加四个 Secret：
+后台生成 `dist/` 后，手动推送到仓库，工作流会自动把 `dist/` 发布到 Pages：
 
-| Secret | 值 |
-| --- | --- |
-| `FTP_HOST` | 主机 FTP 地址 |
-| `FTP_USER` | FTP 用户名 |
-| `FTP_PASS` | FTP 密码 |
-| `FTP_DIR` | 主机上 `dist/` 的路径，例如 `/dist` 或 `/home/账号/dist` |
+```bash
+git add dist/
+git commit -m "发布：更新静态站"
+git push
+```
 
-3. Settings → Pages → Source 选 **GitHub Actions**
-4. Actions 页手动跑一次 `Sync site from hosting`，确认 `dist/index.html`、`posts/`、`works/` 都同步上了
+工作流 `.github/workflows/deploy-pages.yml` 在每次 push 到 `master` 时把 `dist/` 打包发布（也可在 Actions 页手动触发）。一次性配置：
 
-之后工作流每 30 分钟拉一次。后台发布 → 最多半小时后线上可见；想立刻生效就去 Actions 手动触发。
+1. Settings → Pages → Source 选 **GitHub Actions**
+2. 确认 `dist/` 已随代码入库（本仓库的 `.gitignore` 不再忽略它）
 
-详细机制、缓存和安全阀见 [GITHUB_SYNC.md](GITHUB_SYNC.md)。
+发布后 1–2 分钟线上可见。每次后台改完内容 → 点「生成静态站」→ commit + push，三步走完即上线。
 
 ### 自定义域名
 
@@ -226,7 +222,6 @@ php tools/render-preview.php .preview-dist
 - [ ] `install.php` 已删除
 - [ ] `admin.password_hash` 已填，`admin.password` 已清空
 - [ ] `config.php` 不在 Web 根内，且在 `.gitignore` 里
-- [ ] Web 根只暴露 `admin.php`（和可选的 `install.php`）
-- [ ] 后台只走 HTTPS
+- [ ] 后台 `admin.php` 只在本机/内网运行，不暴露公网；必须公网访问时走 HTTPS
 - [ ] 数据库账号不是 root，权限只给这个库
 - [ ] 定期备份数据库
