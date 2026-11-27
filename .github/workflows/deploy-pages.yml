@@ -1,6 +1,6 @@
 name: Deploy to GitHub Pages
 
-# 陈屿 · 技术笔记 静态站部署（本地生成 dist/ 后手动 push，本工作流只负责发布）
+# 电脑小百科 · 技术笔记 静态站部署（本地生成 dist/ 后手动 push，本工作流只负责发布）
 #
 # 流程：push 时把仓库里的 dist/ 打包上传 → GitHub Pages 只发布 dist/。
 #       PHP 源码（含数据库配置）永远不会出现在 Pages 上，仓库公开也安全。

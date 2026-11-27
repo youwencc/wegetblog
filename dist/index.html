@@ -11,7 +11,7 @@
   } catch (e) {}
 </script>
 <title>电脑小百科 · 技术笔记 — 桌面软件、像素游戏与工程实践</title>
-<meta name="description" content="陈屿的个人技术博客。写 Windows 桌面软件、PixiJS 网页像素游戏与 Godot，记录项目、性能取舍和踩过的坑。">
+<meta name="description" content="电脑小百科的个人技术博客。写 Windows 桌面软件、PixiJS 网页像素游戏与 Godot，记录项目、性能取舍和踩过的坑。">
 <meta name="author" content="电脑小百科">
 <link rel="canonical" href="https://chenyu.me/">
 <meta name="robots" content="index,follow,max-image-preview:large">
@@ -193,7 +193,7 @@
       </aside>
     </div>
 
-    <div class="figures"><div><b>04</b>篇文章</div><div><b>03</b>个作品</div><div><b>2021</b>开始写</div><div><b>2026.11.20</b>最近更新</div></div>
+    <div class="figures"><div><b>09</b>篇文章</div><div><b>03</b>个作品</div><div><b>2021</b>开始写</div><div><b>2026.11.27</b>最近更新</div></div>
     <div class="logbook" aria-label="工作日志">
       <p class="logbook-tag"><i class="logbook-dot" aria-hidden="true"></i>Logbook<span>近期</span></p>
       <div class="logbook-viewport">
@@ -231,7 +231,7 @@
         <p class="rail-note">Writing / 2026</p>
         <a class="rail-more" href="blog.html">全部文章 →</a>
       </div>
-      <ol class="entries"><li><a class="entry" href="posts/pixijs-frame-budget.html"><time class="entry-date" datetime="2026-11-18">2026.11.18</time><span><span class="entry-head"><span class="entry-title">把 60 帧塞进一台 2013 年的笔记本</span><span class="entry-tag">PixiJS</span></span><span class="entry-desc">《像素数码工坊》的最低配置是一台 2013 年的 i5 笔记本。记录如何把 16.67ms 的帧预算拆开、把 draw call 从 340 压到 47，以及哪些优化最后被删掉。</span></span></a></li><li><a class="entry" href="posts/wpf-memory.html"><time class="entry-date" datetime="2026-10-27">2026.10.27</time><span><span class="entry-head"><span class="entry-title">我的 WPF 应用为什么会吃掉 800 MB 内存</span><span class="entry-tag">WPF</span></span><span class="entry-desc">一个只有列表和预览的 WPF 工具，跑两小时后内存从 118MB 涨到 780MB。用 dotMemory 抓了三次快照，找到无上限的缩略图缓存、被 ScrollViewer 破坏的虚拟化，和一个忘了退订的渲染回调。</span></span></a></li><li><a class="entry" href="posts/godot-tilemap.html"><time class="entry-date" datetime="2026-09-15">2026.09.15</time><span><span class="entry-head"><span class="entry-title">TileMap 换成 TileMapLayer 之后，我踩的五个坑</span><span class="entry-tag">Godot</span></span><span class="entry-desc">Godot 4.6 弃用旧 TileMap 节点后的迁移记录：y-sort 顺序、每层独立碰撞、图集接缝、z_index 与图层关系、寻路网格合并，五个坑和对应的解法。</span></span></a></li><li><a class="entry" href="posts/wpf-state-machine.html"><time class="entry-date" datetime="2026-08-02">2026.08.02</time><span><span class="entry-head"><span class="entry-title">给桌面小工具写一个 200 行状态机</span><span class="entry-tag">架构</span></span><span class="entry-desc">TinyPlayer 的托盘、播放和快捷键互相触发，if 套到了第五层。用一张转移表和三个动作函数替掉，200 行 C#，三个月后还能改。</span></span></a></li></ol>    </div>
+      <ol class="entries"><li><a class="entry" href="posts/ai-workspace-hygiene.html"><time class="entry-date" datetime="2026-11-27">2026.11.27</time><span><span class="entry-head"><span class="entry-title">让 AI 保持目录整洁：四种乱法与一套对策</span><span class="entry-tag">AI</span></span><span class="entry-desc">AI 编码智能体把工作区搞乱的四种典型方式，以及在模板、提示词、流程层治理它们的完整方案。</span></span></a></li><li><a class="entry" href="posts/context-window-budget.html"><time class="entry-date" datetime="2026-11-26">2026.11.26</time><span><span class="entry-head"><span class="entry-title">上下文窗口不是内存，是工作台</span><span class="entry-tag">AI</span></span><span class="entry-desc">长上下文模型出来后，很多人把它当无限内存用，结果检索质量反而下降。这篇记一次把 200K 上下文从塞满改成只用 15K 后，准确率不降反升的经历。</span></span></a></li><li><a class="entry" href="posts/planning-loop-cost.html"><time class="entry-date" datetime="2026-11-26">2026.11.26</time><span><span class="entry-head"><span class="entry-title">「先规划后执行」听着很美，账算下来吓一跳</span><span class="entry-tag">AI</span></span><span class="entry-desc">给 Agent 加规划模块之前，先把 token 账算清楚。这篇记一次把 5 轮规划砍成 1 轮、成本降七成的经历，以及什么时候规划反而值得加。</span></span></a></li><li><a class="entry" href="posts/tool-calling-observability.html"><time class="entry-date" datetime="2026-11-26">2026.11.26</time><span><span class="entry-head"><span class="entry-title">调试 Agent 不能靠猜：给工具调用装一块仪表盘</span><span class="entry-tag">AI</span></span><span class="entry-desc">Agent 出错的十次里有九次，不是模型不行，是喂给它的工具结果不对。这篇记我怎么用一份结构化日志把「猜模型在想什么」变成「看模型每次调了什么、看到了什么」。</span></span></a></li></ol>    </div>
   </section>
 
   <!-- ===== 首页 · 作品 ===== -->

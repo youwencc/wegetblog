@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script>
+  try {
+    var t = localStorage.getItem("cy-theme");
+    if (!t) t = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    document.documentElement.setAttribute("data-theme", t);
+  } catch (e) {}
+</script>
+<title>让 AI 保持目录整洁：四种乱法与一套对策 | 电脑小百科 · 技术笔记</title>
+<meta name="description" content="AI 编码智能体把工作区搞乱的四种典型方式，以及在模板、提示词、流程层治理它们的完整方案。">
+<meta name="keywords" content="AI, 编码智能体, 目录规范, 提示词工程, AGENTS.md, 工作区治理">
+<meta name="author" content="电脑小百科">
+<link rel="canonical" href="https://chenyu.me/posts/ai-workspace-hygiene.html">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<meta name="theme-color" content="#f7f3e9">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="电脑小百科 · 技术笔记">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:title" content="让 AI 保持目录整洁：四种乱法与一套对策 | 电脑小百科 · 技术笔记">
+<meta property="og:description" content="AI 编码智能体把工作区搞乱的四种典型方式，以及在模板、提示词、流程层治理它们的完整方案。">
+<meta property="og:url" content="https://chenyu.me/posts/ai-workspace-hygiene.html">
+<meta property="article:published_time" content="2026-11-27T09:00:00+08:00">
+<meta property="article:author" content="电脑小百科">
+<meta property="article:section" content="架构">
+<meta name="twitter:card" content="summary">
+<link rel="alternate" type="application/rss+xml" title="电脑小百科 · 技术笔记 RSS" href="https://chenyu.me/feed.xml">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23191712'/%3E%3Crect x='12' y='12' width='18' height='18' fill='%23a6432b'/%3E%3Crect x='34' y='34' width='18' height='18' fill='%23f8f6f0'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/fonts.css">
+<link rel="stylesheet" href="../assets/style.css">
+<script src="../assets/main.js" defer></script>
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@graph": [
+        {
+            "@type": "BlogPosting",
+            "@id": "https://chenyu.me/posts/ai-workspace-hygiene.html#post",
+            "headline": "让 AI 保持目录整洁：四种乱法与一套对策",
+            "description": "AI 编码智能体把工作区搞乱的四种典型方式，以及在模板、提示词、流程层治理它们的完整方案。",
+            "url": "https://chenyu.me/posts/ai-workspace-hygiene.html",
+            "mainEntityOfPage": "https://chenyu.me/posts/ai-workspace-hygiene.html",
+            "datePublished": "2026-11-27",
+            "dateModified": "2026-11-27",
+            "inLanguage": "zh-CN",
+            "wordCount": 2256,
+            "timeRequired": "PT6M",
+            "author": {
+                "@id": "https://chenyu.me/#person"
+            },
+            "publisher": {
+                "@id": "https://chenyu.me/#person"
+            },
+            "keywords": "AI, 编码智能体, 目录规范, 提示词工程, AGENTS.md, 工作区治理",
+            "articleSection": "架构",
+            "isPartOf": {
+                "@id": "https://chenyu.me/#website"
+            }
+        },
+        {
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+                {
+                    "@type": "ListItem",
+                    "position": 1,
+                    "name": "首页",
+                    "item": "https://chenyu.me/"
+                },
+                {
+                    "@type": "ListItem",
+                    "position": 2,
+                    "name": "博客",
+                    "item": "https://chenyu.me/blog.html"
+                },
+                {
+                    "@type": "ListItem",
+                    "position": 3,
+                    "name": "让 AI 保持目录整洁：四种乱法与一套对策",
+                    "item": "https://chenyu.me/posts/ai-workspace-hygiene.html"
+                }
+            ]
+        }
+    ]
+}
+</script>
+</head>
+<body>
+<a class="skip" href="#main">跳到正文</a>
+<div class="progress" data-progress aria-hidden="true"></div>
+<header class="site-header">
+  <div class="shell header-inner">
+    <a class="brand" href="../index.html" aria-label="电脑小百科的技术笔记，返回首页">
+      <span class="brand-name">电脑小百科</span>
+      <span class="brand-sep">/</span>
+      <span class="brand-meta">技术笔记</span>
+    </a>
+    <nav class="site-nav" aria-label="主导航">
+      <a href="../index.html">首页</a>
+      <a href="../about.html">关于</a>
+      <a href="../blog.html" aria-current="page">博客</a>
+      <a href="../column.html">专栏</a>
+      <a href="../works.html">作品</a>
+    </nav>
+    <button class="theme-toggle" type="button" data-theme-toggle aria-label="切换到深色模式">
+      <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+      <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M19.1 4.9l-1.8 1.8M6.7 17.3l-1.8 1.8" stroke="currentColor" stroke-width="1.4"/></svg>
+    </button>
+  </div>
+</header>
+<main id="main">
+  <div class="shell">
+    <nav class="breadcrumb" aria-label="面包屑" style="padding-top:30px">
+      <a href="../index.html">首页</a><span>/</span><a href="../blog.html">博客</a><span>/</span><span aria-current="page">让 AI 保持目录整洁：四种乱法与一套对策</span>
+    </nav>
+
+    <header class="post-head">
+      <p class="eyebrow">架构 / 工具链 · 工程实践</p>
+      <h1 class="post-title">让 AI 保持目录整洁：四种乱法与一套对策</h1>
+      <p class="post-meta">
+        <time datetime="2026-11-27">2026.11.27</time>
+        <span class="sep">/</span>
+        <span>6 分钟 · 约 2,256 字</span>
+                <span class="sep">/</span>
+        <span>架构</span>
+                              </p>
+    </header>
+
+    <div class="post-grid">
+      <article class="prose" data-prose>
+        <p>我在本地跑一个编码智能体干活，模型能力不差：读代码、改代码、跑命令、自检，一气呵成。但有个问题一直困扰我——每干完几轮活，工作区就多出几个来历不明的文件。根目录的 debug.log、仓库顶层的 probe.py、导出的 dump.json，还有上次重构留下的 build-2026xxxx.log。代码质量在线，目录卫生离线。</p>
+<p>这篇把我观察到的「乱法」归成四类，再给出我在机制层面堵住它们的方案。核心思路只有一句话：别指望模型自觉，要把整洁变成流程的一部分。</p>
+<h2 id="patterns">四种典型乱法</h2>
+<p>翻工作区历史，AI 把目录搞乱的方式高度收敛，就四种：</p>
+<ul>
+<li><strong>临时文件落仓库根。</strong>模型想验证一个想法，写个探针脚本放根目录；想看命令完整输出，顺手重定向到根目录的 log；导出数据做对比，文件直接进仓库。这些产物没有归宿约定，落哪算哪，最后全是根目录收留。</li>
+<li><strong>新文件不进子目录。</strong>该进 docs/ 的文档放根目录，该进 tools/ 的脚本放根目录，一任务一文件。几周下来根目录摊成大杂烩，找东西先要考古。</li>
+<li><strong>产物与源码混放。</strong>构建产物、下载文件、导出数据进源码树，分不清哪些是手写的、哪些是生成的，git status 一片红，review 的时候噪音很大。</li>
+<li><strong>删除不留痕。</strong>改名、移动之后旧文件没删干净，或者引用旧路径的代码没跟着改，留下孤儿文件和死引用。这种乱最隐蔽，出问题时才炸。</li>
+</ul>
+<h2 id="root-cause">为什么会乱</h2>
+<p>根源不在模型能力，在上下文结构。三个缺口：</p>
+<ol>
+<li><strong>项目布局约定不在上下文里。</strong>模型看不到「这个项目的临时文件该放哪」，只能按通用习惯猜，猜的结果往往就是根目录——对模型来说，那是路径最短的地方。</li>
+<li><strong>落盘是模型最省事的选择。</strong>让它看命令的完整输出，重定向到文件是一步到位的写法，比用分页工具读保留输出少一层概念。省事的方向就是混乱的方向。</li>
+<li><strong>收尾没有检查项。</strong>任务完成的标准是「代码改完、检查通过」，没有「现场清理干净」这一项。模型不认为乱放是问题，因为它没被要求认为这是问题。</li>
+</ol>
+<p>所以对策不是换更强的模型——强模型照样把文件放根目录，只是放得更自信——而是把这三个缺口补上。</p>
+<h2 id="mechanism">已有的抓手</h2>
+<p>我的工作台（jiuban-agent，一个本地编码智能体）有几个现成机制：每个任务开始时，项目的 AGENTS.md 会自动注入系统上下文；/init 命令可以为新项目生成这份约定文件；任务收尾有一套自检纪律；另外还有规则库和项目记忆可以做跨任务的持久约束。也就是说，治理乱放不需要开发新功能，在既有链路上补条款就够了。</p>
+<p>盘点缺口：AGENTS.md 模板管了「路径怎么写」，没管「文件往哪放、收尾怎么清」；收尾纪律管了「验证通过」，没管「现场清理」。两处各补一条，闭环就完整了。</p>
+<h2 id="defense">四层防线与取舍</h2>
+<p>可选手段按成本从低到高排，四层：</p>
+<p><strong>模板层：AGENTS.md 自带目录卫生条款（主力）。</strong>/init 生成项目约定时，写入一组目录规范（下节给出全文）。一次模板改动，所有项目初始化后自动受益，走既有注入链路，不新增任何 token 机制。这是成本收益比最高的一招。</p>
+<p><strong>提示词层：全局系统提示词加通用条款（兜底）。</strong>在模型系统提示词里加一段通用目录卫生要求，不管项目有没有 AGENTS.md 都生效。成本同样低，但每个任务都占 token，而且通用条款没法写死具体路径，只能写原则。适合兜底，不适合当主力。</p>
+<p><strong>流程层：收尾自检加一项（闭环）。</strong>任务收尾的汇报清单里加一条自查：本次新增的临时、验证类文件是否已清理，若保留要说明原因。把「清理现场」变成完成条件的一部分，模型就会主动做——它比人更严格地遵守写下来的完成条件。</p>
+<p><strong>工具层：/tidy 体检命令（可选）。</strong>一个只报告、不动手的体检命令：扫仓库根散文件、git 未跟踪文件、孤儿引用，输出「建议清理 / 建议归位」清单。事后补救型，适合定期跑。中等成本，四层里优先级最低。</p>
+<p><strong>不建议做的一件事：</strong>在工具侧硬限制写文件不许落仓库根。README、配置文件合法地住在根目录，硬限制误伤面太大。提示词和流程能解决的事，不要上升成硬约束——约束越硬，例外越多，例外一多约束就没人信了。</p>
+<h2 id="clauses">条款怎么写</h2>
+<p>目录卫生条款要写成可执行的规则，不是「保持整洁」这种空话。我用的五条：</p>
+<ol>
+<li>新增文件前，先看相邻文件的归属惯例：该进哪个目录就进哪个目录，不把新文件堆仓库根；</li>
+<li>临时脚本、验证探针、日志、导出数据，写进项目约定的临时位置（比如 tmp/），任务收尾清理，要保留的明确说明原因；</li>
+<li>构建产物只进构建系统自己的输出目录，不进源码树；</li>
+<li>命名跟随项目既有风格——大小写、连字符、扩展名都对齐，避免中文和特殊字符路径；</li>
+<li>删除或移动文件时删干净：不留孤儿文件，引用旧路径的代码同步改。</li>
+</ol>
+<p>每条都是「什么情况 → 该怎么做」的格式，模型能直接照办。写成「保持目录整洁」这种祈使句，模型只能靠悟，而悟这件事，恰好是它不擅长的。</p>
+<h2 id="result">实施之后</h2>
+<ul>
+<li>根目录新增散文件从每周几个降到基本为零，偶尔有一个，也会在收尾汇报里主动说明；</li>
+<li>临时验证脚本统一进约定目录，git status 干净了很多，review 的注意力回到真正的改动上；</li>
+<li>文档、脚本、素材各归其位，「这个文件是干嘛的」这类问题不再出现；</li>
+<li>最大的收益反而是间接的：目录结构稳定之后，模型对项目的理解也更稳定，跨任务引用错路径的情况明显变少。</li>
+</ul>
+<p>最后一点体会：治理 AI 的行为，与其在工具层做硬约束，不如在上下文层把规则写清楚、在流程层把检查做扎实。模型不是故意搞乱，它只是不知道你的规矩。规矩写进它每一轮都能看到的地方，它比人守规矩。</p>      </article>
+
+      <aside class="toc" aria-label="本文目录">
+        <h2>目录 / Contents</h2>
+        <nav data-toc></nav>
+      </aside>
+    </div>
+
+    <footer class="post-foot">
+      <ul class="tags" aria-label="标签">
+                <li><a class="tag" href="../blog.html">AI</a></li>
+                <li><a class="tag" href="../blog.html">智能体</a></li>
+                <li><a class="tag" href="../blog.html">工程实践</a></li>
+                      </ul>
+
+      <nav class="post-nav" aria-label="文章翻页">
+                <a href="../blog.html">
+          <span class="dir">← 返回列表</span>
+          <span class="t">全部文章</span>
+        </a>
+                        <a href="context-window-budget.html">
+          <span class="dir">下一篇 →</span>
+          <span class="t">上下文窗口不是内存，是工作台</span>
+        </a>
+              </nav>
+    </footer>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="shell">
+    <div class="wordmark">
+      <span class="wm-name">电脑小百科</span>
+      <span class="wm-meta">Chen Yu · Technical Notes</span>
+    </div>
+    <div class="footer-grid">
+      <div>
+        <p class="footer-name">技术笔记</p>
+        <p class="footer-note">桌面软件、像素游戏，以及把东西做完的过程。更新不固定，写清楚了才发。</p>
+      </div>
+      <div>
+        <p class="f-label">目录</p>
+        <ul class="f-links">
+          <li><a href="../about.html">关于</a></li>
+          <li><a href="../blog.html">博客</a></li>
+          <li><a href="../column.html">专栏</a></li>
+          <li><a href="../works.html">作品</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="f-label">联系</p>
+        <ul class="f-links">
+          <li><a href="mailto:2591735711@qq.com">邮箱</a></li>
+          <li><a href="https://github.com/chenyu" rel="me noopener">GitHub</a></li>
+          <li><a href="../feed.xml">RSS 订阅</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="colophon">
+      <span>© 2021–2026 电脑小百科</span>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

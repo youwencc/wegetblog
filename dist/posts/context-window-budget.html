@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script>
+  try {
+    var t = localStorage.getItem("cy-theme");
+    if (!t) t = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    document.documentElement.setAttribute("data-theme", t);
+  } catch (e) {}
+</script>
+<title>上下文窗口不是内存，是工作台 | 电脑小百科 · 技术笔记</title>
+<meta name="description" content="长上下文模型出来后，很多人把它当无限内存用，结果检索质量反而下降。这篇记一次把 200K 上下文从塞满改成只用 15K 后，准确率不降反升的经历。">
+<meta name="keywords" content="LLM 上下文窗口, RAG 检索, Agent 记忆设计">
+<meta name="author" content="电脑小百科">
+<link rel="canonical" href="https://chenyu.me/posts/context-window-budget.html">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<meta name="theme-color" content="#f7f3e9">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="电脑小百科 · 技术笔记">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:title" content="上下文窗口不是内存，是工作台 | 电脑小百科 · 技术笔记">
+<meta property="og:description" content="长上下文模型出来后，很多人把它当无限内存用，结果检索质量反而下降。这篇记一次把 200K 上下文从塞满改成只用 15K 后，准确率不降反升的经历。">
+<meta property="og:url" content="https://chenyu.me/posts/context-window-budget.html">
+<meta property="article:published_time" content="2026-11-26T09:00:00+08:00">
+<meta property="article:author" content="电脑小百科">
+<meta property="article:section" content="AI">
+<meta name="twitter:card" content="summary">
+<link rel="alternate" type="application/rss+xml" title="电脑小百科 · 技术笔记 RSS" href="https://chenyu.me/feed.xml">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23191712'/%3E%3Crect x='12' y='12' width='18' height='18' fill='%23a6432b'/%3E%3Crect x='34' y='34' width='18' height='18' fill='%23f8f6f0'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/fonts.css">
+<link rel="stylesheet" href="../assets/style.css">
+<script src="../assets/main.js" defer></script>
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@graph": [
+        {
+            "@type": "BlogPosting",
+            "@id": "https://chenyu.me/posts/context-window-budget.html#post",
+            "headline": "上下文窗口不是内存，是工作台",
+            "description": "长上下文模型出来后，很多人把它当无限内存用，结果检索质量反而下降。这篇记一次把 200K 上下文从塞满改成只用 15K 后，准确率不降反升的经历。",
+            "url": "https://chenyu.me/posts/context-window-budget.html",
+            "mainEntityOfPage": "https://chenyu.me/posts/context-window-budget.html",
+            "datePublished": "2026-11-26",
+            "dateModified": "2026-11-26",
+            "inLanguage": "zh-CN",
+            "wordCount": 1010,
+            "timeRequired": "PT3M",
+            "author": {
+                "@id": "https://chenyu.me/#person"
+            },
+            "publisher": {
+                "@id": "https://chenyu.me/#person"
+            },
+            "keywords": "LLM 上下文窗口, RAG 检索, Agent 记忆设计",
+            "articleSection": "AI",
+            "isPartOf": {
+                "@id": "https://chenyu.me/#website"
+            }
+        },
+        {
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+                {
+                    "@type": "ListItem",
+                    "position": 1,
+                    "name": "首页",
+                    "item": "https://chenyu.me/"
+                },
+                {
+                    "@type": "ListItem",
+                    "position": 2,
+                    "name": "博客",
+                    "item": "https://chenyu.me/blog.html"
+                },
+                {
+                    "@type": "ListItem",
+                    "position": 3,
+                    "name": "上下文窗口不是内存，是工作台",
+                    "item": "https://chenyu.me/posts/context-window-budget.html"
+                }
+            ]
+        }
+    ]
+}
+</script>
+</head>
+<body>
+<a class="skip" href="#main">跳到正文</a>
+<div class="progress" data-progress aria-hidden="true"></div>
+<header class="site-header">
+  <div class="shell header-inner">
+    <a class="brand" href="../index.html" aria-label="电脑小百科的技术笔记，返回首页">
+      <span class="brand-name">电脑小百科</span>
+      <span class="brand-sep">/</span>
+      <span class="brand-meta">技术笔记</span>
+    </a>
+    <nav class="site-nav" aria-label="主导航">
+      <a href="../index.html">首页</a>
+      <a href="../about.html">关于</a>
+      <a href="../blog.html" aria-current="page">博客</a>
+      <a href="../column.html">专栏</a>
+      <a href="../works.html">作品</a>
+    </nav>
+    <button class="theme-toggle" type="button" data-theme-toggle aria-label="切换到深色模式">
+      <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+      <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M19.1 4.9l-1.8 1.8M6.7 17.3l-1.8 1.8" stroke="currentColor" stroke-width="1.4"/></svg>
+    </button>
+  </div>
+</header>
+<main id="main">
+  <div class="shell">
+    <nav class="breadcrumb" aria-label="面包屑" style="padding-top:30px">
+      <a href="../index.html">首页</a><span>/</span><a href="../blog.html">博客</a><span>/</span><span aria-current="page">上下文窗口不是内存，是工作台</span>
+    </nav>
+
+    <header class="post-head">
+      <p class="eyebrow">AI / Agent · 原理</p>
+      <h1 class="post-title">上下文窗口不是内存，是工作台</h1>
+      <p class="post-meta">
+        <time datetime="2026-11-26">2026.11.26</time>
+        <span class="sep">/</span>
+        <span>3 分钟 · 约 1,010 字</span>
+                <span class="sep">/</span>
+        <span>AI</span>
+                              </p>
+    </header>
+
+    <div class="post-grid">
+      <article class="prose" data-prose>
+        <p>上下文窗口从 4K 涨到 200K 之后，我见过两种极端用法：一种是把窗口当内存，什么都往里塞——全部文档、全部历史、全部工具说明；另一种是不敢用，塞半页就慌。两种都偏了。我现在的理解是：<b>窗口不是内存，是工作台。内存的指标是容量，工作台的指标是「当前工序需要的东西是否都在手边」。</b></p>
+
+<h2 id="lost">塞满的代价：中间位置的内容会被忽略</h2>
+<p>长上下文有个被反复验证的坑（业界叫 lost in the middle）：模型对开头和结尾的内容最敏感，中间的会被弱化。我自己的测试也吻合：把关键信息放在 100K 位置，准确率比放在开头或结尾低了两成多。塞满 200K 的窗口，等于亲手把一半内容扔进了「注意力薄弱区」。</p>
+<p>更隐蔽的代价是噪声。检索回来的 50 条片段里，真正相关的往往就三五条，其余是「关键词撞上了」。窗口大，人的心理就松，过滤就省了——结果模型要在一堆「看起来沾边」的内容里做排除法，出错概率不降反升。</p>
+
+<h2 id="budget">我的做法：给窗口做预算</h2>
+<p>后来我给 Agent 的上下文定了三条预算线，按优先级分配：</p>
+<ol>
+  <li><b>系统提示与工具说明（约 3–5K）</b>：固定开销，能压就压。工具描述我逐条删过形容词，只留「做什么、参数、什么时候用」。</li>
+  <li><b>当前任务的活上下文（约 5–10K）</b>：任务描述、当前步骤、前几轮的关键结果。这是工作台的核心区。</li>
+  <li><b>检索内容（剩余）</b>：按「每千 token 相关性分数」排序取头部，宁少勿多。我的经验值是 15 条以内，超过就明显开始互相干扰。</li>
+</ol>
+<p>按这套预算，多数任务总上下文控制在 15K 左右。听起来在 200K 面前寒酸，但检索准确率比塞满时还高了一截——模型读得少，但读得清。</p>
+
+<div class="note">
+  <b>检索的量不是越多越好，是「信噪比」优先</b>
+  同样的预算，10 条高相关的片段，效果稳定胜过 50 条半相关的。省下来的空间留给当前任务的中间结果，那才是每轮都在变化、模型最需要盯住的部分。
+</div>
+
+<h2 id="memory">窗口之外的事交给窗口之外</h2>
+<p>长对话的处理我换了个思路：不把全部历史塞回窗口，而是维护一份滚动摘要。每十轮左右，让模型自己把「已完成、结论、待办」压缩成一段两三百字，替换掉前面的原始对话。用户引用「我们刚才说的那个方案」时，摘要里有；具体的来回拉扯，不需要。</p>
+<p>这套做法有个不错的副产品：摘要里的「待办」直接变成下一轮的任务输入，Agent 的目标感反而更清楚。窗口里只留「现在在做什么」，「做过什么」住在摘要里，「知道什么」住在检索库里——三层各管各的，窗口只干窗口该干的事。</p>      </article>
+
+      <aside class="toc" aria-label="本文目录">
+        <h2>目录 / Contents</h2>
+        <nav data-toc></nav>
+      </aside>
+    </div>
+
+    <footer class="post-foot">
+      <ul class="tags" aria-label="标签">
+                <li><a class="tag" href="../blog.html">AI</a></li>
+                <li><a class="tag" href="../blog.html">Agent</a></li>
+                <li><a class="tag" href="../blog.html">上下文</a></li>
+                <li><a class="tag" href="../blog.html">检索</a></li>
+                <li><a class="tag" href="../blog.html">RAG</a></li>
+                      </ul>
+
+      <nav class="post-nav" aria-label="文章翻页">
+                <a href="ai-workspace-hygiene.html">
+          <span class="dir">← 上一篇</span>
+          <span class="t">让 AI 保持目录整洁：四种乱法与一套对策</span>
+        </a>
+                        <a href="planning-loop-cost.html">
+          <span class="dir">下一篇 →</span>
+          <span class="t">「先规划后执行」听着很美，账算下来吓一跳</span>
+        </a>
+              </nav>
+    </footer>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="shell">
+    <div class="wordmark">
+      <span class="wm-name">电脑小百科</span>
+      <span class="wm-meta">Chen Yu · Technical Notes</span>
+    </div>
+    <div class="footer-grid">
+      <div>
+        <p class="footer-name">技术笔记</p>
+        <p class="footer-note">桌面软件、像素游戏，以及把东西做完的过程。更新不固定，写清楚了才发。</p>
+      </div>
+      <div>
+        <p class="f-label">目录</p>
+        <ul class="f-links">
+          <li><a href="../about.html">关于</a></li>
+          <li><a href="../blog.html">博客</a></li>
+          <li><a href="../column.html">专栏</a></li>
+          <li><a href="../works.html">作品</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="f-label">联系</p>
+        <ul class="f-links">
+          <li><a href="mailto:2591735711@qq.com">邮箱</a></li>
+          <li><a href="https://github.com/chenyu" rel="me noopener">GitHub</a></li>
+          <li><a href="../feed.xml">RSS 订阅</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="colophon">
+      <span>© 2021–2026 电脑小百科</span>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

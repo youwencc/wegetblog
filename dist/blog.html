@@ -46,6 +46,51 @@
             "blogPost": [
                 {
                     "@type": "BlogPosting",
+                    "headline": "让 AI 保持目录整洁：四种乱法与一套对策",
+                    "url": "https://chenyu.me/posts/ai-workspace-hygiene.html",
+                    "datePublished": "2026-11-27",
+                    "author": {
+                        "@id": "https://chenyu.me/#person"
+                    }
+                },
+                {
+                    "@type": "BlogPosting",
+                    "headline": "上下文窗口不是内存，是工作台",
+                    "url": "https://chenyu.me/posts/context-window-budget.html",
+                    "datePublished": "2026-11-26",
+                    "author": {
+                        "@id": "https://chenyu.me/#person"
+                    }
+                },
+                {
+                    "@type": "BlogPosting",
+                    "headline": "「先规划后执行」听着很美，账算下来吓一跳",
+                    "url": "https://chenyu.me/posts/planning-loop-cost.html",
+                    "datePublished": "2026-11-26",
+                    "author": {
+                        "@id": "https://chenyu.me/#person"
+                    }
+                },
+                {
+                    "@type": "BlogPosting",
+                    "headline": "调试 Agent 不能靠猜：给工具调用装一块仪表盘",
+                    "url": "https://chenyu.me/posts/tool-calling-observability.html",
+                    "datePublished": "2026-11-26",
+                    "author": {
+                        "@id": "https://chenyu.me/#person"
+                    }
+                },
+                {
+                    "@type": "BlogPosting",
+                    "headline": "学 Agent 原理最省事的办法：先别用框架",
+                    "url": "https://chenyu.me/posts/agent-loop-from-scratch.html",
+                    "datePublished": "2026-11-26",
+                    "author": {
+                        "@id": "https://chenyu.me/#person"
+                    }
+                },
+                {
+                    "@type": "BlogPosting",
                     "headline": "把 60 帧塞进一台 2013 年的笔记本",
                     "url": "https://chenyu.me/posts/pixijs-frame-budget.html",
                     "datePublished": "2026-11-18",
@@ -135,9 +180,9 @@
       <p class="eyebrow">Writing / Archive</p>
       <h1 class="page-title">博客</h1>
       <p class="page-lede">按时间倒序。技术文章只写自己真正改过、量过或者删掉的代码，写不清楚的一律不发。偏向桌面和游戏，因为日常就在这两块打转。</p>
-      <div class="filters" data-filters aria-label="按标签筛选"><span class="lbl">筛选</span><button class="filter-btn" type="button" data-filter="all" aria-pressed="true">全部 4</button><button class="filter-btn" type="button" data-filter="PixiJS" aria-pressed="false">PixiJS</button><button class="filter-btn" type="button" data-filter="性能" aria-pressed="false">性能</button><button class="filter-btn" type="button" data-filter="像素数码工坊" aria-pressed="false">像素数码工坊</button><button class="filter-btn" type="button" data-filter="WPF" aria-pressed="false">WPF</button><button class="filter-btn" type="button" data-filter="C#" aria-pressed="false">C#</button><button class="filter-btn" type="button" data-filter="Godot" aria-pressed="false">Godot</button><button class="filter-btn" type="button" data-filter="游戏开发" aria-pressed="false">游戏开发</button><span class="filter-count" data-filter-count>4 篇</span></div>    </section>
+      <div class="filters" data-filters aria-label="按标签筛选"><span class="lbl">筛选</span><button class="filter-btn" type="button" data-filter="all" aria-pressed="true">全部 9</button><button class="filter-btn" type="button" data-filter="AI" aria-pressed="false">AI</button><button class="filter-btn" type="button" data-filter="智能体" aria-pressed="false">智能体</button><button class="filter-btn" type="button" data-filter="工程实践" aria-pressed="false">工程实践</button><button class="filter-btn" type="button" data-filter="Agent" aria-pressed="false">Agent</button><button class="filter-btn" type="button" data-filter="上下文" aria-pressed="false">上下文</button><button class="filter-btn" type="button" data-filter="检索" aria-pressed="false">检索</button><button class="filter-btn" type="button" data-filter="RAG" aria-pressed="false">RAG</button><span class="filter-count" data-filter-count>9 篇</span></div>    </section>
 
-    <div data-year-group><div class="archive-year"><h2>2026</h2><span>4 篇 · 全年</span></div><ol class="entries"><li data-tags="PixiJS 性能 像素数码工坊"><a class="entry" href="posts/pixijs-frame-budget.html"><time class="entry-date" datetime="2026-11-18">11.18</time><span><span class="entry-head"><span class="entry-title">把 60 帧塞进一台 2013 年的笔记本</span><span class="entry-tag">12 min · PixiJS</span></span><span class="entry-desc">《像素数码工坊》的最低配置是一台 2013 年的 i5 笔记本。记录如何把 16.67ms 的帧预算拆开、把 draw call 从 340 压到 47，以及哪些优化最后被删掉。</span></span></a></li><li data-tags="WPF 性能 C#"><a class="entry" href="posts/wpf-memory.html"><time class="entry-date" datetime="2026-10-27">10.27</time><span><span class="entry-head"><span class="entry-title">我的 WPF 应用为什么会吃掉 800 MB 内存</span><span class="entry-tag">9 min · WPF</span></span><span class="entry-desc">一个只有列表和预览的 WPF 工具，跑两小时后内存从 118MB 涨到 780MB。用 dotMemory 抓了三次快照，找到无上限的缩略图缓存、被 ScrollViewer 破坏的虚拟化，和一个忘了退订的渲染回调。</span></span></a></li><li data-tags="Godot 游戏开发 GDScript"><a class="entry" href="posts/godot-tilemap.html"><time class="entry-date" datetime="2026-09-15">09.15</time><span><span class="entry-head"><span class="entry-title">TileMap 换成 TileMapLayer 之后，我踩的五个坑</span><span class="entry-tag">10 min · Godot</span></span><span class="entry-desc">Godot 4.6 弃用旧 TileMap 节点后的迁移记录：y-sort 顺序、每层独立碰撞、图集接缝、z_index 与图层关系、寻路网格合并，五个坑和对应的解法。</span></span></a></li><li data-tags="架构 C# TinyPlayer"><a class="entry" href="posts/wpf-state-machine.html"><time class="entry-date" datetime="2026-08-02">08.02</time><span><span class="entry-head"><span class="entry-title">给桌面小工具写一个 200 行状态机</span><span class="entry-tag">7 min · 架构</span></span><span class="entry-desc">TinyPlayer 的托盘、播放和快捷键互相触发，if 套到了第五层。用一张转移表和三个动作函数替掉，200 行 C#，三个月后还能改。</span></span></a></li></ol></div>  </div>
+    <div data-year-group><div class="archive-year"><h2>2026</h2><span>9 篇 · 全年</span></div><ol class="entries"><li data-tags="AI 智能体 工程实践"><a class="entry" href="posts/ai-workspace-hygiene.html"><time class="entry-date" datetime="2026-11-27">11.27</time><span><span class="entry-head"><span class="entry-title">让 AI 保持目录整洁：四种乱法与一套对策</span><span class="entry-tag">6 min · AI</span></span><span class="entry-desc">AI 编码智能体把工作区搞乱的四种典型方式，以及在模板、提示词、流程层治理它们的完整方案。</span></span></a></li><li data-tags="AI Agent 上下文 检索 RAG"><a class="entry" href="posts/context-window-budget.html"><time class="entry-date" datetime="2026-11-26">11.26</time><span><span class="entry-head"><span class="entry-title">上下文窗口不是内存，是工作台</span><span class="entry-tag">3 min · AI</span></span><span class="entry-desc">长上下文模型出来后，很多人把它当无限内存用，结果检索质量反而下降。这篇记一次把 200K 上下文从塞满改成只用 15K 后，准确率不降反升的经历。</span></span></a></li><li data-tags="AI Agent 规划 Token 成本"><a class="entry" href="posts/planning-loop-cost.html"><time class="entry-date" datetime="2026-11-26">11.26</time><span><span class="entry-head"><span class="entry-title">「先规划后执行」听着很美，账算下来吓一跳</span><span class="entry-tag">3 min · AI</span></span><span class="entry-desc">给 Agent 加规划模块之前，先把 token 账算清楚。这篇记一次把 5 轮规划砍成 1 轮、成本降七成的经历，以及什么时候规划反而值得加。</span></span></a></li><li data-tags="AI Agent 调试 可观测性"><a class="entry" href="posts/tool-calling-observability.html"><time class="entry-date" datetime="2026-11-26">11.26</time><span><span class="entry-head"><span class="entry-title">调试 Agent 不能靠猜：给工具调用装一块仪表盘</span><span class="entry-tag">4 min · AI</span></span><span class="entry-desc">Agent 出错的十次里有九次，不是模型不行，是喂给它的工具结果不对。这篇记我怎么用一份结构化日志把「猜模型在想什么」变成「看模型每次调了什么、看到了什么」。</span></span></a></li><li data-tags="AI Agent LLM"><a class="entry" href="posts/agent-loop-from-scratch.html"><time class="entry-date" datetime="2026-11-26">11.26</time><span><span class="entry-head"><span class="entry-title">学 Agent 原理最省事的办法：先别用框架</span><span class="entry-tag">5 min · AI</span></span><span class="entry-desc">在碰任何 Agent 框架之前，我先用一个 50 行的 while 循环把 ReAct 的骨架手写了一遍。这篇记的是那个循环：模型只出嘴不动手、循环外围的三百行兜底代码，以及为什么循环转几圈是个产品决策。</span></span></a></li><li data-tags="PixiJS 性能 像素数码工坊"><a class="entry" href="posts/pixijs-frame-budget.html"><time class="entry-date" datetime="2026-11-18">11.18</time><span><span class="entry-head"><span class="entry-title">把 60 帧塞进一台 2013 年的笔记本</span><span class="entry-tag">12 min · PixiJS</span></span><span class="entry-desc">《像素数码工坊》的最低配置是一台 2013 年的 i5 笔记本。记录如何把 16.67ms 的帧预算拆开、把 draw call 从 340 压到 47，以及哪些优化最后被删掉。</span></span></a></li><li data-tags="WPF 性能 C#"><a class="entry" href="posts/wpf-memory.html"><time class="entry-date" datetime="2026-10-27">10.27</time><span><span class="entry-head"><span class="entry-title">我的 WPF 应用为什么会吃掉 800 MB 内存</span><span class="entry-tag">9 min · WPF</span></span><span class="entry-desc">一个只有列表和预览的 WPF 工具，跑两小时后内存从 118MB 涨到 780MB。用 dotMemory 抓了三次快照，找到无上限的缩略图缓存、被 ScrollViewer 破坏的虚拟化，和一个忘了退订的渲染回调。</span></span></a></li><li data-tags="Godot 游戏开发 GDScript"><a class="entry" href="posts/godot-tilemap.html"><time class="entry-date" datetime="2026-09-15">09.15</time><span><span class="entry-head"><span class="entry-title">TileMap 换成 TileMapLayer 之后，我踩的五个坑</span><span class="entry-tag">10 min · Godot</span></span><span class="entry-desc">Godot 4.6 弃用旧 TileMap 节点后的迁移记录：y-sort 顺序、每层独立碰撞、图集接缝、z_index 与图层关系、寻路网格合并，五个坑和对应的解法。</span></span></a></li><li data-tags="架构 C# TinyPlayer"><a class="entry" href="posts/wpf-state-machine.html"><time class="entry-date" datetime="2026-08-02">08.02</time><span><span class="entry-head"><span class="entry-title">给桌面小工具写一个 200 行状态机</span><span class="entry-tag">7 min · 架构</span></span><span class="entry-desc">TinyPlayer 的托盘、播放和快捷键互相触发，if 套到了第五层。用一张转移表和三个动作函数替掉，200 行 C#，三个月后还能改。</span></span></a></li></ol></div>  </div>
 </main>
 <footer class="site-footer">
   <div class="shell">

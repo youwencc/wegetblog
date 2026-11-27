@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script>
+  try {
+    var t = localStorage.getItem("cy-theme");
+    if (!t) t = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    document.documentElement.setAttribute("data-theme", t);
+  } catch (e) {}
+</script>
+<title>调试 Agent 不能靠猜：给工具调用装一块仪表盘 | 电脑小百科 · 技术笔记</title>
+<meta name="description" content="Agent 出错的十次里有九次，不是模型不行，是喂给它的工具结果不对。这篇记我怎么用一份结构化日志把「猜模型在想什么」变成「看模型每次调了什么、看到了什么」。">
+<meta name="keywords" content="AI Agent 调试, Function Calling 日志, LLM 可观测性">
+<meta name="author" content="电脑小百科">
+<link rel="canonical" href="https://chenyu.me/posts/tool-calling-observability.html">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<meta name="theme-color" content="#f7f3e9">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="电脑小百科 · 技术笔记">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:title" content="调试 Agent 不能靠猜：给工具调用装一块仪表盘 | 电脑小百科 · 技术笔记">
+<meta property="og:description" content="Agent 出错的十次里有九次，不是模型不行，是喂给它的工具结果不对。这篇记我怎么用一份结构化日志把「猜模型在想什么」变成「看模型每次调了什么、看到了什么」。">
+<meta property="og:url" content="https://chenyu.me/posts/tool-calling-observability.html">
+<meta property="article:published_time" content="2026-11-26T09:00:00+08:00">
+<meta property="article:author" content="电脑小百科">
+<meta property="article:section" content="AI">
+<meta name="twitter:card" content="summary">
+<link rel="alternate" type="application/rss+xml" title="电脑小百科 · 技术笔记 RSS" href="https://chenyu.me/feed.xml">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23191712'/%3E%3Crect x='12' y='12' width='18' height='18' fill='%23a6432b'/%3E%3Crect x='34' y='34' width='18' height='18' fill='%23f8f6f0'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/fonts.css">
+<link rel="stylesheet" href="../assets/style.css">
+<script src="../assets/main.js" defer></script>
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@graph": [
+        {
+            "@type": "BlogPosting",
+            "@id": "https://chenyu.me/posts/tool-calling-observability.html#post",
+            "headline": "调试 Agent 不能靠猜：给工具调用装一块仪表盘",
+            "description": "Agent 出错的十次里有九次，不是模型不行，是喂给它的工具结果不对。这篇记我怎么用一份结构化日志把「猜模型在想什么」变成「看模型每次调了什么、看到了什么」。",
+            "url": "https://chenyu.me/posts/tool-calling-observability.html",
+            "mainEntityOfPage": "https://chenyu.me/posts/tool-calling-observability.html",
+            "datePublished": "2026-11-26",
+            "dateModified": "2026-11-26",
+            "inLanguage": "zh-CN",
+            "wordCount": 1273,
+            "timeRequired": "PT4M",
+            "author": {
+                "@id": "https://chenyu.me/#person"
+            },
+            "publisher": {
+                "@id": "https://chenyu.me/#person"
+            },
+            "keywords": "AI Agent 调试, Function Calling 日志, LLM 可观测性",
+            "articleSection": "AI",
+            "isPartOf": {
+                "@id": "https://chenyu.me/#website"
+            }
+        },
+        {
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+                {
+                    "@type": "ListItem",
+                    "position": 1,
+                    "name": "首页",
+                    "item": "https://chenyu.me/"
+                },
+                {
+                    "@type": "ListItem",
+                    "position": 2,
+                    "name": "博客",
+                    "item": "https://chenyu.me/blog.html"
+                },
+                {
+                    "@type": "ListItem",
+                    "position": 3,
+                    "name": "调试 Agent 不能靠猜：给工具调用装一块仪表盘",
+                    "item": "https://chenyu.me/posts/tool-calling-observability.html"
+                }
+            ]
+        }
+    ]
+}
+</script>
+</head>
+<body>
+<a class="skip" href="#main">跳到正文</a>
+<div class="progress" data-progress aria-hidden="true"></div>
+<header class="site-header">
+  <div class="shell header-inner">
+    <a class="brand" href="../index.html" aria-label="电脑小百科的技术笔记，返回首页">
+      <span class="brand-name">电脑小百科</span>
+      <span class="brand-sep">/</span>
+      <span class="brand-meta">技术笔记</span>
+    </a>
+    <nav class="site-nav" aria-label="主导航">
+      <a href="../index.html">首页</a>
+      <a href="../about.html">关于</a>
+      <a href="../blog.html" aria-current="page">博客</a>
+      <a href="../column.html">专栏</a>
+      <a href="../works.html">作品</a>
+    </nav>
+    <button class="theme-toggle" type="button" data-theme-toggle aria-label="切换到深色模式">
+      <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+      <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M19.1 4.9l-1.8 1.8M6.7 17.3l-1.8 1.8" stroke="currentColor" stroke-width="1.4"/></svg>
+    </button>
+  </div>
+</header>
+<main id="main">
+  <div class="shell">
+    <nav class="breadcrumb" aria-label="面包屑" style="padding-top:30px">
+      <a href="../index.html">首页</a><span>/</span><a href="../blog.html">博客</a><span>/</span><span aria-current="page">调试 Agent 不能靠猜：给工具调用装一块仪表盘</span>
+    </nav>
+
+    <header class="post-head">
+      <p class="eyebrow">AI / Agent · 排障实录</p>
+      <h1 class="post-title">调试 Agent 不能靠猜：给工具调用装一块仪表盘</h1>
+      <p class="post-meta">
+        <time datetime="2026-11-26">2026.11.26</time>
+        <span class="sep">/</span>
+        <span>4 分钟 · 约 1,273 字</span>
+                <span class="sep">/</span>
+        <span>AI</span>
+                              </p>
+    </header>
+
+    <div class="post-grid">
+      <article class="prose" data-prose>
+        <p>接手过一个小项目，前一个开发者留下的 Agent 时不时「抽风」：同一个问题，今天答得像模像样，明天就一本正经地胡说。没有日志，只有一句口头交接——「大概模型不稳定吧」。</p>
+<p>我加了两天日志，看完头一天的记录就找到病根了：它调的汇率接口最近一个月有三分之一的请求超时，超时时返回空字符串。模型每次都如实把「拿到空结果」写进推理，然后基于空结果编出一个像样的答案。它没有抽风，它是被喂了坏数据还努力交了作业。</p>
+<p>这篇文章记的是那次加日志的思路。经验就一句话：<b>Agent 出错，先怀疑数据管道，再怀疑模型。</b>「模型不稳定」是最后的遮羞布，不是第一诊断。</p>
+
+<h2 id="fields">每次调用记五样东西</h2>
+<p>日志别贪多，我在每次工具调用落盘时只记五个字段，够还原现场又不至于把日志撑爆：</p>
+<ul>
+  <li><b>轮次</b>：循环第几圈。转了七圈还在调同一个工具，一眼就能看出它在打转。</li>
+  <li><b>调用</b>：工具名加完整参数。参数里缺字段、类型不对，大多在这暴露。</li>
+  <li><b>耗时</b>：毫秒。慢工具是隐形杀手——模型等不到结果就会开始编。</li>
+  <li><b>返回前 500 字符</b>：截断存。关键在「前」，很多接口报错塞在开头，恰好能看见。</li>
+  <li><b>异常</b>：超时、非 200、返回不是预期格式，都单独标记一行，和正常调用区分开。</li>
+</ul>
+<p>这五个字段落下来之后，原先只能靠猜的问题变成可以直接查的。比如那个汇率 Agent，异常标记一拉，三成超时清清楚楚摆在那。换了带缓存的接口，胡说八道当场消失。模型一行没改。</p>
+
+<div class="note">
+  <b>别只记请求，要记模型看到了什么</b>
+  很多日志方案只记「模型输出了什么」，那等于只记病人的自述。要记的是塞回对话里的工具结果——那才是模型下一步推理的依据。它是基于什么在想，比它想出了什么重要。
+</div>
+
+<h2 id="dump">会话转储：最后一次良心检查</h2>
+<p>除了逐条日志，我还留了个笨办法：Agent 每次跑完，把整个对话历史（去掉敏感字段）原样存成一份 JSON。平时没人看它，出离谱 bug 的时候，把这份文件从头读到尾，基本能直接看出它在哪一步被什么带偏了。</p>
+<p>这个办法看着土，其实比想象中常用。有一次它坚持认为某个客户「上周发过邮件」，逐轮翻转储，发现是检索工具把一年前的旧邮件排在了最前面，模型引用了它。问题不在模型引用了错信息——它没法不引用，因为按相关性排序那就是最相关的。最后是给检索加了个时间衰减才解决。</p>
+<p>类似的地雷还有几个，都是靠转储看出来的：工具返回的数据里混着另一个环境的测试数据，模型一本正经地引用了；两次调用参数完全相同，是循环在空转；模型调了不存在的工具名——这种一般是工具描述里的笔误让模型产生了幻觉，比如描述里把工具名写错了。</p>
+
+<h2 id="numbers">看数字比看输出准</h2>
+<p>再往深一层，我把每次跑完的成功与否和轮次、耗时做了个粗统计。看下来有个反直觉的现象：失败案例的平均轮次比成功案例多得多，但耗时反而短——因为它一直在快速地调同一个失败的工具，转得又快又空。只看总耗时会觉得「它挺努力的」，看轮次加异常标记才知道它在原地刨坑。</p>
+<p>所以我的仪表盘就三个数：平均轮次、工具异常率、重试率。异常率超过一成先修管道，重试率高一般是工具描述写得让模型拿不准，平均轮次涨了通常意味着上游数据变脏了。模型本身反而是最耐用的那环。</p>      </article>
+
+      <aside class="toc" aria-label="本文目录">
+        <h2>目录 / Contents</h2>
+        <nav data-toc></nav>
+      </aside>
+    </div>
+
+    <footer class="post-foot">
+      <ul class="tags" aria-label="标签">
+                <li><a class="tag" href="../blog.html">AI</a></li>
+                <li><a class="tag" href="../blog.html">Agent</a></li>
+                <li><a class="tag" href="../blog.html">调试</a></li>
+                <li><a class="tag" href="../blog.html">可观测性</a></li>
+                      </ul>
+
+      <nav class="post-nav" aria-label="文章翻页">
+                <a href="planning-loop-cost.html">
+          <span class="dir">← 上一篇</span>
+          <span class="t">「先规划后执行」听着很美，账算下来吓一跳</span>
+        </a>
+                        <a href="agent-loop-from-scratch.html">
+          <span class="dir">下一篇 →</span>
+          <span class="t">学 Agent 原理最省事的办法：先别用框架</span>
+        </a>
+              </nav>
+    </footer>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="shell">
+    <div class="wordmark">
+      <span class="wm-name">电脑小百科</span>
+      <span class="wm-meta">Chen Yu · Technical Notes</span>
+    </div>
+    <div class="footer-grid">
+      <div>
+        <p class="footer-name">技术笔记</p>
+        <p class="footer-note">桌面软件、像素游戏，以及把东西做完的过程。更新不固定，写清楚了才发。</p>
+      </div>
+      <div>
+        <p class="f-label">目录</p>
+        <ul class="f-links">
+          <li><a href="../about.html">关于</a></li>
+          <li><a href="../blog.html">博客</a></li>
+          <li><a href="../column.html">专栏</a></li>
+          <li><a href="../works.html">作品</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="f-label">联系</p>
+        <ul class="f-links">
+          <li><a href="mailto:2591735711@qq.com">邮箱</a></li>
+          <li><a href="https://github.com/chenyu" rel="me noopener">GitHub</a></li>
+          <li><a href="../feed.xml">RSS 订阅</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="colophon">
+      <span>© 2021–2026 电脑小百科</span>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

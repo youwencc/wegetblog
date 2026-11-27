@@ -1,5 +1,5 @@
 /* =========================================================
-   陈屿 · 技术笔记
+   电脑小百科 · 技术笔记
    手写 CSS，无框架、无构建工具
    01 变量 / 02 基础 / 03 布局 / 04 页头页脚
    05 首页 / 06 列表 / 07 作品 / 08 文章 / 09 关于 / 10 专栏
@@ -1568,6 +1568,35 @@ html[data-theme="dark"] .theme-toggle .i-moon { display: none; }
 }
 .note-card h3 { font-size: 17px; margin: 0 0 8px; }
 .note-card p { font-size: 13.5px; line-height: 1.85; color: var(--muted); margin: 0; }
+/* memo 卡片：专栏页带标签与日期的备忘（No.007 起） */
+.memo-card {
+  background: var(--paper);
+  padding: 26px 26px 24px;
+}
+.memo-card .no {
+  display: block;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .16em;
+  color: var(--accent);
+  margin: 0 0 10px;
+}
+.memo-card .title { font-size: 17px; margin: 0 0 8px; }
+.memo-card .body { font-size: 13.5px; line-height: 1.85; color: var(--muted); margin: 0; }
+.memo-card-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding-top: 14px;
+  border-top: 1px solid var(--rule);
+}
+.memo-card-foot .date {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .08em;
+  color: var(--muted);
+}
 
 /* ---------- 11 响应式 ---------- */
 @media (max-width: 1000px) {

@@ -1,28 +1,36 @@
-# 发布产物：随代码提交并部署到 GitHub Pages
-# dist/
+# =====================================================================
+# .gitignore —— 久伴博客（PHP 源码 + dist 静态产物）
+# 规则原则：只排除「机密」和「本机私有 / 临时文件」；
+#          源码（*.php、tools/、public/、.github/）一律入库。
+# =====================================================================
 
-# 本地配置，含数据库密码，绝不入库
-app/config.php
+# ---- 机密：绝不入库（含数据库密码，模板见 app/config.example.php）----
+app
 
-# 后台上传的图片：留在主机上，静态产物由 dist/ 同步
-app/assets/uploads/
+# ---- 本机私有数据 ----
+# 后台上传的图片：留在主机，页面用的是 dist/ 里的静态副本
+tools/
 
-# 临时截图 / 预览文件
+# ---- 临时 / 预览文件 ----
 .preview-*
 .studio-*
+tmp/
 
-# 系统垃圾
+# ---- 工具产物 ----
+# 久伴 Agent 的会话、命令日志；Aitemp 是 AI 的临时产物目录
+.jbagent/
+Aitemp/
+
+# ---- 日志 ----
+*.log
+
+# ---- 系统垃圾 ----
 .DS_Store
 Thumbs.db
 desktop.ini
-.jbagent/
-tmp/
-*.log
+
+# 注：dist/ 是发布产物，故意不忽略 —— GitHub Pages 直接发布该目录；
+#     不要在这里加 dist/，否则 Pages 没有内容可部署。
 
 # MCP 产物目录（久伴 Agent 自动添加）
-Aitemp/
-
-# 源码目录显式保留：*.php / tools/ / blog/public/ / .github 曾被误写进忽略名单，
-# 导致重新 init 仓库时 app/lib、app/templates、public/*.php、.github/workflows
-# 全部漏提交（推 GitHub 时才会发现少了一堆文件）。敏感配置由上面的
-# app/config.php 精确排除即可，不需要整类忽略。
+ai_temp/
