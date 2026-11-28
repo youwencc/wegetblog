@@ -121,7 +121,50 @@
         demoFrame.setAttribute("allowfullscreen", "");
       }
     }
+    /* 横屏按钮：演示 HTML 存于数据库，按钮在运行时注入，避免改库 */
+    if (!demoBox.querySelector(".demo-rot")) {
+      var stage = demoBox.querySelector(".demo-stage");
+      if (stage) {
+        var rot = document.createElement("button");
+        rot.className = "demo-rot";
+        rot.type = "button";
+        rot.title = "横屏播放";
+        rot.setAttribute("aria-label", "横屏播放");
+        rot.innerHTML = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="4.9" y="2.5" width="6.2" height="11" rx="1.3" stroke="currentColor" stroke-width="1.3"/><path d="M2.2 6.2C2.7 4.3 4 2.9 5.7 2.2M13.8 9.8c-.5 1.9-1.8 3.3-3.5 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M2 3.6l.2 2.6 2.5-.7M14 12.4l-.2-2.6-2.5.7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+        stage.appendChild(rot);
+      }
+    }
     var demoFs = demoBox.querySelector(".demo-fs");
+    var demoRot = demoBox.querySelector(".demo-rot");
+    var landscape = false;
+    function setLandscape(on) {
+      landscape = on;
+      demoBox.classList.toggle("force-landscape", on);
+      var rotIcon = demoRot ? demoRot.querySelector("svg") : null;
+      if (rotIcon) rotIcon.style.transform = on ? "rotate(180deg)" : "";
+    }
+    if (demoRot) {
+      demoRot.addEventListener("click", function () {
+        if (landscape) {
+          /* 退出横屏：解除方向锁定并还原 */
+          if (document.exitFullscreen && document.fullscreenElement) document.exitFullscreen().catch(function () {});
+          if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock();
+          setLandscape(false);
+          return;
+        }
+        setLandscape(true);
+        /* 先尝试全屏 + 方向锁定（Android 生效）；iOS 无此 API，由 rotate 兜底 */
+        var fsReq = demoBox.requestFullscreen || demoBox.webkitRequestFullscreen;
+        if (fsReq) {
+          try { fsReq.call(demoBox).catch(function () {}); } catch (e) { /* 非用户手势环境忽略 */ }
+        }
+        try {
+          if (screen.orientation && screen.orientation.lock) {
+            screen.orientation.lock("landscape").catch(function () {});
+          }
+        } catch (e) { /* 不支持则保持 rotate 兜底 */ }
+      });
+    }
     if (demoFs) {
       demoFs.addEventListener("click", function () {
         var fsEl = document.fullscreenElement || document.webkitFullscreenElement;
