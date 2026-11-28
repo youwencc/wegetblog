@@ -89,4 +89,15 @@
   - `app/assets/style.css`：`.demo-rot` 按钮样式（全屏按钮左侧、仅 ≤720px 显示）；`.force-landscape` 强制横屏模式（fixed 全屏覆盖 + iframe 旋转 90°，iOS 无方向锁定 API 时兜底）。
 - 验证：`node --check app/assets/main.js` → 通过；`php tools/publish.php` → 退出码 0；grep 确认 dist 的 CSS 含 `force-landscape`（3 处）、JS 含 `demo-rot`（3 处）。
 - 遗留：无。
-- 风险：低。旋转兜底方案在 iOS Safari 上为视觉旋转，系统状态栏方向不随之变化，属平台限制。
+- 风险：低。旋转兜底方案在 iOS Safari 上为视觉旋转，属平台限制。
+
+## 知识库页面手机端表格兼容优化
+
+- 状态：已完成
+- 目标：修复知识库四页（git / ai-agent-wiki / architecture / models）表格的手机端样式问题。
+- 改动：
+  - `app/assets/wiki-shell.css`：新增第 9 节「手机端表格兼容补强」——三类滚动容器（table-wrap/rank-twrap/tbl）加 iOS 惯性滚动与细滚动条；堆叠型表格缺 data-label 的单元格不再留空标签缩进；Agent 页 14 张裸表格窄屏改块级自滚动（min-width 560px 保证可读），rank 容器表格不受影响。
+  - `dist/wiki/*.html`（4 页）：`wiki-shell.css` 引用加 `?v=2` 防缓存。
+- 验证：`php tools/publish.php` → 退出码 0；grep 确认 4 页引用均已带 `?v=2`。
+- 遗留：无。
+- 风险：低。堆叠与自滚动两套策略按页面类型分流，互不覆盖。

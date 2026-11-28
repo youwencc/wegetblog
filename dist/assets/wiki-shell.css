@@ -749,3 +749,32 @@ body.wiki--doc .doc-body {
   body.wiki--doc .tbl td { position: relative; }
   body.wiki--doc .tbl td:first-child { white-space: normal; font-size: 13.5px; }
 }
+
+/* ---------- 9. 手机端表格兼容补强 ---------- */
+/* 滚动型表格容器（git 页 .table-wrap、Agent 页 .rank-twrap、文档页 .tbl）：
+   iOS 惯性滚动 + 细滚动条；容器不超宽避免撑破页面 */
+.table-wrap, .rank-twrap, .tbl {
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: var(--ws-rule-strong) transparent;
+  max-width: 100%;
+}
+/* 堆叠型表格：个别单元格缺 data-label 时退化为普通行，
+   不保留空标签缩进位（否则看起来像错位） */
+@media (max-width: 1040px) {
+  body.wiki--doc .tbl td:not([data-label]) { padding-left: 14px; }
+  body.wiki--doc .tbl td:not([data-label])::before { content: none; }
+}
+/* Agent 页裸表格（无容器包裹）：窄屏改为块级自滚动，
+   加 min-width 保证列宽可读，避免 5 列内容被压成窄条 */
+@media (max-width: 720px) {
+  body.wiki--agent table {
+    display: block;
+    max-width: 100%;
+    min-width: 560px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  /* 容器滚动型的 rank 表格恢复表格布局，滚动交给外层 .rank-twrap */
+  body.wiki--agent .rank-twrap table { display: table; min-width: 900px; overflow: visible; }
+}
