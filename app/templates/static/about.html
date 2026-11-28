@@ -48,7 +48,7 @@
       "@type": "Person",
       "@id": "https://chenyu.me/#person",
       "name": "电脑小百科",
-      "alternateName": "Chen Yu",
+      "alternateName": "电脑小百科",
       "url": "https://chenyu.me/about.html",
       "jobTitle": "独立开发者",
       "email": "hello@chenyu.me",
@@ -67,7 +67,7 @@
 }
 </script>
 </head>
-<body>
+<body class="about-page">
 <a class="skip" href="#main">跳到正文</a>
 
 <header class="site-header">
@@ -106,15 +106,18 @@
     </nav>
 
     <!-- ===== 关于 · 自述 ===== -->
-    <section class="page-head" aria-labelledby="about-title" style="padding-top:0">
+    <section class="page-head" id="top" data-rail="关于" aria-labelledby="about-title" style="padding-top:0">
       <p class="eyebrow">About / 01</p>
       <h1 class="page-title" id="about-title">写界面的人，<br>现在也写游戏。</h1>
       <p class="page-lede">十年里我一直在做同一件事：把某个具体的人手边那台机器，变得好用一点。区别只在于对象是产线上的操作员，还是下班后想修一台虚拟电脑的玩家。</p>
     </section>
 
-    <section class="section section--flush" aria-labelledby="bio-title">
+    <section class="section section--flush" id="bio" data-rail="自述" aria-labelledby="bio-title">
       <div class="about-grid">
-        <aside class="portrait" aria-label="名片">
+        <div class="bio-aside">
+          <h2 class="rail-title" id="bio-title">自述</h2>
+          <p class="rail-note">Bio / 2016—2026</p>
+          <aside class="portrait" aria-label="名片">
           <figure class="desk">
             <svg viewBox="0 0 40 24" shape-rendering="crispEdges" role="img" aria-label="像素画：夜里的书桌，显示器上开着一间修理铺，一只猫睡在显示器顶上">
               <rect width="40" height="24" fill="var(--paper-3)"/>
@@ -176,13 +179,15 @@
             </svg>
             <figcaption>工位 / 2026 · 汕头，晚上十点，豆子睡在显示器上</figcaption>
           </figure>
-          <p class="mono-line">Profile / 2026</p>
-          <p class="big">电脑小百科</p>
-          <p class="small">独立开发者<br>现居汕头<br><br>C# / TypeScript<br>桌面软件 · 像素游戏<br><br>可接小型桌面工具与<br>数据界面的项目</p>
-        </aside>
+          <div class="portrait-meta">
+            <p class="mono-line">Profile / 2026</p>
+            <p class="big">电脑小百科</p>
+            <p class="small">独立开发者，现居汕头<br>C# / TypeScript<br>桌面软件 · 像素游戏<br>可接小型桌面工具与数据界面</p>
+          </div>
+          </aside>
+        </div>
 
-        <div class="about-body">
-          <h2 class="eyebrow" id="bio-title" style="margin-bottom:18px">自述</h2>
+        <div class="about-body bio-body">
           <p>我叫电脑小百科，写桌面软件的。2016 年大二的时候开始写 C#，第一份正经代码是一个用 WinForms 做的课表查询工具，界面很难看，但同班同学真的在用。那大概是第一次知道「能跑」和「有人用」是两件不同的事。</p>
           <p>2019 年进了一家做工业检测设备的公司，写了四年 WPF。产线上的机器跑着 7×24 小时的界面，客户按班次交接，没有人会给你重启的机会。那几年学到的东西比任何一本书都硬：内存要留余量，日志要能救命，报错不能只写「发生错误」，因为半夜没人看得懂。</p>
           <p>2023 年出来单干，接桌面工具和数据可视化的小项目。2025 年把晚上的时间挪给了游戏，用 PixiJS 写像素经营游戏，顺手把 Godot 也重新捡起来。写游戏和写工具用的是同一套肌肉：状态要清楚，边界要收住，性能预算要在动手之前就定下来。</p>
@@ -197,7 +202,7 @@
     </section>
 
     <!-- ===== 关于 · 经历 ===== -->
-    <section class="section shell" aria-labelledby="timeline-title">
+    <section class="section" id="timeline" data-rail="经历" aria-labelledby="timeline-title">
       <div class="split">
         <div class="rail">
           <h2 class="rail-title" id="timeline-title">经历</h2>
@@ -233,7 +238,7 @@
     </section>
 
     <!-- ===== 关于 · 技术栈 ===== -->
-    <section class="section shell" aria-labelledby="stack-title">
+    <section class="section" id="stack" data-rail="工具" aria-labelledby="stack-title">
       <div class="split">
         <div class="rail">
           <h2 class="rail-title" id="stack-title">常用工具</h2>
@@ -271,7 +276,7 @@
     </section>
 
     <!-- ===== 关于 · 工作方式 ===== -->
-    <section class="section shell" aria-labelledby="workstyle-title">
+    <section class="section" id="workstyle" data-rail="工作方式" aria-labelledby="workstyle-title">
       <div class="split">
         <div class="rail">
           <h2 class="rail-title" id="workstyle-title">工作方式</h2>
@@ -287,15 +292,49 @@
     </section>
 
     <!-- ===== 关于 · 联系 ===== -->
-    <section class="section shell" aria-labelledby="contact-title">
+    <section class="section about-contact" id="contact" data-rail="联系" aria-labelledby="contact-title">
       <div class="split">
         <div class="rail">
           <h2 class="rail-title" id="contact-title">联系</h2>
           <p class="rail-note">Contact</p>
         </div>
-        <div class="about-body">
-          <p>合作请写信：<a href="mailto:hello@chenyu.me">hello@chenyu.me</a>。附上时间线、预算范围和大致的交付形态，能省掉来回两轮。技术问题也欢迎，但我不保证都回。</p>
-          <p>代码在 <a href="https://github.com/chenyu" rel="me noopener noopener" target="_blank">GitHub</a>，文章更新可以订阅 <a href="feed.xml">RSS</a>。没有微信群，也没有知识星球。</p>
+        <div class="contact-body">
+          <p class="contact-lead">合作请写信，附上时间线、预算范围和大致的交付形态，能省掉来回两轮。技术问题也欢迎，但我不保证都回。</p>
+
+          <div class="contact-mail">
+            <span class="contact-mail-label">Email</span>
+            <span class="contact-mail-value">hello@chenyu.me</span>
+            <button class="contact-copy" type="button" data-copy-value="hello@chenyu.me" aria-label="复制邮箱地址">
+              <svg viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round">
+                <rect x="5.5" y="5.5" width="8" height="9"/>
+                <path d="M10.5 3.5v-1h-8v9h1"/>
+              </svg>
+              <span class="contact-copy-txt">复制</span>
+            </button>
+          </div>
+
+          <ul class="contact-list">
+            <li>
+              <a href="https://github.com/chenyu" rel="me noopener" target="_blank">
+                <span class="ck">GitHub</span>
+                <span class="cv">chenyu</span>
+              </a>
+            </li>
+            <li>
+              <a href="feed.xml">
+                <span class="ck">RSS</span>
+                <span class="cv">订阅更新</span>
+              </a>
+            </li>
+            <li>
+              <span class="cell">
+                <span class="ck">WeChat</span>
+                <span class="cv">e259800</span>
+              </span>
+            </li>
+          </ul>
+
+          <p class="contact-note">没有微信群，也没有知识星球。信是唯一会看得比较认真的渠道。</p>
         </div>
       </div>
     </section>
@@ -306,7 +345,7 @@
   <div class="shell">
     <div class="wordmark">
       <span class="wm-name">电脑小百科</span>
-      <span class="wm-meta">Chen Yu · Technical Notes</span>
+      <span class="wm-meta">技术笔记 · Technical Notes</span>
     </div>
     <div class="footer-grid">
       <div>
@@ -336,5 +375,69 @@
     </div>
   </div>
 </footer>
+
+<script>
+(function () {
+  var btn = document.querySelector('[data-copy-value]');
+  if (!btn) return;
+  var txt = btn.querySelector('.contact-copy-txt');
+  var label = txt ? txt.textContent : '复制';
+  var timer = null;
+
+  function flash(text) {
+    var ok = text === '已复制';
+    btn.classList.toggle('is-copied', ok);
+    if (txt) txt.textContent = text;
+    clearTimeout(timer);
+    timer = setTimeout(function () {
+      btn.classList.remove('is-copied');
+      if (txt) txt.textContent = label;
+    }, 1800);
+  }
+
+  function selectEmail() {
+    var v = document.querySelector('.contact-mail-value');
+    if (!v || !window.getSelection) return;
+    var range = document.createRange();
+    range.selectNodeContents(v);
+    var sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+  }
+
+  function fallback(value) {
+    var ok = false;
+    try {
+      var ta = document.createElement('textarea');
+      ta.value = value;
+      ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed';
+      ta.style.top = '-1000px';
+      document.body.appendChild(ta);
+      ta.select();
+      ok = document.execCommand('copy');
+      document.body.removeChild(ta);
+    } catch (e) {
+      ok = false;
+    }
+    if (ok) {
+      flash('已复制');
+    } else {
+      selectEmail();
+      flash('已选中');
+      btn.title = '已选中地址，按 Ctrl+C 复制';
+    }
+  }
+
+  btn.addEventListener('click', function () {
+    var value = btn.getAttribute('data-copy-value') || '';
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(value).then(function () { flash('已复制'); }, function () { fallback(value); });
+    } else {
+      fallback(value);
+    }
+  });
+})();
+</script>
 </body>
 </html>

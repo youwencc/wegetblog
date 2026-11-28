@@ -183,8 +183,8 @@
   /* ---------- main / article ---------- */
   .main{flex:1;min-width:0}
   .doc-layout{
-    display:grid;grid-template-columns:minmax(0,800px) 208px;gap:52px;
-    max-width:1140px;margin:0 auto;padding:34px 40px 56px;justify-content:center;align-items:start;
+    display:grid;grid-template-columns:minmax(0,960px) 216px;gap:48px;
+    max-width:1300px;margin:0 auto;padding:34px 36px 56px;justify-content:center;align-items:start;
   }
   .read-progress{position:fixed;top:0;left:0;height:2px;width:0;background:var(--accent);z-index:90;transition:width .08s linear}
   .page{display:none;animation:pageIn .28s ease both;min-width:0}
@@ -480,8 +480,8 @@
   .toc-back:hover{color:var(--accent)}
 
   /* ---------- page nav / footer ---------- */
-  .page-nav-wrap{max-width:1140px;margin:0 auto;padding:0 40px 70px}
-  .page-nav{display:grid;grid-template-columns:1fr 1fr;gap:11px;max-width:800px}
+  .page-nav-wrap{max-width:1300px;margin:0 auto;padding:0 36px 70px}
+  .page-nav{display:grid;grid-template-columns:1fr 1fr;gap:11px;max-width:960px}
   .page-nav a{display:flex;flex-direction:column;gap:3px;border:1px solid var(--line);background:var(--bg-elev);border-radius:9px;padding:11px 14px;transition:.15s;min-width:0}
   .page-nav a:hover{border-color:var(--accent-line);background:var(--accent-soft)}
   .page-nav a.next{text-align:right;margin-left:auto;width:100%}
@@ -490,7 +490,7 @@
   .page-nav a.next .pn-dir{justify-content:flex-end}
   .page-nav .pn-title{font-size:12.5px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .site-footer{border-top:1px solid var(--line);padding:26px 40px 32px;background:var(--panel);color:var(--faint);font-size:11px}
-  .footer-inner{max-width:1140px;margin:0 auto;display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between}
+  .footer-inner{max-width:1300px;margin:0 auto;display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between}
   .footer-inner a{color:var(--muted)}
   .footer-inner a:hover{color:var(--accent)}
   .footer-links{display:flex;gap:16px;flex-wrap:wrap}
@@ -535,8 +535,8 @@
   #toast .ok{color:var(--accent)}
 
   /* ---------- responsive ---------- */
-  @media (max-width:1240px){
-    .doc-layout{grid-template-columns:minmax(0,800px);max-width:880px}
+  @media (max-width:1340px){
+    .doc-layout{grid-template-columns:minmax(0,960px);max-width:1000px}
     .toc{display:none}
     .page-nav-wrap{max-width:880px}
   }
@@ -4104,7 +4104,7 @@ git reset --hard HEAD~1</code></pre>
 </script>
 <footer class="ws-footer">
   <div class="wrap">
-    <div class="ws-wordmark"><b>电脑小百科</b><span>Chen Yu · Technical Notes</span></div>
+    <div class="ws-wordmark"><b>电脑小百科</b><span>技术笔记 · Technical Notes</span></div>
     <div class="ws-foot-grid">
       <div>
         <p class="ws-foot-name">技术笔记</p>

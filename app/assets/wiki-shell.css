@@ -419,7 +419,7 @@ body.wiki--git .ws-footer { margin-top: 0; border-top: 1px solid var(--ws-line, 
 }
 
 /* ---------- 8. 文档型知识库（架构选型等）：侧栏 + 正文 ---------- */
-body.wiki--doc { --doc-side: 248px; }
+body.wiki--doc { --doc-side: 248px; --ws-shell: 1240px; }
 body.wiki--doc *, body.wiki--doc *::before, body.wiki--doc *::after { box-sizing: border-box; }
 
 body.wiki--doc .doc-side {
@@ -485,7 +485,7 @@ body.wiki--doc .doc-bar {
   align-items: center;
   gap: 12px;
   height: 52px;
-  padding: 0 clamp(16px, 4vw, 44px);
+  padding: 0 clamp(16px, 2.6vw, 32px);
   border-bottom: 1px solid var(--ws-rule);
   background: color-mix(in srgb, var(--ws-paper) 90%, transparent);
   backdrop-filter: blur(10px);
@@ -519,9 +519,9 @@ body.wiki--doc .doc-menu-btn {
 }
 body.wiki--doc .doc-body {
   width: 100%;
-  max-width: 940px;
+  max-width: 1180px;
   margin-inline: auto;
-  padding: clamp(24px, 4vw, 48px) clamp(16px, 4vw, 44px) 40px;
+  padding: clamp(24px, 3vw, 44px) clamp(16px, 2.6vw, 32px) 48px;
 }
 
 /* 8.1 页头 */

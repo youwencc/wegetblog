@@ -157,6 +157,81 @@
     });
   }
 
+  /* ---- 页面右侧定位标签 ---- */
+  var railTargets = Array.prototype.slice.call(document.querySelectorAll("[data-rail]"));
+  if (railTargets.length > 1) {
+    var rail = document.createElement("nav");
+    rail.className = "rail-nav";
+    rail.setAttribute("aria-label", "页面位置");
+
+    var railLinks = railTargets.map(function (el, i) {
+      if (!el.id) el.id = "rail-" + (i + 1);
+      var a = document.createElement("a");
+      a.className = "rail-item";
+      a.href = "#" + el.id;
+      a.setAttribute("data-target", el.id);
+      var txt = document.createElement("span");
+      txt.className = "rail-txt";
+      txt.textContent = el.getAttribute("data-rail") || el.id;
+      var dot = document.createElement("span");
+      dot.className = "rail-dot";
+      dot.setAttribute("aria-hidden", "true");
+      a.appendChild(txt);
+      a.appendChild(dot);
+      rail.appendChild(a);
+      return a;
+    });
+
+    document.body.appendChild(rail);
+
+    var headEl = document.querySelector(".site-header");
+    var headH = headEl ? headEl.offsetHeight : 64;
+    var lastSync = 0;
+
+    var syncRail = function () {
+      var line = headH + 90;
+      var current = railLinks[0];
+      railLinks.forEach(function (a) {
+        var el = document.getElementById(a.getAttribute("data-target"));
+        if (el && el.getBoundingClientRect().top <= line) current = a;
+      });
+      railLinks.forEach(function (a) {
+        var on = a === current;
+        a.classList.toggle("is-active", on);
+        if (on) { a.setAttribute("aria-current", "true"); } else { a.removeAttribute("aria-current"); }
+      });
+    };
+
+    railLinks.forEach(function (a) {
+      a.addEventListener("click", function (e) {
+        var el = document.getElementById(a.getAttribute("data-target"));
+        if (!el) return;
+        /* 优先用原生锚点跳转（配合 [data-rail] 的 scroll-margin-top 让开标题栏），
+           平滑滚动交给 CSS 的 scroll-behavior；只在平滑不可用时才接管 */
+        if (!("scrollBehavior" in document.documentElement.style)) {
+          e.preventDefault();
+          var delta = el.getBoundingClientRect().top - headH - 18;
+          window.scrollBy(0, delta);
+        }
+        a.blur();
+      });
+    });
+
+    window.addEventListener("scroll", function () {
+      var now = Date.now();
+      if (now - lastSync < 90) return;
+      lastSync = now;
+      syncRail();
+    }, { passive: true });
+
+    window.addEventListener("resize", function () {
+      headH = headEl ? headEl.offsetHeight : 64;
+      syncRail();
+    });
+
+    syncRail();
+  }
+
   /* ---- 博客筛选 ---- */
   var filterBar = document.querySelector("[data-filters]");
   if (filterBar) {

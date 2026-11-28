@@ -48,18 +48,20 @@
 <aside class="doc-side" id="docSide">
   <p class="doc-side-t">目录</p>
   <a href="#s1"><span class="num">01</span>读法与口径</a>
-  <a href="#s2"><span class="num">02</span>一线六家</a>
-  <a href="#s3"><span class="num">03</span>第二梯队</a>
-  <a href="#s4"><span class="num">04</span>垂直与端侧</a>
-  <a href="#s5"><span class="num">05</span>海外三巨头</a>
+  <a href="#s2"><span class="num">02</span>全球一线旗舰</a>
+  <a href="#s3"><span class="num">03</span>主力与性价比</a>
+  <a href="#s4"><span class="num">04</span>垂直与专用</a>
+  <a href="#s5"><span class="num">05</span>海外档位线</a>
   <a href="#s6"><span class="num">06</span>海外开源与挑战者</a>
   <a href="#s7"><span class="num">07</span>参数细节总表</a>
-  <a href="#s8"><span class="num">08</span>实现方法拆解</a>
-  <a href="#s9"><span class="num">09</span>价格全景</a>
-  <a href="#s10"><span class="num">10</span>开源与许可</a>
-  <a href="#s11"><span class="num">11</span>按场景选</a>
-  <a href="#s12"><span class="num">12</span>隐性成本</a>
-  <a href="#s13"><span class="num">13</span>一页速查</a>
+  <a href="#s8"><span class="num">08</span>API 接口对照</a>
+  <a href="#s9"><span class="num">09</span>模型全清单</a>
+  <a href="#s10"><span class="num">10</span>实现方法拆解</a>
+  <a href="#s11"><span class="num">11</span>价格全景</a>
+  <a href="#s12"><span class="num">12</span>开源与许可</a>
+  <a href="#s13"><span class="num">13</span>按场景选</a>
+  <a href="#s14"><span class="num">14</span>隐性成本</a>
+  <a href="#s15"><span class="num">15</span>一页速查</a>
   <p class="doc-side-tip">数据核对于 2026-11-28，取官方刊例价（不含限时活动）。官方未披露的参数一律标"—"，不做推测。</p>
 </aside>
 
@@ -74,7 +76,7 @@
 
     <p class="doc-kicker">知识库 · 模型选型</p>
     <h1 class="doc-title">参数看规模，<br>账单看<em>单价</em>。</h1>
-    <p class="doc-lead">模型之间的差距已经不是"能不能用"，而是"这一档能力配这个价，值不值"。这份对照覆盖海内外 23 家厂商、45 个在售模型：先看参数与上下文，再看许可与价格，最后拆一层实现方法——同样是 1M 上下文，有人靠稀疏注意力省算力，有人靠压缩 KV 缓存省显存，路线不同，长文本上的实际表现也不同。</p>
+    <p class="doc-lead">模型之间的差距已经不是"能不能用"，而是"这一档能力配这个价，值不值"。这份对照覆盖海内外 23 家厂商、100 余个模型：先看参数与上下文，再看许可与价格，再看接口层好不好接，最后拆一层实现方法——同样是 1M 上下文，有人靠稀疏注意力省算力，有人靠压缩 KV 缓存省显存，路线不同，长文本上的实际表现也不同。</p>
 
     <div class="doc-tags">
       <span class="accent">DeepSeek</span>
@@ -101,14 +103,14 @@
 
     <div class="doc-stats">
       <div><b>23</b><span>家厂商</span></div>
-      <div><b>45</b><span>个在售模型</span></div>
-      <div><b>8</b><span>项关键参数</span></div>
+      <div><b>100+</b><span>个模型条目</span></div>
+      <div><b>20</b><span>个接入端点</span></div>
       <div><b>10</b><span>类实现方法</span></div>
     </div>
 
     <section class="doc-sec" id="s1">
       <div class="doc-sec-h"><span class="n">01</span><h3>读法与口径</h3><span class="en">metrics</span></div>
-      <p>厂商的宣传口径差异很大，先统一读法。后面所有参数都按这个定义走。</p>
+      <p>厂商的宣传口径差异很大，先统一读法。后面所有参数都按这个定义走，国内与海外放在同一套口径里比。</p>
       <div class="tbl">
         <table>
           <thead><tr><th>指标</th><th>怎么读</th><th>容易误解的地方</th></tr></thead>
@@ -119,6 +121,7 @@
             <tr><td data-label="指标">上下文 / 最大输出</td><td data-label="怎么读">单次请求能吃的输入与能吐的输出，两者常不是同一个数</td><td data-label="容易误解的地方">把最大输出当成上下文；1M 输入往往只有 128K 输出</td></tr>
             <tr><td data-label="指标">价格与缓存价</td><td data-label="怎么读">元/百万 tokens，输入 / 输出分开，缓存命中常为输入的一到两折</td><td data-label="容易误解的地方">只比输入价，最后被输出价和思考 token 反杀</td></tr>
             <tr><td data-label="指标">许可</td><td data-label="怎么读">MIT/Apache 可自由商用；自定义许可常限规模与再分发</td><td data-label="容易误解的地方">把"权重可下载"当成"可随便商用"</td></tr>
+            <tr><td data-label="指标">币种与区域</td><td data-label="怎么读">国内按元、海外按美元计价，同一家在不同区域端点还有溢价</td><td data-label="容易误解的地方">直接拿 8 元和 8 美元比，得出"国产强又便宜"；实际差 7 倍汇率</td></tr>
           </tbody>
         </table>
       </div>
@@ -126,66 +129,81 @@
     </section>
 
     <section class="doc-sec" id="s2">
-      <div class="doc-sec-h"><span class="n">02</span><h3>一线六家：旗舰细节</h3><span class="en">frontier</span></div>
-      <p>这六家决定了国产模型的能力上限，也是大多数生产系统的实际选项。价格单位：元/百万 tokens（输入 / 输出）。</p>
+      <div class="doc-sec-h"><span class="n">02</span><h3>全球一线：旗舰同档</h3><span class="en">frontier</span></div>
+      <p>十家决定能力上限，国内外各占一半。分开看容易得出"国产便宜但弱"的结论，放进同一张表才发现：同档能力的价差基本来自币种与区域定价，而不是能力本身。价格单位国内为元、海外为美元，均按每百万 tokens（输入 / 输出）。</p>
       <div class="tbl">
         <table>
-          <thead><tr><th>厂商 · 模型</th><th>参数</th><th>上下文</th><th>开源</th><th>价格</th><th>特点与短板</th></tr></thead>
+          <thead><tr><th>厂商 · 模型</th><th>参数</th><th>上下文</th><th>许可</th><th>价格</th><th>特点与短板</th></tr></thead>
           <tbody>
-            <tr><td data-label="厂商 · 模型">DeepSeek V4.1-Flash</td><td data-label="参数">552B / 输入激活 8B · 输出 16B</td><td data-label="上下文">1M</td><td data-label="开源">MIT</td><td data-label="价格">1 / 4（缓存 0.02，闲时；高峰翻倍）</td><td data-label="特点与短板" class="pick">KV 缓存每 token 仅 890B，同等上下文下显存占用极小；原生多模态；短板是复杂 Agent 任务上限略低</td></tr>
-            <tr><td data-label="厂商 · 模型">DeepSeek V4-Pro</td><td data-label="参数">1.6T / 49B</td><td data-label="上下文">1M</td><td data-label="开源">MIT</td><td data-label="价格">4.5 / 13.5（闲时）；高峰 9 / 27</td><td data-label="特点与短板">旧旗舰，官方已把请求逐步路由到 V4.1-Flash，新项目不建议再接</td></tr>
-            <tr><td data-label="厂商 · 模型">阿里通义 Qwen3.8-Max</td><td data-label="参数">2.4T / 约 95B</td><td data-label="上下文">1M</td><td data-label="开源">闭源（同代有开源版）</td><td data-label="价格">12 / 36（缓存 1.5；Batch 6 / 18）</td><td data-label="特点与短板">编程与办公、长文档与长视频理解、长程任务规划；短板是单价高，重活才划算</td></tr>
-            <tr><td data-label="厂商 · 模型">月之暗面 Kimi K3</td><td data-label="参数">2.8T / 104B（896 路由 / 16 激活）</td><td data-label="上下文">1M</td><td data-label="开源">Kimi K3 License</td><td data-label="价格">20 / 100（缓存 2）；K3.1-Pro 13 / 68</td><td data-label="特点与短板" class="pick">长程编程、Agent 与原生视觉的第一梯队；短板是输出价最贵，闲聊类调用不划算</td></tr>
-            <tr><td data-label="厂商 · 模型">智谱 GLM-5.3</td><td data-label="参数">未披露（Flash 版 320B / 18B）</td><td data-label="上下文">1M</td><td data-label="开源">开放权重</td><td data-label="价格">8 / 28（缓存 2）；Flash 0.8 / 2.8</td><td data-label="特点与短板">编程与网络安全能力突出，Flash 版原生多模态且极便宜；短板是 GLM-5.3 只有文本</td></tr>
-            <tr><td data-label="厂商 · 模型">MiniMax M3</td><td data-label="参数">428B / 23B（128 路由 top-4 + 1 共享）</td><td data-label="上下文">1M</td><td data-label="开源">社区许可（有商用限制）</td><td data-label="价格">4.2 / 16.8（≤512K）；超过翻倍</td><td data-label="特点与短板">原生图/视频输入、可操作桌面、Coding 强；短板是许可限制与超长上下文加价</td></tr>
-            <tr><td data-label="厂商 · 模型">字节豆包 Seed 2.1 Pro</td><td data-label="参数">未披露</td><td data-label="上下文">256K</td><td data-label="开源">闭源</td><td data-label="价格">6 / 30（turbo 3 / 15）</td><td data-label="特点与短板">多模态与工具调用均衡、工程配套最全；短板是上下文只有 256K，超长文档要切</td></tr>
+            <tr><td data-label="厂商 · 模型">DeepSeek V4.1-Flash</td><td data-label="参数">552B / 输入激活 8B · 输出 16B</td><td data-label="上下文">1M</td><td data-label="许可">MIT</td><td data-label="价格">1 / 4 元（缓存 0.02，闲时；高峰翻倍）</td><td data-label="特点与短板" class="pick">KV 缓存每 token 仅 890B，同等上下文下显存占用极小；原生多模态；短板是复杂 Agent 任务上限略低</td></tr>
+            <tr><td data-label="厂商 · 模型">阿里通义 Qwen3.8-Max</td><td data-label="参数">2.4T / 约 95B</td><td data-label="上下文">1M</td><td data-label="许可">闭源（同代有开源版）</td><td data-label="价格">12 / 36 元（缓存 1.5；Batch 6 / 18）</td><td data-label="特点与短板">编程与办公、长文档与长视频理解、长程任务规划；短板是单价高，重活才划算</td></tr>
+            <tr><td data-label="厂商 · 模型">月之暗面 Kimi K3.1-Pro</td><td data-label="参数">3T 级 / 未披露</td><td data-label="上下文">1M</td><td data-label="许可">闭源（K3 开源）</td><td data-label="价格">13 / 68 元（K3 为 20 / 100）</td><td data-label="特点与短板" class="pick">长程编程、Agent 与原生视觉的第一梯队，仅思考模式；短板是输出价最贵，闲聊类调用不划算</td></tr>
+            <tr><td data-label="厂商 · 模型">智谱 GLM-5.3</td><td data-label="参数">未披露（Flash 版 320B / 18B）</td><td data-label="上下文">1M</td><td data-label="许可">开放权重</td><td data-label="价格">8 / 28 元（缓存 2）；Flash 0.8 / 2.8</td><td data-label="特点与短板">编程与网络安全能力突出，Flash 版原生多模态且极便宜；短板是 GLM-5.3 只有文本</td></tr>
+            <tr><td data-label="厂商 · 模型">MiniMax M3</td><td data-label="参数">428B / 23B（128 路由 top-4 + 1 共享）</td><td data-label="上下文">1M</td><td data-label="许可">社区许可（有商用限制）</td><td data-label="价格">4.2 / 16.8 元（≤512K）；超过翻倍</td><td data-label="特点与短板">原生图/视频输入、可操作桌面、Coding 强；短板是许可限制与超长上下文加价</td></tr>
+            <tr><td data-label="厂商 · 模型">字节豆包 Seed 2.1 Pro</td><td data-label="参数">未披露</td><td data-label="上下文">1M / 输出 256K（默认 4K）</td><td data-label="许可">闭源</td><td data-label="价格">6 / 30 元（turbo 3 / 15）</td><td data-label="特点与短板">多模态与工具调用均衡、工程配套最全；短板是默认输出只有 4K，长回答要显式调大；2.0 系列正在退场</td></tr>
+            <tr><td data-label="厂商 · 模型">OpenAI GPT-6.2 Astra</td><td data-label="参数">未披露</td><td data-label="上下文">1.05M / 128K</td><td data-label="许可">闭源</td><td data-label="价格">$8 / 40</td><td data-label="特点与短板" class="pick">端到端长任务：电脑与浏览器操作、深度调研、科学工作；短板是输出价 5 倍于输入，超 272K 另有费率</td></tr>
+            <tr><td data-label="厂商 · 模型">Anthropic Claude Fable 5.2</td><td data-label="参数">未披露</td><td data-label="上下文">1M / 128K</td><td data-label="许可">闭源</td><td data-label="价格">$8 / 40（缓存读 0.20；Fast 16 / 80）</td><td data-label="特点与短板">自适应思考常开，编程、金融、科研最强档；Fast 模式最高 2.5 倍速</td></tr>
+            <tr><td data-label="厂商 · 模型">Google Gemini 4 Argon</td><td data-label="参数">未披露</td><td data-label="上下文">未披露</td><td data-label="许可">闭源</td><td data-label="价格">$2 / 10（12-01 起 4 / 20）</td><td data-label="特点与短板">原生全模态 + 长上下文的当前旗舰，预训练即混入音视频；短板是限时价，下月直接翻倍</td></tr>
+            <tr><td data-label="厂商 · 模型">xAI Grok 4.7</td><td data-label="参数">未披露</td><td data-label="上下文">500K</td><td data-label="许可">闭源</td><td data-label="价格">$2 / 6（≥200K：4 / 12）</td><td data-label="特点与短板">推理强度可调（默认低）、工具调用稳；Batch 减 20%，Priority 两倍，美国区端点 1.1 倍</td></tr>
           </tbody>
         </table>
       </div>
-      <div class="note amber">这一层的变化速度按月算：2026 年 11 月内 DeepSeek 在迁 V4-Pro、智谱把 GLM-5.3-Flash 打到 0.8 元输入、Kimi 上线 K3.1-Pro、小米开源 V2.6。把它当"价格带地图"用，具体型号下单前回官方页核。</div>
+      <div class="note amber">按 1 : 7.1 粗算，同档位对比一目了然：Qwen3.8-Max 12 / 36 元 ≈ $1.7 / $5.1，是 Astra、Fable 5.2 的五到八分之一；Kimi K3.1-Pro 13 / 68 元 ≈ $1.8 / $9.6；DeepSeek 1 / 4 元 ≈ $0.14 / $0.56。而在能力侧，这一档的分差通常只有几个点。这就是"同档不同价"的全部原因，也是国内 API 做海外业务时最大的成本空间。变化速度按月算：11 月内 DeepSeek 在迁 V4-Pro、智谱把 Flash 打到 0.8 元、Kimi 上 K3.1-Pro、Gemini 4 Argon 在限时促销——具体型号下单前回官方页核。</div>
     </section>
-
     <section class="doc-sec" id="s3">
-      <div class="doc-sec-h"><span class="n">03</span><h3>第二梯队：国产算力与性价比</h3><span class="en">second tier</span></div>
-      <p>这四家的共同点是：不在"最强"上硬拼，而是把某一条做到极致——全国产算力、办公多模态、成本帕累托、端侧全模态。</p>
+      <div class="doc-sec-h"><span class="n">03</span><h3>主力与性价比档</h3><span class="en">workhorses</span></div>
+      <p>真正跑量的一档。国内走"单点做到极致"——全国产算力、办公多模态、成本帕累托、端侧全模态；海外走"前沿降配"——Sol、Sonnet、Flash、Fast，以及开放权重的 Large 3。生产系统七成以上的请求应该落在这一层。</p>
       <div class="tbl">
         <table>
-          <thead><tr><th>厂商 · 模型</th><th>参数</th><th>上下文</th><th>开源</th><th>价格</th><th>特点与短板</th></tr></thead>
+          <thead><tr><th>厂商 · 模型</th><th>参数</th><th>上下文</th><th>许可</th><th>价格</th><th>特点与短板</th></tr></thead>
           <tbody>
-            <tr><td data-label="厂商 · 模型">科大讯飞 Spark-X2.6</td><td data-label="参数">293B / 30B</td><td data-label="上下文">1M</td><td data-label="开源">闭源；端侧 4B、1.7B 开源</td><td data-label="价格">0.9 / 3.6（限时六折，原 1.5 / 6；缓存 0.08）</td><td data-label="特点与短板" class="pick">全国产算力训练，DSA 稀疏注意力 + MTP，长上下文训练效率提升约 4 倍；适配端云一体与行业（教育/医疗/法律）</td></tr>
-            <tr><td data-label="厂商 · 模型">讯飞 Spark-X2-Flash</td><td data-label="参数">30B</td><td data-label="上下文">256K</td><td data-label="开源">闭源</td><td data-label="价格">1 / 2</td><td data-label="特点与短板">面向 Agent 的中等尺寸，同等工作流下 token 消耗约为大模型的三分之一</td></tr>
-            <tr><td data-label="厂商 · 模型">商汤 SenseNova 6.8 Flash</td><td data-label="参数">未披露</td><td data-label="上下文">—</td><td data-label="开源">闭源</td><td data-label="价格">旧版 V6.5-Pro 3 / 9；Turbo 1.5 / 4.5；Reasoner 4 / 16</td><td data-label="特点与短板">原生多模态智能体，主打数据分析、PPT、3D/网页设计与长链路办公；短板是参数不公开、偏应用交付</td></tr>
-            <tr><td data-label="厂商 · 模型">阶跃 Step 5 Preview</td><td data-label="参数">600B / 27B</td><td data-label="上下文">1M</td><td data-label="开源">开放权重</td><td data-label="价格">7 / 20（缓存 0.7）</td><td data-label="特点与短板" class="pick">单任务成本约为 Opus 5 的 1/8，AA 智能指数 44、开源前三；短板是生态与工具链相对薄</td></tr>
-            <tr><td data-label="厂商 · 模型">小米 MiMo-V2.6-Pro</td><td data-label="参数">未披露（V2-Pro：&gt;1T / 42B）</td><td data-label="上下文">1M</td><td data-label="开源">开放权重</td><td data-label="价格">约 3.1 / 6.2（V2.6 Pro，美元价折算）；V2-Pro 1 / 3（≤256K）</td><td data-label="特点与短板">原生全模态、混合注意力 7:1 + MTP、UltraSpeed 模式最高 20 倍输出速度；短板是上下文超 256K 单价翻倍</td></tr>
-            <tr><td data-label="厂商 · 模型">小米 MiMo-V2.6-Flash</td><td data-label="参数">未披露</td><td data-label="上下文">1M</td><td data-label="开源">开放权重（MIT 系）</td><td data-label="价格">约 1 / 2</td><td data-label="特点与短板">极致性价比，许可宽松，可直接商用与二次训练</td></tr>
+            <tr><td data-label="厂商 · 模型">科大讯飞 Spark-X2.6</td><td data-label="参数">293B / 30B</td><td data-label="上下文">1M</td><td data-label="许可">闭源；端侧 4B、1.7B 开源</td><td data-label="价格">0.9 / 3.6 元（限时六折，原 1.5 / 6；缓存 0.08）</td><td data-label="特点与短板" class="pick">全国产算力训练，DSA 稀疏注意力 + MTP，长上下文训练效率提升约 4 倍；适配端云一体与行业（教育/医疗/法律）</td></tr>
+            <tr><td data-label="厂商 · 模型">讯飞 Spark-X2-Flash</td><td data-label="参数">30B</td><td data-label="上下文">256K（输入上限 192K）</td><td data-label="许可">闭源</td><td data-label="价格">1 / 2 元</td><td data-label="特点与短板">面向 Agent 的中等尺寸，同等工作流下 token 消耗约为大模型的三分之一</td></tr>
+            <tr><td data-label="厂商 · 模型">商汤 SenseNova 6.8 Flash</td><td data-label="参数">未披露</td><td data-label="上下文">—</td><td data-label="许可">闭源</td><td data-label="价格">旧版 V6.5-Pro 3 / 9 元；Turbo 1.5 / 4.5；Reasoner 4 / 16</td><td data-label="特点与短板">原生多模态智能体，主打数据分析、PPT、3D/网页设计与长链路办公；短板是参数不公开、偏应用交付</td></tr>
+            <tr><td data-label="厂商 · 模型">阶跃 Step 5 Preview</td><td data-label="参数">600B / 27B</td><td data-label="上下文">1M</td><td data-label="许可">开放权重</td><td data-label="价格">7 / 20 元（缓存 0.7）</td><td data-label="特点与短板" class="pick">单任务成本约为 Opus 5 的 1/8，AA 智能指数 44、开源前三；短板是生态与工具链相对薄</td></tr>
+            <tr><td data-label="厂商 · 模型">小米 MiMo-V2.6-Pro</td><td data-label="参数">未披露（V2-Pro：&gt;1T / 42B）</td><td data-label="上下文">1M</td><td data-label="许可">开放权重</td><td data-label="价格">约 3.1 / 6.2 元（美元价折算）；V2-Pro 1 / 3（≤256K）</td><td data-label="特点与短板">原生全模态、混合注意力 7:1 + MTP、UltraSpeed 模式最高 20 倍输出速度；短板是上下文超 256K 单价翻倍</td></tr>
+            <tr><td data-label="厂商 · 模型">小米 MiMo-V2.6-Flash</td><td data-label="参数">未披露</td><td data-label="上下文">1M</td><td data-label="许可">开放权重（MIT 系）</td><td data-label="价格">约 1 / 2 元</td><td data-label="特点与短板">极致性价比，许可宽松，可直接商用与二次训练</td></tr>
+            <tr><td data-label="厂商 · 模型">OpenAI GPT-6.2 Sol</td><td data-label="参数">未披露</td><td data-label="上下文">1.05M / 128K</td><td data-label="许可">闭源</td><td data-label="价格">$2 / 10</td><td data-label="特点与短板" class="pick">前沿降配的标杆：能力约为 Astra 的九成，价格只有四分之一，多数业务应从这里起步</td></tr>
+            <tr><td data-label="厂商 · 模型">Anthropic Claude Sonnet 5.5</td><td data-label="参数">未披露</td><td data-label="上下文">1M / 128K</td><td data-label="许可">闭源</td><td data-label="价格">$2 / 10</td><td data-label="特点与短板">速度与智能的平衡点，日常编码与知识工作主力，缓存读取另计价</td></tr>
+            <tr><td data-label="厂商 · 模型">Google Gemini 3.8 Flash</td><td data-label="参数">未披露</td><td data-label="上下文">未披露</td><td data-label="许可">闭源</td><td data-label="价格">$0.75 / 3.75（2027-01-01 起 1.50 / 7.50）</td><td data-label="特点与短板">高吞吐 agent 工作流主力，Batch 再打五折；短板是明年自动翻倍</td></tr>
+            <tr><td data-label="厂商 · 模型">xAI Grok 4 Fast</td><td data-label="参数">未披露</td><td data-label="上下文">2M</td><td data-label="许可">闭源</td><td data-label="价格">$0.20 / 0.50</td><td data-label="特点与短板">前沿附近最便宜的档位之一，适合当"便宜的大上下文"用</td></tr>
+            <tr><td data-label="厂商 · 模型">xAI Grok 4.20</td><td data-label="参数">未披露</td><td data-label="上下文">2M</td><td data-label="许可">闭源</td><td data-label="价格">$1.25 / 2.50（≥200K：2.50 / 5）</td><td data-label="特点与短板">2M 上下文是当前最长的一档，低幻觉取向；另有 Multi-Agent 变体，按推理强度起 4 或 16 个子 agent 并行</td></tr>
+            <tr><td data-label="厂商 · 模型">Mistral Large 3</td><td data-label="参数">未披露</td><td data-label="上下文">256K</td><td data-label="许可">开放权重（研究许可）</td><td data-label="价格">$0.50 / 1.50</td><td data-label="特点与短板">欧盟数据驻留与多语言是卖点，旗舰档里最便宜的一档，权重可自托管</td></tr>
           </tbody>
         </table>
       </div>
+      <div class="note">这一档是价格战最激烈的地方：同样是"够用的 1M 上下文"，GLM-5.3-Flash 0.8 元与 Grok 4 Fast $0.20 只差一倍以内，而两边的旗舰差 6–8 倍。要压成本，先在这里换档，再谈压缩上下文——顺序反了，省下来的钱还不够重试。</div>
     </section>
-
     <section class="doc-sec" id="s4">
-      <div class="doc-sec-h"><span class="n">04</span><h3>垂直、企业与端侧</h3><span class="en">vertical &amp; edge</span></div>
-      <p>这一组不适合用"排行榜"衡量：有的只做行业交付，有的只做端侧几 B 的模型，有的干脆退出了通用模型竞赛。</p>
+      <div class="doc-sec-h"><span class="n">04</span><h3>垂直、端侧与专用</h3><span class="en">vertical &amp; edge</span></div>
+      <p>这一组不适合用排行榜衡量：有的只做行业交付，有的只做端侧几 B 的模型，有的是编程或实时语音的专用底座。海外的 Haiku、Muse Ember、Ministral 与国内的 MiniCPM、Spark 端侧，解决的是同一类问题——把成本压到"每个请求几厘钱"。</p>
       <div class="tbl">
         <table>
-          <thead><tr><th>厂商 · 模型</th><th>参数</th><th>定位</th><th>开源</th><th>说明</th></tr></thead>
+          <thead><tr><th>厂商 · 模型</th><th>参数</th><th>定位</th><th>许可</th><th>说明</th></tr></thead>
           <tbody>
-            <tr><td data-label="厂商 · 模型">华为 openPangu-2.0-Pro</td><td data-label="参数">505B / 18B</td><td data-label="定位">昇腾原生通用基座</td><td data-label="开源">开放权重</td><td data-label="说明">512K 上下文、约 34T tokens 训练；后训练做快慢合一 SFT + 多专项 RL + 在线蒸馏合一。闭源侧盘古 5.5 NLP 为 718B / 256 专家，走行业交付</td></tr>
-            <tr><td data-label="厂商 · 模型">百度文心 ERNIE 5.1</td><td data-label="参数">未披露</td><td data-label="定位">中文知识与政企</td><td data-label="开源">闭源</td><td data-label="说明">约 119K 上下文，价格约 4 / 18；中文知识、搜索增强与合规流程是优势</td></tr>
-            <tr><td data-label="厂商 · 模型">百川 Baichuan5-Turbo</td><td data-label="参数">未披露</td><td data-label="定位">搜索增强 + 医疗</td><td data-label="开源">闭源</td><td data-label="说明">约 512K 上下文、约 3 / 8；公司已收缩到医疗与行业，通用 API 迭代放缓</td></tr>
-            <tr><td data-label="厂商 · 模型">零一万物 Yi-2-Large</td><td data-label="参数">千亿级 Dense</td><td data-label="定位">双语、政企交付</td><td data-label="开源">闭源</td><td data-label="说明">已停止超大模型预训练，转向行业与出海项目，通用模型不再是主线</td></tr>
-            <tr><td data-label="厂商 · 模型">昆仑万维 SkyClaw-v1.0</td><td data-label="参数">未披露</td><td data-label="定位">Agent 专用</td><td data-label="开源">闭源</td><td data-label="说明">1M 上下文，面向工具调用、多轮任务与代码编辑优化；同门还有 SkyReels（视频）、Mureka（音乐）、Matrix-Game（世界模型）</td></tr>
-            <tr><td data-label="厂商 · 模型">面壁 MiniCPM5-2B</td><td data-label="参数">2B Dense</td><td data-label="定位">端侧 Agent</td><td data-label="开源">开源</td><td data-label="说明" class="pick">2B 规模支持工具调用、深度搜索、代码生成；同系列 MiniCPM-V 4.7（35B-A3B / 1B）做端侧多模态，VoxCPM 0.5B 做语音</td></tr>
-            <tr><td data-label="厂商 · 模型">腾讯混元 Hy3</td><td data-label="参数">295B / 21B</td><td data-label="定位">开源 Agent 基座</td><td data-label="开源">开放权重</td><td data-label="说明">256K 上下文，1 / 4（缓存 0.25）；Hy4 系列 6 / 18，Hy4-flash 0.5 / 2</td></tr>
+            <tr><td data-label="厂商 · 模型">华为 openPangu-2.0-Pro</td><td data-label="参数">505B / 18B</td><td data-label="定位">昇腾原生通用基座</td><td data-label="许可">开放权重</td><td data-label="说明">512K 上下文、约 34T tokens 训练；后训练做快慢合一 SFT + 多专项 RL + 在线蒸馏合一。闭源侧盘古 5.5 NLP 为 718B / 256 专家，走行业交付</td></tr>
+            <tr><td data-label="厂商 · 模型">腾讯混元 Hy3</td><td data-label="参数">295B / 21B</td><td data-label="定位">开源 Agent 基座</td><td data-label="许可">开放权重</td><td data-label="说明">256K 上下文，1 / 4 元（缓存 0.25）；Hy4 系列 6 / 18，Hy4-flash 0.5 / 2</td></tr>
+            <tr><td data-label="厂商 · 模型">百度文心 ERNIE 5.1</td><td data-label="参数">未披露</td><td data-label="定位">中文知识与政企</td><td data-label="许可">闭源</td><td data-label="说明">约 119K 上下文，价格约 4 / 18 元；中文知识、搜索增强与合规流程是优势</td></tr>
+            <tr><td data-label="厂商 · 模型">百川 Baichuan5-Turbo</td><td data-label="参数">未披露</td><td data-label="定位">搜索增强 + 医疗</td><td data-label="许可">闭源</td><td data-label="说明">约 512K 上下文、约 3 / 8 元；同门 Baichuan-M3 医疗专用、幻觉率约 2.6%。公司已收缩到医疗与行业，通用 API 迭代放缓</td></tr>
+            <tr><td data-label="厂商 · 模型">零一万物 Yi-2-Large</td><td data-label="参数">千亿级 Dense</td><td data-label="定位">双语、政企交付</td><td data-label="许可">闭源</td><td data-label="说明">256K 上下文；已停止超大模型预训练，转向行业与出海项目，通用模型不再是主线</td></tr>
+            <tr><td data-label="厂商 · 模型">昆仑万维 SkyClaw-v1.0</td><td data-label="参数">未披露</td><td data-label="定位">Agent 专用</td><td data-label="许可">闭源</td><td data-label="说明">1M 上下文，面向工具调用、多轮任务与文件编辑优化；同门还有 SkyReels（视频）、Mureka（音乐）、Matrix-Game（世界模型）</td></tr>
+            <tr><td data-label="厂商 · 模型">面壁 MiniCPM5-2B</td><td data-label="参数">2B Dense</td><td data-label="定位">端侧 Agent</td><td data-label="许可">开源</td><td data-label="说明" class="pick">2B 规模支持工具调用、深度搜索、代码生成；同系列 MiniCPM-V 4.7（35B-A3B / 1B）做端侧多模态，VoxCPM 0.5B 做语音</td></tr>
+            <tr><td data-label="厂商 · 模型">讯飞 Spark-X2.6-4B</td><td data-label="参数">4B / 1.7B 两档</td><td data-label="定位">端侧、国产算力</td><td data-label="许可">开源</td><td data-label="说明">1M 上下文、三档推理、200+ 语言，端侧限时免费；离线转写与嵌入式助手可直接上</td></tr>
+            <tr><td data-label="厂商 · 模型">Anthropic Claude Haiku 5.5</td><td data-label="参数">未披露</td><td data-label="定位">高频轻任务</td><td data-label="许可">闭源</td><td data-label="说明" class="pick">$0.10 / 0.50，比旗舰便宜两个数量级；坑是提示超 100K 直接跳到 0.50 / 2.50（五倍），长文档批处理先算这一步</td></tr>
+            <tr><td data-label="厂商 · 模型">Meta Muse Ember</td><td data-label="参数">未披露</td><td data-label="定位">小型全模态</td><td data-label="许可">闭源（第三方托管）</td><td data-label="说明">$0.10 / 0.50、1.05M；文/图/视频/音/PDF 进、文本出，替代"OCR + 小模型"的两段式流水线</td></tr>
+            <tr><td data-label="厂商 · 模型">Meta Llama 4 Maverick</td><td data-label="参数">400B / 17B · 128 专家</td><td data-label="定位">私有化基座</td><td data-label="许可">Llama 4 社区许可</td><td data-label="说明">1M 上下文，托管价 $0.15 / 0.60；月活超 7 亿需单独授权，且不得用其输出训练其他模型</td></tr>
+            <tr><td data-label="厂商 · 模型">Mistral Ministral 3B</td><td data-label="参数">3B</td><td data-label="定位">端侧 / 边缘</td><td data-label="许可">开放权重</td><td data-label="说明">$0.04 / 0.04，输入输出同价；工控、离线终端与网关侧过滤的常见选择</td></tr>
+            <tr><td data-label="厂商 · 模型">Mistral Small 3.2</td><td data-label="参数">24B Dense</td><td data-label="定位">自托管性价比</td><td data-label="许可">开放权重</td><td data-label="说明">$0.075 / 0.20，单卡可跑；接口形状与云端一致，先云上调通再搬回本地</td></tr>
+            <tr><td data-label="厂商 · 模型">xAI Grok Build 0.1</td><td data-label="参数">未披露</td><td data-label="定位">终端编程 agent</td><td data-label="许可">闭源</td><td data-label="说明">256K、$1 / 2，配 Grok Build CLI 直连仓库；专为"读整个工程再改文件"优化</td></tr>
           </tbody>
         </table>
       </div>
-      <div class="note">判断这类厂商只看一件事：它有没有"非你不可"的场景。行业交付靠数据与流程，端侧靠芯片适配与体积——这些护城河比多考几分更实在。</div>
-    </section>
+      <div class="note">判断这类选项只看一件事：它有没有"非你不可"的场景。行业交付靠数据与流程，端侧靠芯片适配与体积，编程专用靠工具链闭环——这些护城河比多考几分更实在。</div>
+        </section>
 
-    <section class="doc-sec" id="s5">
-      <div class="doc-sec-h"><span class="n">05</span><h3>海外三巨头</h3><span class="en">frontier global</span></div>
-      <p>这三家仍是能力上限，也是"贵"这个词的来源。价格单位：美元 / 百万 tokens，与国内页分开记，别混着算。</p>
+<section class="doc-sec" id="s5">
+      <div class="doc-sec-h"><span class="n">05</span><h3>海外旗舰档位线</h3><span class="en">ladders</span></div>
+      <p>第 02 章只取各家旗舰做横向对比，这里把三条完整档位线摊开：同代之内，每降一档能力掉几个点、价格掉多少。价格单位美元 / 百万 tokens。</p>
       <div class="tbl">
         <table>
           <thead><tr><th>厂商 · 模型</th><th>上下文 / 输出</th><th>价格 $</th><th>特点与短板</th></tr></thead>
@@ -195,19 +213,22 @@
             <tr><td data-label="厂商 · 模型">OpenAI GPT-6.1 Terra</td><td data-label="上下文 / 输出">1.05M / 128K</td><td data-label="价格 $">1 / 5</td><td data-label="特点与短板">便宜量大的通用档：分类、抽取、改写、客服</td></tr>
             <tr><td data-label="厂商 · 模型">OpenAI GPT-6 Luna</td><td data-label="上下文 / 输出">1.05M / 128K</td><td data-label="价格 $">0.10 / 0.50</td><td data-label="特点与短板">价格杀手，单位成本接近"按调用次数付费"</td></tr>
             <tr><td data-label="厂商 · 模型">Anthropic Claude Fable 5.2</td><td data-label="上下文 / 输出">1M / 128K</td><td data-label="价格 $">8 / 40（缓存读 0.20）</td><td data-label="特点与短板" class="pick">自适应思考常开，编程、金融、科研最强档；Fast 模式 16 / 80、最高 2.5 倍速</td></tr>
+            <tr><td data-label="厂商 · 模型">Anthropic Claude Fable 5.1</td><td data-label="上下文 / 输出">1M / 128K</td><td data-label="价格 $">10 / 50（缓存读 0.25）</td><td data-label="特点与短板">上一代旗舰，仍在售但已标 legacy；新项目不必再接，除非压测基线要对齐</td></tr>
+            <tr><td data-label="厂商 · 模型">Anthropic Claude Mythos 5.2</td><td data-label="上下文 / 输出">1M / 128K</td><td data-label="价格 $">需申请（未公开）</td><td data-label="特点与短板">网络安全与生物方向专用，能力受限、需单独准入，不适合通用业务</td></tr>
             <tr><td data-label="厂商 · 模型">Anthropic Claude Opus 5.5</td><td data-label="上下文 / 输出">1M / 128K</td><td data-label="价格 $">4 / 20</td><td data-label="特点与短板">长程 agentic 编码与知识工作的默认选择，比上一代 Opus 5 的 5 / 25 便宜两成</td></tr>
             <tr><td data-label="厂商 · 模型">Anthropic Claude Sonnet 5.5</td><td data-label="上下文 / 输出">1M / 128K</td><td data-label="价格 $">2 / 10</td><td data-label="特点与短板">速度与智能的平衡点，日常编码主力</td></tr>
             <tr><td data-label="厂商 · 模型">Anthropic Claude Haiku 5.5</td><td data-label="上下文 / 输出">1M / 128K</td><td data-label="价格 $">0.10 / 0.50（超 100K 后 0.50 / 2.50）</td><td data-label="特点与短板">分类、抽取、路由这类高频任务；注意长提示会跳档</td></tr>
-            <tr><td data-label="厂商 · 模型">Google Gemini 4 Argon</td><td data-label="上下文 / 输出">—</td><td data-label="价格 $">2 / 10（12-01 起 4 / 20）</td><td data-label="特点与短板">当前旗舰促销价，多模态与长上下文强；短板是限时价，明年直接翻倍</td></tr>
-            <tr><td data-label="厂商 · 模型">Google Gemini 3.1 Pro</td><td data-label="上下文 / 输出">1M / 64K</td><td data-label="价格 $">2 / 12（&gt;200K：4 / 18）</td><td data-label="特点与短板">文本、图像、视频、音频、代码一体理解，缓存 0.20</td></tr>
-            <tr><td data-label="厂商 · 模型">Google Gemini 3.8 Flash</td><td data-label="上下文 / 输出">—</td><td data-label="价格 $">0.75 / 3.75（2027-01-01 起 1.50 / 7.50）</td><td data-label="特点与短板">高吞吐 agent 工作流主力，Batch 再打五折</td></tr>
+            <tr><td data-label="厂商 · 模型">Google Gemini 4 Argon</td><td data-label="上下文 / 输出">未披露</td><td data-label="价格 $">2 / 10（12-01 起 4 / 20）</td><td data-label="特点与短板">当前旗舰促销价，多模态与长上下文强；短板是限时价，明年直接翻倍</td></tr>
+            <tr><td data-label="厂商 · 模型">Google Gemini 4 Hydrogen</td><td data-label="上下文 / 输出">未披露</td><td data-label="价格 $">未公开</td><td data-label="特点与短板">同代高效主力，定位接近"快档"：路由、海量分类、批量抽取，价格未单列</td></tr>
+            <tr><td data-label="厂商 · 模型">Google Gemini 4 Carbon</td><td data-label="上下文 / 输出">未披露</td><td data-label="价格 $">按 Batch 档计</td><td data-label="特点与短板">同代批量档，离线任务专用；延迟不敏感就别走实时端点</td></tr>
+            <tr><td data-label="厂商 · 模型">Google Gemini 3.1 Pro</td><td data-label="上下文 / 输出">1M / 64K</td><td data-label="价格 $">2 / 12（&gt;200K：4 / 18）</td><td data-label="特点与短板">文本、图像、视频、音频、代码一体理解，缓存 0.20；另有 customtools 版本</td></tr>
+            <tr><td data-label="厂商 · 模型">Google Gemini 3.8 Flash</td><td data-label="上下文 / 输出">未披露</td><td data-label="价格 $">0.75 / 3.75（2027-01-01 起 1.50 / 7.50）</td><td data-label="特点与短板">高吞吐 agent 工作流主力，Batch 再打五折</td></tr>
+            <tr><td data-label="厂商 · 模型">Google Gemini 3.5 Flash-Lite</td><td data-label="上下文 / 输出">未披露</td><td data-label="价格 $">0.30 / 2.50</td><td data-label="特点与短板">经济档，输入便宜但输出价偏高，适合"长输入、短输出"的抽取类任务</td></tr>
           </tbody>
         </table>
       </div>
-      <div class="note amber">三家都在用"阶梯价"管成本：OpenAI 超过 272K、Gemini 超过 200K 都翻倍；Claude 的 Haiku 超过 100K 提示直接跳到 5 倍。长文档场景先算这一步，再谈单价。</div>
-    </section>
-
-    <section class="doc-sec" id="s6">
+      <div class="note amber">三家都在用"阶梯价"管成本：OpenAI 超过 272K、Gemini 超过 200K 都翻倍；Claude 的 Haiku 超过 100K 提示直接跳到 5 倍。长文档场景先算这一步，再谈单价。档位线的用法是：先用旗舰跑 50 条真实工单建基线，再逐档往下压，掉点超过 3% 就停手——那一条就是你的分界线。</div>
+    </section>    <section class="doc-sec" id="s6">
       <div class="doc-sec-h"><span class="n">06</span><h3>海外开源与挑战者</h3><span class="en">open weights abroad</span></div>
       <p>xAI 拼速度与上下文，Meta 与 Mistral 拼"权重能拿下来"。这一组决定的是私有化和边缘部署的选项。</p>
       <div class="tbl">
@@ -230,7 +251,7 @@
     </section>
     <section class="doc-sec" id="s7">
       <div class="doc-sec-h"><span class="n">07</span><h3>参数细节总表</h3><span class="en">specs</span></div>
-      <p>横向对比用。空格为官方未披露，不做推测；"上下文 / 输出"按官方 API 文档口径填。</p>
+      <p>国内外同表横向对比用。空格与"未披露"为官方未发布，不做推测；"上下文 / 输出"按官方 API 文档口径填。海外四家的总参与激活参数官方一律不公开，只能用上下文与价格反推档位。</p>
       <div class="tbl">
         <table>
           <thead><tr><th>模型</th><th>总参</th><th>激活</th><th>专家</th><th>注意力</th><th>上下文 / 输出</th><th>模态</th><th>许可</th></tr></thead>
@@ -243,21 +264,242 @@
             <tr><td data-label="模型">GLM-5.3</td><td data-label="总参">未披露</td><td data-label="激活">未披露</td><td data-label="专家">—</td><td data-label="注意力">强制思考，三档推理强度</td><td data-label="上下文 / 输出">1M / 128K</td><td data-label="模态">文本</td><td data-label="许可">开放权重</td></tr>
             <tr><td data-label="模型">GLM-5.3-Flash</td><td data-label="总参">320B</td><td data-label="激活">18B</td><td data-label="专家">—</td><td data-label="注意力">稀疏 + 线性注意力混合</td><td data-label="上下文 / 输出">1M / 128K</td><td data-label="模态">文/图/视频/文件</td><td data-label="许可">开放权重</td></tr>
             <tr><td data-label="模型">MiniMax M3</td><td data-label="总参">428B</td><td data-label="激活">23B</td><td data-label="专家">128 路由 top-4 + 1 共享</td><td data-label="注意力">MSA 稀疏注意力</td><td data-label="上下文 / 输出">1M / —</td><td data-label="模态">文、图、视频</td><td data-label="许可">社区许可</td></tr>
-            <tr><td data-label="模型">豆包 Seed 2.1 Pro</td><td data-label="总参">未披露</td><td data-label="激活">未披露</td><td data-label="专家">—</td><td data-label="注意力">—</td><td data-label="上下文 / 输出">256K / 256K</td><td data-label="模态">全模态</td><td data-label="许可">闭源</td></tr>
+            <tr><td data-label="模型">豆包 Seed 2.1 Pro</td><td data-label="总参">未披露</td><td data-label="激活">未披露</td><td data-label="专家">—</td><td data-label="注意力">—</td><td data-label="上下文 / 输出">1M / 256K</td><td data-label="模态">全模态</td><td data-label="许可">闭源</td></tr>
             <tr><td data-label="模型">混元 Hy3</td><td data-label="总参">295B</td><td data-label="激活">21B</td><td data-label="专家">—</td><td data-label="注意力">快慢思考融合</td><td data-label="上下文 / 输出">256K / —</td><td data-label="模态">文本</td><td data-label="许可">开放权重</td></tr>
             <tr><td data-label="模型">讯飞 Spark-X2.6</td><td data-label="总参">293B</td><td data-label="激活">30B</td><td data-label="专家">—</td><td data-label="注意力">DSA 稀疏注意力 + MTP</td><td data-label="上下文 / 输出">1M / —</td><td data-label="模态">文本（多语言）</td><td data-label="许可">闭源</td></tr>
             <tr><td data-label="模型">阶跃 Step 5 Preview</td><td data-label="总参">600B</td><td data-label="激活">27B</td><td data-label="专家">—</td><td data-label="注意力">稀疏 MoE</td><td data-label="上下文 / 输出">1M / —</td><td data-label="模态">文、图</td><td data-label="许可">开放权重</td></tr>
             <tr><td data-label="模型">小米 MiMo-V2.6-Pro</td><td data-label="总参">未披露</td><td data-label="激活">未披露</td><td data-label="专家">—</td><td data-label="注意力">混合注意力 7:1 + MTP</td><td data-label="上下文 / 输出">1M / —</td><td data-label="模态">全模态</td><td data-label="许可">开放权重</td></tr>
             <tr><td data-label="模型">openPangu-2.0-Pro</td><td data-label="总参">505B</td><td data-label="激活">18B</td><td data-label="专家">—</td><td data-label="注意力">MoE + 快慢合一</td><td data-label="上下文 / 输出">512K / —</td><td data-label="模态">文本</td><td data-label="许可">开放权重</td></tr>
             <tr><td data-label="模型">面壁 MiniCPM5-2B</td><td data-label="总参">2B</td><td data-label="激活">2B（Dense）</td><td data-label="专家">—</td><td data-label="注意力">端侧优化</td><td data-label="上下文 / 输出">—</td><td data-label="模态">文本</td><td data-label="许可">开源</td></tr>
+            <tr><td data-label="模型">GPT-6.2 Astra</td><td data-label="总参">未披露</td><td data-label="激活">未披露</td><td data-label="专家">未披露</td><td data-label="注意力">未披露</td><td data-label="上下文 / 输出">1.05M / 128K</td><td data-label="模态">文、图</td><td data-label="许可">闭源</td></tr>
+            <tr><td data-label="模型">Claude Fable 5.2</td><td data-label="总参">未披露</td><td data-label="激活">未披露</td><td data-label="专家">—</td><td data-label="注意力">自适应思考常开，effort 可调</td><td data-label="上下文 / 输出">1M / 128K</td><td data-label="模态">文、图</td><td data-label="许可">闭源</td></tr>
+            <tr><td data-label="模型">Gemini 3.1 Pro</td><td data-label="总参">未披露</td><td data-label="激活">未披露</td><td data-label="专家">—</td><td data-label="注意力">—</td><td data-label="上下文 / 输出">1M / 64K</td><td data-label="模态">文、图、视频、音</td><td data-label="许可">闭源</td></tr>
+            <tr><td data-label="模型">Grok 4.20</td><td data-label="总参">未披露</td><td data-label="激活">未披露</td><td data-label="专家">—</td><td data-label="注意力">—</td><td data-label="上下文 / 输出">2M / 未公开</td><td data-label="模态">文、图</td><td data-label="许可">闭源</td></tr>
+            <tr><td data-label="模型">Llama 4 Maverick</td><td data-label="总参">400B</td><td data-label="激活">17B</td><td data-label="专家">128</td><td data-label="注意力">MoE（标准注意力）</td><td data-label="上下文 / 输出">1M（托管常更小）</td><td data-label="模态">文、图</td><td data-label="许可">社区许可</td></tr>
+            <tr><td data-label="模型">Mistral Large 3</td><td data-label="总参">未披露</td><td data-label="激活">未披露</td><td data-label="专家">—</td><td data-label="注意力">—</td><td data-label="上下文 / 输出">256K / —</td><td data-label="模态">文、图</td><td data-label="许可">开放权重</td></tr>
+            <tr><td data-label="模型">Meta Muse Ember</td><td data-label="总参">未披露</td><td data-label="激活">未披露</td><td data-label="专家">—</td><td data-label="注意力">—</td><td data-label="上下文 / 输出">1.05M / —</td><td data-label="模态">文、图、视频、音、PDF</td><td data-label="许可">闭源</td></tr>
           </tbody>
         </table>
       </div>
     </section>
 
     <section class="doc-sec" id="s8">
-      <div class="doc-sec-h"><span class="n">08</span><h3>实现方法拆解</h3><span class="en">methods</span></div>
-      <p>参数是结果，方法是原因。同样是 1M 上下文，为什么有的模型输入 1 元、有的 20 元？差别几乎全在这九件事上。</p>
+      <div class="doc-sec-h"><span class="n">08</span><h3>API 接口对照</h3><span class="en">api surface</span></div>
+      <p>选型最后都要落到"能不能接、要改多少代码"。这一节只看接口层：用什么协议、端点在哪、四个生态的参数名差在哪、各家有哪些必须知道的特殊开关。</p>
+
+      <p class="quiet">协议与端点（base_url 取公开文档口径，具体路径以各控制台为准）</p>
+      <div class="tbl">
+        <table>
+          <thead><tr><th>厂商</th><th>协议 / 兼容性</th><th>base_url</th><th>认证</th></tr></thead>
+          <tbody>
+            <tr><td data-label="厂商">DeepSeek</td><td data-label="协议 / 兼容性">OpenAI 兼容</td><td data-label="base_url">https://api.deepseek.com</td><td data-label="认证">Bearer API Key</td></tr>
+            <tr><td data-label="厂商">阿里通义</td><td data-label="协议 / 兼容性">DashScope 原生 + OpenAI 兼容</td><td data-label="base_url">https://dashscope.aliyuncs.com/compatible-mode/v1</td><td data-label="认证">Bearer API Key</td></tr>
+            <tr><td data-label="厂商">月之暗面 Kimi</td><td data-label="协议 / 兼容性">OpenAI 兼容，另有 Anthropic 兼容端点</td><td data-label="base_url">https://api.moonshot.cn/v1</td><td data-label="认证">Bearer API Key</td></tr>
+            <tr><td data-label="厂商">智谱 GLM</td><td data-label="协议 / 兼容性">OpenAI 兼容，另有 Anthropic 兼容端点</td><td data-label="base_url">https://open.bigmodel.cn/api/paas/v4</td><td data-label="认证">Bearer API Key</td></tr>
+            <tr><td data-label="厂商">MiniMax</td><td data-label="协议 / 兼容性">OpenAI 兼容</td><td data-label="base_url">https://api.minimaxi.com/v1</td><td data-label="认证">Bearer API Key</td></tr>
+            <tr><td data-label="厂商">字节豆包</td><td data-label="协议 / 兼容性">火山方舟，OpenAI 兼容</td><td data-label="base_url">https://ark.cn-beijing.volces.com/api/v3</td><td data-label="认证">Bearer API Key</td></tr>
+            <tr><td data-label="厂商">腾讯混元</td><td data-label="协议 / 兼容性">OpenAI 兼容</td><td data-label="base_url">https://api.hunyuan.cloud.tencent.com/v1</td><td data-label="认证">Bearer API Key</td></tr>
+            <tr><td data-label="厂商">百度文心</td><td data-label="协议 / 兼容性">千帆，OpenAI 兼容</td><td data-label="base_url">https://qianfan.baidubce.com/v2</td><td data-label="认证">Bearer API Key</td></tr>
+            <tr><td data-label="厂商">科大讯飞</td><td data-label="协议 / 兼容性">原生 WebSocket / HTTP，另有星辰 MaaS</td><td data-label="base_url">wss://spark-api.xf-yun.com</td><td data-label="认证">appid + apiKey 签名</td></tr>
+            <tr><td data-label="厂商">商汤日日新</td><td data-label="协议 / 兼容性">OpenAI 兼容模式</td><td data-label="base_url">https://api.sensenova.cn/compatible-mode/v1</td><td data-label="认证">Bearer API Key</td></tr>
+            <tr><td data-label="厂商">阶跃 Step</td><td data-label="协议 / 兼容性">OpenAI 兼容</td><td data-label="base_url">https://api.stepfun.com/v1</td><td data-label="认证">Bearer API Key</td></tr>
+            <tr><td data-label="厂商">小米 MiMo</td><td data-label="协议 / 兼容性">OpenAI 兼容</td><td data-label="base_url">见 platform.xiaomimimo.com 文档</td><td data-label="认证">Bearer API Key</td></tr>
+            <tr><td data-label="厂商">华为盘古</td><td data-label="协议 / 兼容性">ModelArts MaaS，OpenAI 兼容接口</td><td data-label="base_url">见华为云 MaaS 文档</td><td data-label="认证">IAM Token / AK-SK</td></tr>
+            <tr><td data-label="厂商">面壁 MiniCPM</td><td data-label="协议 / 兼容性">无官方云 API，权重自托管</td><td data-label="base_url">自己用 vLLM / SGLang 起服务</td><td data-label="认证">自建</td></tr>
+            <tr><td data-label="厂商">OpenAI</td><td data-label="协议 / 兼容性">原生 Responses / Chat Completions</td><td data-label="base_url">https://api.openai.com/v1</td><td data-label="认证">Bearer API Key</td></tr>
+            <tr><td data-label="厂商">Anthropic</td><td data-label="协议 / 兼容性">Messages 原生，官方提供 OpenAI SDK 兼容层</td><td data-label="base_url">https://api.anthropic.com/v1/messages</td><td data-label="认证">x-api-key + anthropic-version</td></tr>
+            <tr><td data-label="厂商">Google Gemini</td><td data-label="协议 / 兼容性">generateContent 原生 + OpenAI 兼容端点</td><td data-label="base_url">https://generativelanguage.googleapis.com/v1beta</td><td data-label="认证">x-goog-api-key</td></tr>
+            <tr><td data-label="厂商">xAI</td><td data-label="协议 / 兼容性">OpenAI 兼容</td><td data-label="base_url">https://api.x.ai/v1</td><td data-label="认证">Bearer API Key</td></tr>
+            <tr><td data-label="厂商">Mistral</td><td data-label="协议 / 兼容性">原生 + OpenAI 兼容</td><td data-label="base_url">https://api.mistral.ai/v1</td><td data-label="认证">Bearer API Key</td></tr>
+            <tr><td data-label="厂商">Meta</td><td data-label="协议 / 兼容性">无第一方 API</td><td data-label="base_url">Bedrock / Vertex / Together 等托管</td><td data-label="认证">随托管方</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="quiet">同一个能力，四个生态的写法不一样。移植代码时按这张表改，比读四份文档快。</p>
+      <div class="tbl">
+        <table>
+          <thead><tr><th>能力</th><th>OpenAI</th><th>Anthropic</th><th>Gemini</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr><td data-label="能力">输出上限</td><td data-label="OpenAI">max_completion_tokens（Chat）/ max_output_tokens（Responses）</td><td data-label="Anthropic">max_tokens（必填）</td><td data-label="Gemini">maxOutputTokens</td><td data-label="说明">Anthropic 把思考 token 也算进这个值，给太小会截断</td></tr>
+            <tr><td data-label="能力">系统提示</td><td data-label="OpenAI">messages 里的 system，或 Responses 的 instructions</td><td data-label="Anthropic">顶层 system 字段</td><td data-label="Gemini">systemInstruction</td><td data-label="说明">位置不同，拼错不会报错，只会悄悄丢设定</td></tr>
+            <tr><td data-label="能力">思考控制</td><td data-label="OpenAI">reasoning_effort（low 到 high）</td><td data-label="Anthropic">自适应常开，可调 effort</td><td data-label="Gemini">thinkingConfig.thinkingBudget</td><td data-label="说明">国产多家直接照抄 reasoning_effort</td></tr>
+            <tr><td data-label="能力">工具调用</td><td data-label="OpenAI">tools[].function + tool_choice</td><td data-label="Anthropic">tools[].input_schema + tool_choice</td><td data-label="Gemini">tools[].functionDeclarations</td><td data-label="说明">schema 字段名不同，函数定义要重写一遍</td></tr>
+            <tr><td data-label="能力">结构化输出</td><td data-label="OpenAI">response_format: json_schema</td><td data-label="Anthropic">工具强制或结构化输出（beta）</td><td data-label="Gemini">responseMimeType + responseSchema</td><td data-label="说明">要严格 JSON 时，别只靠提示词</td></tr>
+            <tr><td data-label="能力">图片输入</td><td data-label="OpenAI">image_url（URL 或 data URI）</td><td data-label="Anthropic">image block（base64）</td><td data-label="Gemini">inlineData / fileData</td><td data-label="说明">大图先压，URL 拉取能力各家不一</td></tr>
+            <tr><td data-label="能力">上下文缓存</td><td data-label="OpenAI">自动前缀缓存</td><td data-label="Anthropic">cache_control 显式标记，5 分钟 / 1 小时两档</td><td data-label="Gemini">cachedContents 显式 + 存储费</td><td data-label="说明">自动的省钱靠顺序，显式的省钱靠复用</td></tr>
+            <tr><td data-label="能力">批量</td><td data-label="OpenAI">Batch API 约五折</td><td data-label="Anthropic">Batch 五折</td><td data-label="Gemini">Batch 五折</td><td data-label="说明">离线任务一律走批量档</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="quiet">各家必须知道的特殊开关——不知道就会多付钱，或者接不通。</p>
+      <div class="tbl">
+        <table>
+          <thead><tr><th>厂商</th><th>特殊项</th><th>注意什么</th></tr></thead>
+          <tbody>
+            <tr><td data-label="厂商">DeepSeek</td><td data-label="特殊项">自动缓存 + 闲时折扣</td><td data-label="注意什么">缓存命中 0.02 元；闲时价约为高峰一半，批量任务排夜里</td></tr>
+            <tr><td data-label="厂商">Kimi</td><td data-label="特殊项">1M 输入 / 输出上限更低</td><td data-label="注意什么">Agent 循环要主动压缩历史，否则每轮都在为长上下文付费</td></tr>
+            <tr><td data-label="厂商">智谱 GLM</td><td data-label="特殊项">强制思考、三档强度</td><td data-label="注意什么">关不掉思考，分类任务也会生成思维链；用 Flash 版控成本</td></tr>
+            <tr><td data-label="厂商">豆包 Seed</td><td data-label="特殊项">全模态输入</td><td data-label="注意什么">图 / 视频有格式与时长限制，长视频先切片</td></tr>
+            <tr><td data-label="厂商">科大讯飞</td><td data-label="特殊项">WebSocket 原生</td><td data-label="注意什么">流式是默认形态，接 HTTP 网关要自己包一层，鉴权是签名不是 Bearer</td></tr>
+            <tr><td data-label="厂商">商汤日日新</td><td data-label="特殊项">兼容模式 + reasoning_effort</td><td data-label="注意什么">参数形状贴近 OpenAI，迁移成本最低的一类</td></tr>
+            <tr><td data-label="厂商">小米 MiMo</td><td data-label="特殊项">UltraSpeed 模式</td><td data-label="注意什么">同一模型可切最高 20 倍输出速度，交互场景才开</td></tr>
+            <tr><td data-label="厂商">OpenAI</td><td data-label="特殊项">服务分级 + 272K 门槛</td><td data-label="注意什么">Flex 半价但排队、Priority 加倍；超 272K 单独费率</td></tr>
+            <tr><td data-label="厂商">Anthropic</td><td data-label="特殊项">缓存写入分 5 分钟 / 1 小时</td><td data-label="注意什么">写缓存比读贵得多（12.5 / 20 美元），前缀不稳定时别开</td></tr>
+            <tr><td data-label="厂商">Google Gemini</td><td data-label="特殊项">200K 阈值 + Grounding 计费</td><td data-label="注意什么">超 200K 输入翻倍；联网搜索每月 5000 次后按次收费</td></tr>
+            <tr><td data-label="厂商">xAI</td><td data-label="特殊项">≥200K 阶梯</td><td data-label="注意什么">超过 200K 输入输出都翻倍；Batch 减 20%，Priority 两倍</td></tr>
+            <tr><td data-label="厂商">Mistral</td><td data-label="特殊项">权重与 API 同源</td><td data-label="注意什么">同一模型可调 API 也可自托管，接口形状一致，便于迁移</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="quiet">除了参数名，还有四件事直接决定集成工作量。</p>
+      <div class="tbl">
+        <table>
+          <thead><tr><th>维度</th><th>各家情况</th><th>建议</th></tr></thead>
+          <tbody>
+            <tr><td data-label="维度">SDK 与语言</td><td data-label="各家情况">OpenAI 兼容的十余家可直接用 openai 官方 SDK；Anthropic、Gemini 各有自家 SDK；讯飞、华为走自家 SDK</td><td data-label="建议">能用 openai SDK 就别为每家写适配层，只在参数映射处做一层薄封装</td></tr>
+            <tr><td data-label="维度">限流与配额</td><td data-label="各家情况">国内多为 TPM / RPM 分级套餐，海外按账户等级或项目配额</td><td data-label="建议">读 Retry-After 做指数退避，别用固定 sleep</td></tr>
+            <tr><td data-label="维度">微调与私有化</td><td data-label="各家情况">DeepSeek、GLM、混元、Llama、Mistral 可拿权重自托管；豆包、文心、讯飞提供平台侧精调</td><td data-label="建议">数据敏感选权重路线，快速验证选平台精调</td></tr>
+            <tr><td data-label="维度">内容安全</td><td data-label="各家情况">国内 API 多数内置审核与拦截，海外基本要自己加</td><td data-label="建议">跨区域上线时统一在网关层做一次审核，别指望模型端</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note">迁移时最容易踩的五个坑：max_tokens 的语义（Anthropic 必填且含思考）、system 的位置（Claude 顶层、Gemini 单独字段）、思考 token 是否计费（Gemini 算进输出价）、缓存是自动还是显式（Anthropic 不打 cache_control 就不省钱）、超长上下文的阶梯价（三家海外都有门槛）。</div>
+    </section>
+    <section class="doc-sec" id="s9">
+      <div class="doc-sec-h"><span class="n">09</span><h3>在售模型全清单</h3><span class="en">model ids</span></div>
+      <p>逐条列到模型。能力列用简写：<b>文/图/视频/音/文件</b> 指可接受的输入，<b>思</b> 是思考模式与档位，<b>工</b> 工具调用，<b>结</b> 结构化输出，<b>缓</b> 上下文缓存，<b>批</b> 批量，<b>网</b> 联网检索，<b>开</b> 开源权重。ID 区分大小写与连字符，抄错就是 404；没有公开 ID 的写模型名，以控制台为准。</p>
+
+      <p class="quiet">一 · 国内通用与 Agent 模型</p>
+      <div class="tbl">
+        <table>
+          <thead><tr><th>厂商</th><th>模型 ID</th><th>上下文 / 输出</th><th>能力</th><th>状态</th></tr></thead>
+          <tbody>
+            <tr><td data-label="厂商">DeepSeek</td><td data-label="模型 ID">deepseek-flash</td><td data-label="上下文 / 输出">1M / 384K</td><td data-label="能力">文、图 · 思 low/high/max（默认 high）· 工 · 结 · 缓 · Responses · Anthropic 兼容 · 前缀续写 · 闲时五折</td><td data-label="状态">主力</td></tr>
+            <tr><td data-label="厂商">DeepSeek</td><td data-label="模型 ID">deepseek-v4-pro</td><td data-label="上下文 / 输出">1M / 384K</td><td data-label="能力">文 · 思三档 · 工 · 结 · 缓 · 前缀续写；无图像理解</td><td data-label="状态">计划下线，路由到 Flash</td></tr>
+            <tr><td data-label="厂商">阿里通义</td><td data-label="模型 ID">qwen4-max</td><td data-label="上下文 / 输出">1M</td><td data-label="能力">文、图、视频 · 思 · 工 · 结 · 网 · 缓</td><td data-label="状态">效果优先（新一代）</td></tr>
+            <tr><td data-label="厂商">阿里通义</td><td data-label="模型 ID">qwen3.8-max（快照 -0902）</td><td data-label="上下文 / 输出">1M / 128K</td><td data-label="能力">文、图、视频 · 思 · 工 · 结 · 网 · 缓 · 前缀续写；不支持批与微调</td><td data-label="状态">旗舰</td></tr>
+            <tr><td data-label="厂商">阿里通义</td><td data-label="模型 ID">qwen3.8-flash</td><td data-label="上下文 / 输出">1M</td><td data-label="能力">文、图、视频 · 思 · 工 · 结 · 缓</td><td data-label="状态">高吞吐</td></tr>
+            <tr><td data-label="厂商">阿里通义</td><td data-label="模型 ID">qwen3.7-plus</td><td data-label="上下文 / 输出">1M</td><td data-label="能力">文、图、视频 · 思 · 工 · 结 · 缓</td><td data-label="状态">均衡主力</td></tr>
+            <tr><td data-label="厂商">阿里通义</td><td data-label="模型 ID">qwen3.6-plus</td><td data-label="上下文 / 输出">1M</td><td data-label="能力">文、图、视频 · 思 · 工 · 结 · 缓</td><td data-label="状态">上一代</td></tr>
+            <tr><td data-label="厂商">阿里通义</td><td data-label="模型 ID">qwen3.8-2.4t-a95b</td><td data-label="上下文 / 输出">1M</td><td data-label="能力">文、图 · 开 · 可私有化</td><td data-label="状态">开源权重</td></tr>
+            <tr><td data-label="厂商">阿里通义</td><td data-label="模型 ID">qwen3.8-27b</td><td data-label="上下文 / 输出">—</td><td data-label="能力">文 · 中等尺寸，单机可跑</td><td data-label="状态">开源权重</td></tr>
+            <tr><td data-label="厂商">月之暗面</td><td data-label="模型 ID">kimi-k3.1-pro</td><td data-label="上下文 / 输出">1M</td><td data-label="能力">文、图 · 仅思考 · 工 · 缓；3T 级，3D 创作与金融建模强</td><td data-label="状态">旗舰</td></tr>
+            <tr><td data-label="厂商">月之暗面</td><td data-label="模型 ID">kimi-k3.1-pro-highspeed</td><td data-label="上下文 / 输出">1M</td><td data-label="能力">同上，2–3 倍速，约 2 倍消耗</td><td data-label="状态">在售</td></tr>
+            <tr><td data-label="厂商">月之暗面</td><td data-label="模型 ID">kimi-k3</td><td data-label="上下文 / 输出">1M</td><td data-label="能力">文、图 · 思考 · 工 · 开（2.8T 开源）</td><td data-label="状态">上一代旗舰</td></tr>
+            <tr><td data-label="厂商">月之暗面</td><td data-label="模型 ID">kimi-k2.7-code</td><td data-label="上下文 / 输出">256K</td><td data-label="能力">文、图、视频 · 思考 · 工；代码专项</td><td data-label="状态">停止新用户，12 月底下线</td></tr>
+            <tr><td data-label="厂商">月之暗面</td><td data-label="模型 ID">kimi-k2.6</td><td data-label="上下文 / 输出">256K</td><td data-label="能力">文、图、视频 · 思考 / 非思考 · 工</td><td data-label="状态">同上</td></tr>
+            <tr><td data-label="厂商">智谱</td><td data-label="模型 ID">glm-5.3</td><td data-label="上下文 / 输出">1M / 128K</td><td data-label="能力">文 · 强制思考三档 · 工 · 结 · 缓；代理口径 RPM 200 / TPM 300 万</td><td data-label="状态">旗舰</td></tr>
+            <tr><td data-label="厂商">智谱</td><td data-label="模型 ID">glm-5.3-flash</td><td data-label="上下文 / 输出">1M</td><td data-label="能力">文、图、视频、文件 · 思 · 工 · 结；320B/18B</td><td data-label="状态">在售</td></tr>
+            <tr><td data-label="厂商">智谱</td><td data-label="模型 ID">glm-5.2</td><td data-label="上下文 / 输出">1M</td><td data-label="能力">文 · 思 · 工 · 结</td><td data-label="状态">上一代旗舰</td></tr>
+            <tr><td data-label="厂商">智谱</td><td data-label="模型 ID">glm-5.2-fast-preview</td><td data-label="上下文 / 输出">—</td><td data-label="能力">文 · 高速预览</td><td data-label="状态">在售</td></tr>
+            <tr><td data-label="厂商">智谱</td><td data-label="模型 ID">glm-5.1</td><td data-label="上下文 / 输出">—</td><td data-label="能力">文 · 多语言均衡</td><td data-label="状态">在售</td></tr>
+            <tr><td data-label="厂商">MiniMax</td><td data-label="模型 ID">MiniMax-M3</td><td data-label="上下文 / 输出">1M</td><td data-label="能力">文、图、视频 · 思 · 工 · 桌面操作 · Coding</td><td data-label="状态">旗舰</td></tr>
+            <tr><td data-label="厂商">MiniMax</td><td data-label="模型 ID">MiniMax-M3.1-Flash</td><td data-label="上下文 / 输出">1M</td><td data-label="能力">文、图 · 思 · 工；无结构化（代理口径）</td><td data-label="状态">轻量</td></tr>
+            <tr><td data-label="厂商">字节豆包</td><td data-label="模型 ID">doubao-seed-evolving</td><td data-label="上下文 / 输出">1M / 64K</td><td data-label="能力">文、图 · 思 · 工 · 结；滚动升级，Agent 与抗幻觉持续优化</td><td data-label="状态">在售</td></tr>
+            <tr><td data-label="厂商">字节豆包</td><td data-label="模型 ID">doubao-seed-2-1-pro-260915</td><td data-label="上下文 / 输出">1M / 256K（默认 4K）</td><td data-label="能力">文、图 · 思 · 工 · 结 · GUI 任务；RPM 500 / TPM 100 万</td><td data-label="状态">主力</td></tr>
+            <tr><td data-label="厂商">字节豆包</td><td data-label="模型 ID">doubao-seed-2-1-lite-260915</td><td data-label="上下文 / 输出">1M / 64K</td><td data-label="能力">文、图 · 思 · 工 · 结</td><td data-label="状态">轻量</td></tr>
+            <tr><td data-label="厂商">字节豆包</td><td data-label="模型 ID">doubao-seed-2-1-pro-260628</td><td data-label="上下文 / 输出">256K / 256K</td><td data-label="能力">文、图 · 思 · 工 · 结</td><td data-label="状态">旧快照</td></tr>
+            <tr><td data-label="厂商">字节豆包</td><td data-label="模型 ID">doubao-seed-2-0-pro / lite / mini-260215</td><td data-label="上下文 / 输出">256K</td><td data-label="能力">文、图 · 思 · 工 · 结</td><td data-label="状态">即将下线</td></tr>
+            <tr><td data-label="厂商">字节豆包</td><td data-label="模型 ID">doubao-seed-character-260628</td><td data-label="上下文 / 输出">—</td><td data-label="能力">文 · 角色扮演与陪伴，长记忆</td><td data-label="状态">在售</td></tr>
+            <tr><td data-label="厂商">科大讯飞</td><td data-label="模型 ID">spark-x2.6</td><td data-label="上下文 / 输出">1M</td><td data-label="能力">文 · 全国产算力 · 200+ 语言 · 端云一体 · 安全策略可配</td><td data-label="状态">旗舰</td></tr>
+            <tr><td data-label="厂商">科大讯飞</td><td data-label="模型 ID">Spark-X2.6-4B</td><td data-label="上下文 / 输出">1M</td><td data-label="能力">文 · 端侧 Dense · 三档推理 · 200+ 语言</td><td data-label="状态">限时免费</td></tr>
+            <tr><td data-label="厂商">科大讯飞</td><td data-label="模型 ID">Spark-X2.6-1.7B</td><td data-label="上下文 / 输出">1M</td><td data-label="能力">文 · 端侧更小尺寸</td><td data-label="状态">限时免费</td></tr>
+            <tr><td data-label="厂商">科大讯飞</td><td data-label="模型 ID">spark-x2-flash</td><td data-label="上下文 / 输出">256K（输入上限 192K）</td><td data-label="能力">文 · 30B · Agent 优化 · token 消耗约大模型的三分之一</td><td data-label="状态">在售</td></tr>
+            <tr><td data-label="厂商">商汤</td><td data-label="模型 ID">SenseNova 6.8 Flash</td><td data-label="上下文 / 输出">—</td><td data-label="能力">文、图、视频、3D、网页 · 智能体 · 长程记忆 · 办公交付</td><td data-label="状态">在售</td></tr>
+            <tr><td data-label="厂商">商汤</td><td data-label="模型 ID">SenseNova 6.8 Flash Lite</td><td data-label="上下文 / 输出">—</td><td data-label="能力">同上，轻量更快</td><td data-label="状态">在售</td></tr>
+            <tr><td data-label="厂商">阶跃</td><td data-label="模型 ID">step-5-preview</td><td data-label="上下文 / 输出">1M</td><td data-label="能力">文、图 · Agent · 工 · 开（600B/27B）</td><td data-label="状态">旗舰</td></tr>
+            <tr><td data-label="厂商">阶跃</td><td data-label="模型 ID">step-3.7-flash</td><td data-label="上下文 / 输出">—</td><td data-label="能力">文、图 · 思 · 工</td><td data-label="状态">轻量</td></tr>
+            <tr><td data-label="厂商">阶跃</td><td data-label="模型 ID">step-3.5-flash / step-3.5-flash-2603</td><td data-label="上下文 / 输出">—</td><td data-label="能力">文 · 思 · 工</td><td data-label="状态">上一代轻量</td></tr>
+            <tr><td data-label="厂商">阶跃</td><td data-label="模型 ID">step-1o-turbo-vision</td><td data-label="上下文 / 输出">—</td><td data-label="能力">文、图 · 视觉理解</td><td data-label="状态">在售</td></tr>
+            <tr><td data-label="厂商">小米</td><td data-label="模型 ID">mimo-v2.6-pro</td><td data-label="上下文 / 输出">1M</td><td data-label="能力">文、图、视频、音 · 思 · 工 · 开 · 混合注意力 7:1 + MTP</td><td data-label="状态">旗舰</td></tr>
+            <tr><td data-label="厂商">小米</td><td data-label="模型 ID">mimo-v2.6-flash</td><td data-label="上下文 / 输出">1M</td><td data-label="能力">同上，轻量档</td><td data-label="状态">在售</td></tr>
+            <tr><td data-label="厂商">小米</td><td data-label="模型 ID">mimo-v2.6-pro-ultraspeed</td><td data-label="上下文 / 输出">1M</td><td data-label="能力">同上，最高 20 倍输出速度</td><td data-label="状态">在售</td></tr>
+            <tr><td data-label="厂商">小米</td><td data-label="模型 ID">mimo-v2.6-distill-qwen-9b</td><td data-label="上下文 / 输出">—</td><td data-label="能力">文 · 9B 蒸馏 · 开 · 附 RL 训练资源</td><td data-label="状态">开源</td></tr>
+            <tr><td data-label="厂商">华为</td><td data-label="模型 ID">openPangu-2.0-Pro</td><td data-label="上下文 / 输出">512K</td><td data-label="能力">文 · 昇腾原生 · 开（505B/18B）· 快慢合一</td><td data-label="状态">在售</td></tr>
+            <tr><td data-label="厂商">华为</td><td data-label="模型 ID">盘古 5.5 NLP</td><td data-label="上下文 / 输出">—</td><td data-label="能力">文 · 718B / 256 专家 · 行业交付（闭源）</td><td data-label="状态">企业版</td></tr>
+            <tr><td data-label="厂商">面壁</td><td data-label="模型 ID">MiniCPM5-2B</td><td data-label="上下文 / 输出">—</td><td data-label="能力">文 · 端侧 · 工具调用 · 深度搜索 · 代码生成 · 开</td><td data-label="状态">开源</td></tr>
+            <tr><td data-label="厂商">面壁</td><td data-label="模型 ID">MiniCPM5-1B</td><td data-label="上下文 / 输出">—</td><td data-label="能力">文 · 端侧更小尺寸 · 开</td><td data-label="状态">开源</td></tr>
+            <tr><td data-label="厂商">昆仑万维</td><td data-label="模型 ID">SkyClaw-v1.0</td><td data-label="上下文 / 输出">1M</td><td data-label="能力">文 · Agent · 工具调用 · 文件编辑 · 研究型分析</td><td data-label="状态">在售</td></tr>
+            <tr><td data-label="厂商">昆仑万维</td><td data-label="模型 ID">SkyClaw-v1.0-lite</td><td data-label="上下文 / 输出">—</td><td data-label="能力">同上，轻量</td><td data-label="状态">在售</td></tr>
+            <tr><td data-label="厂商">百川</td><td data-label="模型 ID">Baichuan5-Turbo</td><td data-label="上下文 / 输出">512K</td><td data-label="能力">文 · 搜索增强 · 深度 RAG · 医疗与法律增强</td><td data-label="状态">在售</td></tr>
+            <tr><td data-label="厂商">百川</td><td data-label="模型 ID">Baichuan-M3</td><td data-label="上下文 / 输出">—</td><td data-label="能力">文 · 医疗专用 · 幻觉率约 2.6%</td><td data-label="状态">向医疗机构免费</td></tr>
+            <tr><td data-label="厂商">零一万物</td><td data-label="模型 ID">Yi-2-Large</td><td data-label="上下文 / 输出">256K</td><td data-label="能力">文 · 双语 · 政企交付</td><td data-label="状态">在售</td></tr>
+            <tr><td data-label="厂商">百度文心</td><td data-label="模型 ID">ERNIE 5.1</td><td data-label="上下文 / 输出">约 119K</td><td data-label="能力">文、图 · 中文知识 · 搜索增强 · 合规流程</td><td data-label="状态">在售</td></tr>
+            <tr><td data-label="厂商">腾讯混元</td><td data-label="模型 ID">Hy3</td><td data-label="上下文 / 输出">256K</td><td data-label="能力">文 · 快慢思考 · 开（295B/21B）</td><td data-label="状态">在售</td></tr>
+            <tr><td data-label="厂商">腾讯混元</td><td data-label="模型 ID">Hy4 / Hy4-flash</td><td data-label="上下文 / 输出">—</td><td data-label="能力">文 · 新一代；flash 为轻量档</td><td data-label="状态">在售</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="quiet">二 · 海外通用与 Agent 模型</p>
+      <div class="tbl">
+        <table>
+          <thead><tr><th>厂商</th><th>模型 ID</th><th>上下文 / 输出</th><th>能力</th><th>状态</th></tr></thead>
+          <tbody>
+            <tr><td data-label="厂商">OpenAI</td><td data-label="模型 ID">GPT-6.2 Astra</td><td data-label="上下文 / 输出">1.05M / 128K</td><td data-label="能力">文、图 · 推理 effort · 工 · Responses · 电脑与浏览器操作</td><td data-label="状态">旗舰</td></tr>
+            <tr><td data-label="厂商">OpenAI</td><td data-label="模型 ID">GPT-6.2 Sol</td><td data-label="上下文 / 输出">1.05M / 128K</td><td data-label="能力">文、图 · effort · 工 · Responses</td><td data-label="状态">主力</td></tr>
+            <tr><td data-label="厂商">OpenAI</td><td data-label="模型 ID">GPT-6.1 Terra</td><td data-label="上下文 / 输出">1.05M / 128K</td><td data-label="能力">文、图 · effort · 工</td><td data-label="状态">通用便宜档</td></tr>
+            <tr><td data-label="厂商">OpenAI</td><td data-label="模型 ID">GPT-6 Luna</td><td data-label="上下文 / 输出">1.05M / 128K</td><td data-label="能力">文 · effort · 工</td><td data-label="状态">极低价档</td></tr>
+            <tr><td data-label="厂商">OpenAI</td><td data-label="模型 ID">GPT-6 Astra（旧）</td><td data-label="上下文 / 输出">1.1M</td><td data-label="能力">文、图 · effort · 工；$10 / $50</td><td data-label="状态">上一代，仍可用</td></tr>
+            <tr><td data-label="厂商">Anthropic</td><td data-label="模型 ID">claude-fable-5-2</td><td data-label="上下文 / 输出">1M / 128K</td><td data-label="能力">文、图 · 自适应思考 · 工 · 缓 · Fast 模式</td><td data-label="状态">旗舰</td></tr>
+            <tr><td data-label="厂商">Anthropic</td><td data-label="模型 ID">claude-fable-5-1</td><td data-label="上下文 / 输出">1M / 128K</td><td data-label="能力">同上（缓存读 0.25）</td><td data-label="状态">legacy</td></tr>
+            <tr><td data-label="厂商">Anthropic</td><td data-label="模型 ID">claude-mythos-5-2</td><td data-label="上下文 / 输出">1M / 128K</td><td data-label="能力">同上；网络安全 / 生物向，需申请</td><td data-label="状态">受限</td></tr>
+            <tr><td data-label="厂商">Anthropic</td><td data-label="模型 ID">claude-opus-5-5</td><td data-label="上下文 / 输出">1M / 128K</td><td data-label="能力">文、图 · 自适应思考 · 工 · 缓；长程编码主力</td><td data-label="状态">在售</td></tr>
+            <tr><td data-label="厂商">Anthropic</td><td data-label="模型 ID">claude-sonnet-5-5</td><td data-label="上下文 / 输出">1M / 128K</td><td data-label="能力">同上，速度更快</td><td data-label="状态">在售</td></tr>
+            <tr><td data-label="厂商">Anthropic</td><td data-label="模型 ID">claude-haiku-5-5</td><td data-label="上下文 / 输出">1M / 128K</td><td data-label="能力">文、图 · 工 · 缓；高频轻任务</td><td data-label="状态">在售</td></tr>
+            <tr><td data-label="厂商">Google</td><td data-label="模型 ID">gemini-4-argon</td><td data-label="上下文 / 输出">—</td><td data-label="能力">文、图、视频、音 · 思 · 工 · 长上下文</td><td data-label="状态">新旗舰（限时价）</td></tr>
+            <tr><td data-label="厂商">Google</td><td data-label="模型 ID">gemini-4-hydrogen</td><td data-label="上下文 / 输出">—</td><td data-label="能力">同上，高效主力，适合路由与高吞吐</td><td data-label="状态">在售</td></tr>
+            <tr><td data-label="厂商">Google</td><td data-label="模型 ID">gemini-4-carbon</td><td data-label="上下文 / 输出">—</td><td data-label="能力">批量档（Batch）</td><td data-label="状态">在售</td></tr>
+            <tr><td data-label="厂商">Google</td><td data-label="模型 ID">gemini-3.1-pro-preview</td><td data-label="上下文 / 输出">1M / 64K</td><td data-label="能力">文、图、视频、音 · 思考预算 · 工 · 缓</td><td data-label="状态">在售</td></tr>
+            <tr><td data-label="厂商">Google</td><td data-label="模型 ID">gemini-3.1-pro-preview-customtools</td><td data-label="上下文 / 输出">1M / 64K</td><td data-label="能力">同上，定制工具版</td><td data-label="状态">在售</td></tr>
+            <tr><td data-label="厂商">Google</td><td data-label="模型 ID">gemini-3.8-flash</td><td data-label="上下文 / 输出">—</td><td data-label="能力">文、图 · 高吞吐</td><td data-label="状态">在售</td></tr>
+            <tr><td data-label="厂商">Google</td><td data-label="模型 ID">gemini-3.5-flash-lite</td><td data-label="上下文 / 输出">—</td><td data-label="能力">文、图 · 经济档</td><td data-label="状态">在售</td></tr>
+            <tr><td data-label="厂商">xAI</td><td data-label="模型 ID">grok-4.7</td><td data-label="上下文 / 输出">500K</td><td data-label="能力">文、图 · 推理档位 · 工；≥200K 阶梯价</td><td data-label="状态">旗舰</td></tr>
+            <tr><td data-label="厂商">xAI</td><td data-label="模型 ID">grok-4.5</td><td data-label="上下文 / 输出">500K</td><td data-label="能力">文、图 · 推理档位 · 工</td><td data-label="状态">上一代</td></tr>
+            <tr><td data-label="厂商">xAI</td><td data-label="模型 ID">grok-4.3</td><td data-label="上下文 / 输出">1M</td><td data-label="能力">文、图 · 推理 none/low/medium/high · 工</td><td data-label="状态">在售</td></tr>
+            <tr><td data-label="厂商">xAI</td><td data-label="模型 ID">grok-4.20</td><td data-label="上下文 / 输出">2M</td><td data-label="能力">文、图 · 推理 · 工；低幻觉取向</td><td data-label="状态">在售</td></tr>
+            <tr><td data-label="厂商">xAI</td><td data-label="模型 ID">grok-4.20-multi-agent</td><td data-label="上下文 / 输出">2M</td><td data-label="能力">多 agent 并行（低/中 4 个，高 16 个）</td><td data-label="状态">在售</td></tr>
+            <tr><td data-label="厂商">xAI</td><td data-label="模型 ID">grok-4-fast</td><td data-label="上下文 / 输出">2M</td><td data-label="能力">文 · 便宜的大上下文</td><td data-label="状态">在售</td></tr>
+            <tr><td data-label="厂商">xAI</td><td data-label="模型 ID">grok-build-0.1</td><td data-label="上下文 / 输出">256K</td><td data-label="能力">文 · 终端编程 agent 专用</td><td data-label="状态">在售</td></tr>
+            <tr><td data-label="厂商">Mistral</td><td data-label="模型 ID">mistral-large-2512</td><td data-label="上下文 / 输出">256K</td><td data-label="能力">文、图 · 工 · 开；欧盟数据驻留</td><td data-label="状态">在售</td></tr>
+            <tr><td data-label="厂商">Mistral</td><td data-label="模型 ID">mistral-small 3.2（24B）</td><td data-label="上下文 / 输出">—</td><td data-label="能力">文 · 工 · 开；单机可跑</td><td data-label="状态">在售</td></tr>
+            <tr><td data-label="厂商">Mistral</td><td data-label="模型 ID">ministral-3b</td><td data-label="上下文 / 输出">—</td><td data-label="能力">文 · 端侧 · 输入输出同价</td><td data-label="状态">在售</td></tr>
+            <tr><td data-label="厂商">Meta</td><td data-label="模型 ID">llama-4-maverick</td><td data-label="上下文 / 输出">1M</td><td data-label="能力">文、图 · 开（社区许可）· 第三方托管</td><td data-label="状态">在售</td></tr>
+            <tr><td data-label="厂商">Meta</td><td data-label="模型 ID">Muse Ember</td><td data-label="上下文 / 输出">1.05M</td><td data-label="能力">文、图、视频、音、PDF · 小型全模态</td><td data-label="状态">在售</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="quiet">三 · 生成类与专用模型（视频、图像、3D、语音、向量、世界模型）</p>
+      <div class="tbl">
+        <table>
+          <thead><tr><th>厂商</th><th>模型</th><th>类型</th><th>能力</th></tr></thead>
+          <tbody>
+            <tr><td data-label="厂商">字节豆包</td><td data-label="模型">doubao-seedance-2-5-flash-261115</td><td data-label="类型">视频生成</td><td data-label="能力">最长 30 秒叙事，全模态参考输入，480P / 720P；比 2.5 快一倍、价格低约 34%</td></tr>
+            <tr><td data-label="厂商">字节豆包</td><td data-label="模型">doubao-seedream-5-0-flash-260915</td><td data-label="类型">图像生成</td><td data-label="能力">文生图 / 图生图，商业素材与封面场景</td></tr>
+            <tr><td data-label="厂商">字节豆包</td><td data-label="模型">doubao-seed3d-2-0-260328</td><td data-label="类型">3D 生成</td><td data-label="能力">文生 3D、图生 3D，白模输出</td></tr>
+            <tr><td data-label="厂商">字节豆包</td><td data-label="模型">doubao-embedding-vision-251215</td><td data-label="类型">向量化</td><td data-label="能力">文 / 图 / 视频统一向量，128K 输入，2048 维可降维到 1024</td></tr>
+            <tr><td data-label="厂商">商汤</td><td data-label="模型">SenseNova U1 Pro</td><td data-label="类型">图像生成 / 编辑</td><td data-label="能力">原生 8K 输出，创作过程自修正，信息图与分镜</td></tr>
+            <tr><td data-label="厂商">商汤</td><td data-label="模型">SenseNova U1.5 Lite</td><td data-label="类型">图像生成 / 编辑</td><td data-label="能力">理解、生成、编辑一体，参考图创作与复杂指令遵循</td></tr>
+            <tr><td data-label="厂商">面壁</td><td data-label="模型">MiniCPM-V 4.7（35B-A3B / 1B）</td><td data-label="类型">端侧多模态</td><td data-label="能力">图 / 文理解，1B 版本可上手机与边缘设备</td></tr>
+            <tr><td data-label="厂商">面壁</td><td data-label="模型">VoxCPM 0.5B</td><td data-label="类型">语音合成</td><td data-label="能力">零样本声音克隆，自然度接近真人</td></tr>
+            <tr><td data-label="厂商">昆仑万维</td><td data-label="模型">SkyReels-V4</td><td data-label="类型">视频生成</td><td data-label="能力">音画双流联合生成，支持多帧 / 多图 / 运动参考与视频编辑</td></tr>
+            <tr><td data-label="厂商">昆仑万维</td><td data-label="模型">Mureka V9.5</td><td data-label="类型">音乐生成</td><td data-label="能力">文本控制、混音与人声精度，面向 AI 音乐平台</td></tr>
+            <tr><td data-label="厂商">昆仑万维</td><td data-label="模型">Matrix-Game 3.5</td><td data-label="类型">世界模型</td><td data-label="能力">5B 参数、720P 单卡 20FPS，约 1 分钟记忆，支持 NPC 交互</td></tr>
+            <tr><td data-label="厂商">Google</td><td data-label="模型">gemini-3.1-flash-image（Nano Banana 2）</td><td data-label="类型">图像生成</td><td data-label="能力">0.5K–4K 输出，每张约 0.045–0.151 美元</td></tr>
+            <tr><td data-label="厂商">OpenAI</td><td data-label="模型">GPT-Live-1</td><td data-label="类型">实时语音</td><td data-label="能力">语音对话与实时交互，配合 Agents SDK 使用</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note">看这张清单只需盯三件事：ID 的大小写与连字符（kimi-k3.1-pro 与 MiniMax-M3 风格完全不同）、上下文与输出的落差（豆包默认只回 4K，要显式调大）、下线节奏（DeepSeek V4-Pro、Kimi K2.x、豆包 2.0 都在退场，别把生产压上去）。</div>
+    </section>
+    <section class="doc-sec" id="s10">
+      <div class="doc-sec-h"><span class="n">10</span><h3>实现方法拆解</h3><span class="en">methods</span></div>
+      <p>参数是结果，方法是原因。同样是 1M 上下文，为什么有的模型输入 1 元、有的 20 元？差别几乎全在这十件事上。</p>
 
       <div class="card-grid">
         <div class="card"><span class="tag">结构</span><h4>稀疏 MoE 路由</h4><p>把 FFN 拆成几十到近千个专家，每 token 只激活少数（Kimi K3 为 896 选 16，MiniMax M3 为 128 选 4 加 1 个共享专家）。总参决定知识容量，激活参数决定推理成本。难点在负载均衡与专家并行通信。</p></div>
@@ -272,13 +514,13 @@
         <div class="card"><span class="tag">推理</span><h4>自适应思考预算</h4><p>Claude 的 adaptive thinking 常开但可调 effort，GPT-6 与 Grok 4.x 用 reasoning effort 分档，Gemini 把思考 token 直接算进输出价。同一模型按任务难度调档，比换模型更省钱。</p></div>
       </div>
 
-      <p class="quiet">把这九项对上号，很多"参数看不懂"的地方就通了：Kimi K3 的 2.8T 却比 1.6T 便宜不了多少，是因为激活 104B；DeepSeek 敢卖 1 元，是因为 KV 缓存省到极致 + 缓存命中 0.02。</p>
+      <p class="quiet">把这十项对上号，很多"参数看不懂"的地方就通了：Kimi K3 的 2.8T 却比 1.6T 便宜不了多少，是因为激活 104B；DeepSeek 敢卖 1 元，是因为 KV 缓存省到极致 + 缓存命中 0.02。</p>
 
       <div class="note">多模态也分两派：真原生（MiniMax M3、豆包 Seed、小米 MiMo、商汤 6.8 在预训练阶段就混入图 / 视频 / 音频）与后接适配器（文本基座 + 视觉编码器）。前者的跨模态推理更稳，后者迭代成本更低。选型时看"能不能直接操作界面、读表格"，这一项最能区分两者。</div>
     </section>
 
-    <section class="doc-sec" id="s9">
-      <div class="doc-sec-h"><span class="n">09</span><h3>价格全景</h3><span class="en">pricing</span></div>
+    <section class="doc-sec" id="s11">
+      <div class="doc-sec-h"><span class="n">11</span><h3>价格全景</h3><span class="en">pricing</span></div>
       <p>国内按人民币、海外按美元，各自从低到高排。注意看"备注"里的加价条件——那才是账单的真凶。</p>
       <div class="tbl">
         <table>
@@ -332,8 +574,8 @@
       <div class="note">把这张表压成一句话：输入价差 40 倍，输出价差 50 倍，但能力差远没有 40 倍。绝大多数业务该做的不是选最强的，而是把请求拆成"难的"和"不难的"，分别路由。</div>
     </section>
 
-    <section class="doc-sec" id="s10">
-      <div class="doc-sec-h"><span class="n">10</span><h3>开源与许可</h3><span class="en">licensing</span></div>
+    <section class="doc-sec" id="s12">
+      <div class="doc-sec-h"><span class="n">12</span><h3>开源与许可</h3><span class="en">licensing</span></div>
       <p>"开源"在国内分成两件事：权重能不能下载，和许可证允许你做什么。真正能进商业产品的，看后者。</p>
       <div class="tbl">
         <table>
@@ -351,8 +593,8 @@
       <div class="note amber">2.8T 的 Kimi K3、2.4T 的 Qwen 开源版，实际是"能下载但装不下"——千卡级部署不是普通团队的选择。真正可私有化的是 300B 级以下、且做了量化的模型：GLM-5.3-Flash（320B / 18B）、混元 Hy3（295B / 21B）、openPangu（505B / 18B，昇腾栈）。</div>
     </section>
 
-    <section class="doc-sec" id="s11">
-      <div class="doc-sec-h"><span class="n">11</span><h3>按场景选</h3><span class="en">by scenario</span></div>
+    <section class="doc-sec" id="s13">
+      <div class="doc-sec-h"><span class="n">13</span><h3>按场景选</h3><span class="en">by scenario</span></div>
       <p>同一份榜单在不同任务上给出不同答案，所以按场景列，比排名有用。</p>
       <div class="tbl">
         <table>
@@ -378,8 +620,8 @@
       </div>
     </section>
 
-    <section class="doc-sec" id="s12">
-      <div class="doc-sec-h"><span class="n">12</span><h3>隐性成本与陷阱</h3><span class="en">hidden costs</span></div>
+    <section class="doc-sec" id="s14">
+      <div class="doc-sec-h"><span class="n">14</span><h3>隐性成本与陷阱</h3><span class="en">hidden costs</span></div>
       <p>刊例价只是起点，真实账单常比估算高一倍。下面这些是最常被漏算的。</p>
       <div class="tbl">
         <table>
@@ -401,8 +643,8 @@
       <div class="note">一个粗糙但好用的估算：一条普通客服回复约 2K 输入 + 300 输出，用 1 / 4 的模型约 0.003 元；换成 12 / 36 的旗舰就是 0.035 元，差十倍。每天十万条，一个月差价就是九万多。</div>
     </section>
 
-    <section class="doc-sec" id="s13">
-      <div class="doc-sec-h"><span class="n">13</span><h3>一页速查</h3><span class="en">cheatsheet</span></div>
+    <section class="doc-sec" id="s15">
+      <div class="doc-sec-h"><span class="n">15</span><h3>一页速查</h3><span class="en">cheatsheet</span></div>
       <ul class="doc-list">
         <li><b>最便宜还能用</b>：DeepSeek V4.1-Flash（闲时 1 / 4）、混元 Hy3（1 / 4）、混元 Hy4-flash（0.5 / 2）。</li>
         <li><b>性价比主力</b>：GLM-5.3-Flash（0.8 / 2.8）、Spark-X2.6（0.9 / 3.6，国产算力）、MiniMax M3（4.2 / 16.8）。</li>
@@ -425,7 +667,7 @@
 
 <footer class="ws-footer">
   <div class="wrap">
-    <div class="ws-wordmark"><b>电脑小百科</b><span>Chen Yu · Technical Notes</span></div>
+    <div class="ws-wordmark"><b>电脑小百科</b><span>技术笔记 · Technical Notes</span></div>
     <div class="ws-foot-grid">
       <div>
         <p class="ws-foot-name">技术笔记</p>
