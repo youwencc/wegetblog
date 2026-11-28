@@ -109,6 +109,54 @@
     update();
   }
 
+  /* ---- 作品演示：全屏 ---- */
+  var demoBox = document.querySelector(".work-demo");
+  if (demoBox) {
+    var demoFs = demoBox.querySelector(".demo-fs");
+    if (demoFs) {
+      demoFs.addEventListener("click", function () {
+        if (document.fullscreenElement) {
+          document.exitFullscreen();
+        } else if (demoBox.requestFullscreen) {
+          demoBox.requestFullscreen();
+        } else if (demoBox.webkitRequestFullscreen) {
+          demoBox.webkitRequestFullscreen();
+        }
+      });
+    }
+  }
+
+  /* ---- 导航二级菜单（触屏/键盘也能展开） ---- */
+  var navDrops = Array.prototype.slice.call(document.querySelectorAll("[data-nav-drop]"));
+  navDrops.forEach(function (drop) {
+    var btn = drop.querySelector(".nav-drop-toggle");
+    if (!btn) return;
+    btn.addEventListener("click", function (e) {
+      e.preventDefault();
+      var open = drop.classList.toggle("is-open");
+      btn.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+  });
+  if (navDrops.length) {
+    document.addEventListener("click", function (e) {
+      navDrops.forEach(function (drop) {
+        if (!drop.contains(e.target)) {
+          drop.classList.remove("is-open");
+          var btn = drop.querySelector(".nav-drop-toggle");
+          if (btn) btn.setAttribute("aria-expanded", "false");
+        }
+      });
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key !== "Escape") return;
+      navDrops.forEach(function (drop) {
+        drop.classList.remove("is-open");
+        var btn = drop.querySelector(".nav-drop-toggle");
+        if (btn) btn.setAttribute("aria-expanded", "false");
+      });
+    });
+  }
+
   /* ---- 博客筛选 ---- */
   var filterBar = document.querySelector("[data-filters]");
   if (filterBar) {

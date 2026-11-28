@@ -1,0 +1,751 @@
+/* =========================================================
+   知识库（wiki）公共外壳：与主站统一的配色 / 字体 / 头部导航 / 页脚
+   用途：dist/wiki/*.html 引入本文件（../assets/wiki-shell.css）
+   ========================================================= */
+
+/* ---------- 1. 统一色板与字体 ---------- */
+:root {
+  --ws-paper: #f7f3e9;
+  --ws-paper-2: #efe9da;
+  --ws-paper-3: #e5ddc9;
+  --ws-elev: #fffdf7;
+  --ws-ink: #191712;
+  --ws-ink-soft: #3b372e;
+  --ws-muted: #77705f;
+  --ws-faint: #8c8577;
+  --ws-rule: #ddd5c4;
+  --ws-rule-strong: #c6bdab;
+  --ws-accent: #a6432b;
+  --ws-accent-soft: #c2674c;
+  --ws-green: #4d6b45;
+  --ws-amber: #a8762a;
+  --ws-red: #b23c2f;
+  --ws-violet: #6f5a86;
+  --ws-pink: #9d5570;
+
+  --ws-serif: "Noto Serif SC", "Source Han Serif SC", "Songti SC", "STSong", "SimSun", serif;
+  --ws-sans: "Noto Sans SC", -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --ws-mono: ui-monospace, "SF Mono", "JetBrains Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+  --ws-ease: cubic-bezier(.22, .61, .28, 1);
+  --ws-h: 64px;          /* 公共头部高度 */
+  --ws-shell: 1120px;
+}
+
+html[data-theme="dark"] {
+  --ws-paper: #14130e;
+  --ws-paper-2: #1a1813;
+  --ws-paper-3: #252216;
+  --ws-elev: #1c1a14;
+  --ws-ink: #ece7da;
+  --ws-ink-soft: #cbc4b4;
+  --ws-muted: #948c79;
+  --ws-faint: #7f7869;
+  --ws-rule: #302d23;
+  --ws-rule-strong: #403c2e;
+  --ws-accent: #d2684a;
+  --ws-accent-soft: #e08b70;
+  --ws-green: #7d9a72;
+  --ws-amber: #d9a95f;
+  --ws-red: #d97f72;
+  --ws-violet: #a288bd;
+  --ws-pink: #c986a0;
+}
+
+/* 1.1 知识库页面自身的变量别名，统一映射到主站色板 */
+:root {
+  /* Agent Wiki */
+  --bg: #f7f3e9;
+  --bg2: #efe9da;
+  --card: #fffdf7;
+  --card2: #f6f0e2;
+  --border: #ddd5c4;
+  --border2: #c6bdab;
+  --text: #191712;
+  --muted2: #8c8577;
+  --accent-2: #bd5a3d;
+  --accent3: #6f5a86;
+  --orange: #a8762a;
+  --pink: #9d5570;
+  /* Git Wiki */
+  --bg-elev: #fffdf7;
+  --panel: #efe9da;
+  --panel-2: #e9e2d0;
+  --ink: #191712;
+  --faint: #8c8577;
+  --line: #ddd5c4;
+  --line-strong: #c6bdab;
+  --accent-soft: #f3e5de;
+  --accent-line: #e6cdc3;
+  --amber: #a8762a;
+  --amber-soft: #f7efdd;
+  --amber-line: #e8d6b4;
+  --red-soft: #f7e6e2;
+  --red-line: #e6c4bd;
+  --code-bg: #22201a;
+  --code-head: #2a2620;
+  --code-ink: #ece7da;
+  --code-muted: #a2988a;
+  --font: var(--ws-sans);
+  --display: var(--ws-serif);
+  --mono: var(--ws-mono);
+}
+html[data-theme="dark"] {
+  --bg: #14130e;
+  --bg2: #1a1813;
+  --card: #1c1a14;
+  --card2: #221f18;
+  --border: #302d23;
+  --border2: #403c2e;
+  --text: #ece7da;
+  --muted2: #7f7869;
+  --accent-2: #e08b70;
+  --accent3: #a288bd;
+  --orange: #d9a95f;
+  --pink: #c986a0;
+  --bg-elev: #1c1a14;
+  --panel: #1a1813;
+  --panel-2: #221f18;
+  --ink: #ece7da;
+  --faint: #7f7869;
+  --line: #302d23;
+  --line-strong: #403c2e;
+  --accent-soft: #2a1f19;
+  --accent-line: #4a342a;
+  --amber: #d9a95f;
+  --amber-soft: #2a2317;
+  --amber-line: #4a3c22;
+  --red-soft: #2b1c1b;
+  --red-line: #4d2d2a;
+  --code-bg: #0f0e0a;
+  --code-head: #17150f;
+  --code-ink: #ece7da;
+  --code-muted: #8f8677;
+}
+
+/* ---------- 2. 基础排版对齐主站 ---------- */body.wiki {
+  background: var(--ws-paper);
+  color: var(--ws-ink);
+  font-family: var(--ws-sans);
+  -webkit-font-smoothing: antialiased;
+}
+body.wiki ::selection { background: var(--ws-accent); color: #fff; }
+body.wiki h1, body.wiki h2, body.wiki h3, body.wiki h4 {
+  font-family: var(--ws-serif);
+  letter-spacing: .01em;
+  color: var(--ws-ink);
+}
+body.wiki a { color: var(--ws-accent); }
+body.wiki code, body.wiki pre, body.wiki kbd, body.wiki samp { font-family: var(--ws-mono); }
+body.wiki hr { border: 0; border-top: 1px solid var(--ws-rule); }
+body.wiki ::-webkit-scrollbar-thumb { background: var(--ws-rule-strong); border-radius: 99px; }
+body.wiki * { scrollbar-color: var(--ws-rule-strong) transparent; }
+
+/* ---------- 3. 公共头部 ---------- */
+.ws-header {
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  background: var(--ws-paper);
+  background: color-mix(in srgb, var(--ws-paper) 92%, transparent);
+  backdrop-filter: blur(10px) saturate(1.1);
+  -webkit-backdrop-filter: blur(10px) saturate(1.1);
+  border-bottom: 1px solid var(--ws-rule);
+}
+.ws-header .wrap {
+  width: min(var(--ws-shell), calc(100% - 64px));
+  margin-inline: auto;
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  min-height: var(--ws-h);
+}
+.ws-brand {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  flex: none;
+  text-decoration: none;
+}
+.ws-brand:hover { text-decoration: none; }
+.ws-brand b {
+  font-family: var(--ws-serif);
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  color: var(--ws-ink);
+}
+.ws-brand i {
+  font-style: normal;
+  font-family: var(--ws-mono);
+  font-size: 11px;
+  color: var(--ws-muted);
+}
+.ws-brand small {
+  font-family: var(--ws-mono);
+  font-size: 10.5px;
+  letter-spacing: .2em;
+  color: var(--ws-muted);
+  text-transform: uppercase;
+}
+
+.ws-nav {
+  display: flex;
+  align-items: center;
+  gap: clamp(14px, 2.6vw, 30px);
+  margin-left: auto;
+}
+.ws-nav a {
+  position: relative;
+  padding: 6px 0;
+  font-family: var(--ws-sans);
+  font-size: 13px;
+  letter-spacing: .08em;
+  color: var(--ws-muted);
+  text-decoration: none;
+  transition: color .2s var(--ws-ease);
+}
+.ws-nav a:hover { color: var(--ws-ink); text-decoration: none; }
+.ws-nav a[aria-current="page"] { color: var(--ws-ink); }
+.ws-nav a[aria-current="page"]::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: var(--ws-accent);
+}
+
+/* backdrop-filter 会让页头变成合成层并裁掉绝对定位的下拉面板，
+   下拉 hover / 打开期间临时关闭毛玻璃。 */
+.ws-header:has(.ws-drop:hover),
+.ws-header:has(.ws-drop:focus-within),
+.ws-header:has(.ws-drop.is-open) {
+  background: var(--ws-paper);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+/* 二级菜单 */.ws-drop { position: relative; display: flex; align-items: center; gap: 2px; padding: 6px 0; }
+.ws-drop-label {
+  font-size: 13px;
+  letter-spacing: .08em;
+  color: var(--ws-muted);
+  text-decoration: none;
+  transition: color .2s var(--ws-ease);
+}
+.ws-drop:hover .ws-drop-label,
+.ws-drop.is-open .ws-drop-label,
+.ws-drop:focus-within .ws-drop-label { color: var(--ws-ink); }
+.ws-drop-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ws-muted);
+  cursor: pointer;
+  transition: color .2s var(--ws-ease), transform .2s var(--ws-ease);
+}
+.ws-drop-toggle svg { width: 9px; height: 6px; }
+.ws-drop:hover .ws-drop-toggle,
+.ws-drop.is-open .ws-drop-toggle { color: var(--ws-ink); }
+.ws-drop.is-open .ws-drop-toggle { transform: rotate(180deg); }
+.ws-drop-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 50%;
+  min-width: 168px;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  background: var(--ws-paper);
+  border: 1px solid var(--ws-rule);
+  box-shadow: 0 12px 30px rgb(0 0 0 / .10);
+  opacity: 0;
+  visibility: hidden;
+  transform: translate(-50%, -4px);
+  transition: opacity .16s var(--ws-ease), transform .16s var(--ws-ease), visibility .16s;
+  z-index: 40;
+}
+.ws-drop:hover .ws-drop-menu,
+.ws-drop:focus-within .ws-drop-menu,
+.ws-drop.is-open .ws-drop-menu { opacity: 1; visibility: visible; transform: translate(-50%, 0); }
+.ws-drop-menu a {
+  display: block;
+  padding: 8px 10px;
+  font-size: 12.5px;
+  letter-spacing: .04em;
+  color: var(--ws-muted);
+  white-space: nowrap;
+  text-decoration: none;
+}
+.ws-drop-menu a:hover { color: var(--ws-ink); background: var(--ws-paper-3); text-decoration: none; }
+
+/* 主题切换 */
+.ws-theme {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex: none;
+  padding: 0;
+  border: 1px solid var(--ws-rule);
+  background: var(--ws-elev);
+  color: var(--ws-ink-soft);
+  cursor: pointer;
+  border-radius: 50%;
+  transition: border-color .2s var(--ws-ease), color .2s var(--ws-ease);
+}
+.ws-theme:hover { border-color: var(--ws-rule-strong); color: var(--ws-ink); }
+.ws-theme svg { width: 15px; height: 15px; }
+html[data-theme="dark"] .ws-theme .i-moon { display: none; }
+html:not([data-theme="dark"]) .ws-theme .i-sun { display: none; }
+
+/* ---------- 4. 公共页脚 ---------- */
+.ws-footer {
+  border-top: 1px solid var(--ws-rule);
+  background: var(--ws-paper);
+  padding: clamp(36px, 5vw, 60px) 0 28px;
+  margin-top: clamp(40px, 6vw, 80px);
+  color: var(--ws-muted);
+  font-family: var(--ws-sans);
+}
+.ws-footer .wrap { width: min(var(--ws-shell), calc(100% - 64px)); margin-inline: auto; }
+.ws-wordmark { display: flex; align-items: baseline; gap: 10px; padding-bottom: 22px; border-bottom: 1px solid var(--ws-rule); }
+.ws-wordmark b { font-family: var(--ws-serif); font-size: 20px; font-weight: 600; color: var(--ws-ink); letter-spacing: .06em; }
+.ws-wordmark span { font-family: var(--ws-mono); font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--ws-faint); }
+.ws-foot-grid {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr 1fr;
+  gap: clamp(24px, 5vw, 64px);
+  padding: 28px 0 26px;
+}
+.ws-foot-grid p { margin: 0; }
+.ws-foot-name { font-family: var(--ws-serif); font-size: 15px; color: var(--ws-ink); margin-bottom: 8px !important; }
+.ws-foot-note { font-size: 13px; line-height: 1.85; color: var(--ws-muted); max-width: 34em; }
+.ws-foot-label {
+  font-family: var(--ws-mono);
+  font-size: 10.5px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--ws-faint);
+  margin-bottom: 12px !important;
+}
+.ws-foot-links { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.ws-foot-links a { font-size: 13px; color: var(--ws-muted); text-decoration: none; }
+.ws-foot-links a:hover { color: var(--ws-accent); text-decoration: none; }
+.ws-colophon {
+  border-top: 1px solid var(--ws-rule);
+  padding-top: 18px;
+  font-family: var(--ws-mono);
+  font-size: 11px;
+  letter-spacing: .06em;
+  color: var(--ws-faint);
+}
+
+/* ---------- 5. 各页面的布局适配 ---------- */
+/* 5.1 Agent Wiki：固定侧栏 + 粘性工具条要让出公共头部 */
+body.wiki--agent .sidebar { top: var(--ws-h); height: calc(100vh - var(--ws-h)); }
+body.wiki--agent .topbar { top: var(--ws-h); }
+body.wiki--agent .topbar .logo { display: none; }
+body.wiki--agent .topbar { padding: 10px 24px; }
+body.wiki--agent .ws-footer { margin-left: 300px; }
+@media (max-width: 960px) {
+  body.wiki--agent .ws-footer { margin-left: 0; }
+}
+
+/* 5.2 Git Wiki：自身 header 作为二级工具条 */
+body.wiki--git .site-header { top: var(--ws-h); }
+body.wiki--git .site-header .brand,
+body.wiki--git .site-header .header-divider { display: none; }
+/* 主题切换与 GitHub 已由公共头部承担，隐藏页面自带按钮避免重复 */
+body.wiki--git #themeBtn { display: none; }
+body.wiki--git .sidebar { top: calc(var(--ws-h) + var(--header-h)); height: calc(100vh - var(--ws-h) - var(--header-h)); }
+@media (max-width: 960px) {
+  body.wiki--git .sidebar { top: calc(var(--ws-h) + var(--header-h)); height: calc(100vh - var(--ws-h) - var(--header-h)); }
+  body.wiki--git .sidebar-scrim { inset: calc(var(--ws-h) + var(--header-h)) 0 0; }
+}
+body.wiki--git .ws-footer { margin-top: 0; border-top: 1px solid var(--ws-line, var(--ws-rule)); }
+
+/* ---------- 6. 响应式：头部在窄屏换行 ---------- */
+@media (max-width: 860px) {
+  .ws-header .wrap { width: calc(100% - 32px); flex-wrap: wrap; row-gap: 4px; padding: 10px 0 8px; min-height: 0; }
+  .ws-brand { order: 1; }
+  .ws-theme { order: 2; margin-left: auto; }
+  .ws-nav { order: 3; width: 100%; flex-wrap: wrap; row-gap: 2px; margin: 2px 0 0; padding-top: 8px; border-top: 1px solid var(--ws-rule); }
+  .ws-nav a, .ws-drop-label, .ws-drop-toggle { font-size: 12px; }
+  .ws-drop { flex-wrap: wrap; padding: 4px 0 0; }
+  .ws-drop.is-open { flex: 0 0 100%; }
+  .ws-drop-menu {
+    position: static;
+    flex: 0 0 100%;
+    width: 100%;
+    min-width: 0;
+    margin: 4px 0 2px;
+    padding: 2px 0 2px 10px;
+    border: 0;
+    box-shadow: none;
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    display: none;
+    background: none;
+  }
+  .ws-drop.is-open .ws-drop-menu { display: block; }
+  .ws-drop-menu a { padding: 5px 0; font-size: 12px; }
+  .ws-drop-menu a:hover { background: none; }
+  .ws-foot-grid { grid-template-columns: 1fr 1fr; }
+  .ws-footer .wrap { width: calc(100% - 32px); }
+}
+@media (max-width: 560px) {
+  .ws-foot-grid { grid-template-columns: 1fr; }
+}
+
+/* ---------- 7. 别名补齐：页面里只写 var(--accent) 之类，跟随主题切换 ---------- */
+:root {
+  --muted: var(--ws-muted);
+  --green: var(--ws-green);
+  --accent: var(--ws-accent);
+  --accent2: var(--ws-accent-soft);
+  --accent-2: var(--ws-accent-soft);
+  --orange: var(--ws-amber);
+  --red: var(--ws-red);
+  --pink: var(--ws-pink);
+}
+
+/* ---------- 8. 文档型知识库（架构选型等）：侧栏 + 正文 ---------- */
+body.wiki--doc { --doc-side: 248px; }
+body.wiki--doc *, body.wiki--doc *::before, body.wiki--doc *::after { box-sizing: border-box; }
+
+body.wiki--doc .doc-side {
+  position: fixed;
+  left: 0;
+  top: var(--ws-h);
+  bottom: 0;
+  width: var(--doc-side);
+  padding: 26px 16px 56px;
+  overflow-y: auto;
+  border-right: 1px solid var(--ws-rule);
+  background: var(--ws-paper-2);
+  z-index: 60;
+}
+body.wiki--doc .doc-side-t {
+  margin: 0 0 10px 10px;
+  font-family: var(--ws-mono);
+  font-size: 10px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--ws-faint);
+}
+body.wiki--doc .doc-side a {
+  display: block;
+  padding: 7px 10px;
+  border-left: 1px solid transparent;
+  border-radius: 0 7px 7px 0;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--ws-muted);
+  text-decoration: none;
+  transition: background .18s var(--ws-ease), color .18s var(--ws-ease);
+}
+body.wiki--doc .doc-side a:hover { color: var(--ws-ink); background: var(--ws-paper-3); text-decoration: none; }
+body.wiki--doc .doc-side a.is-active {
+  color: var(--ws-ink);
+  background: var(--ws-elev);
+  border-left-color: var(--ws-accent);
+}
+body.wiki--doc .doc-side a .num {
+  margin-right: 8px;
+  font-family: var(--ws-mono);
+  font-size: 10.5px;
+  color: var(--ws-faint);
+}
+body.wiki--doc .doc-side-tip {
+  margin: 20px 10px 0;
+  padding-top: 14px;
+  border-top: 1px solid var(--ws-rule);
+  font-size: 11.5px;
+  line-height: 1.8;
+  color: var(--ws-faint);
+}
+
+body.wiki--doc .doc-main { margin-left: var(--doc-side); min-width: 0; }
+body.wiki--doc .ws-footer { margin-left: var(--doc-side); }
+
+body.wiki--doc .doc-bar {
+  position: sticky;
+  top: var(--ws-h);
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 52px;
+  padding: 0 clamp(16px, 4vw, 44px);
+  border-bottom: 1px solid var(--ws-rule);
+  background: color-mix(in srgb, var(--ws-paper) 90%, transparent);
+  backdrop-filter: blur(10px);
+}
+body.wiki--doc .doc-bar h2 {
+  margin: 0;
+  font-family: var(--ws-sans);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  color: var(--ws-ink);
+}
+body.wiki--doc .doc-bar .bar-meta {
+  margin-left: auto;
+  font-family: var(--ws-mono);
+  font-size: 10px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--ws-faint);
+}
+body.wiki--doc .doc-menu-btn {
+  display: none;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid var(--ws-rule);
+  border-radius: 7px;
+  background: var(--ws-elev);
+  color: var(--ws-ink-soft);
+  cursor: pointer;
+}
+body.wiki--doc .doc-body {
+  width: 100%;
+  max-width: 940px;
+  margin-inline: auto;
+  padding: clamp(24px, 4vw, 48px) clamp(16px, 4vw, 44px) 40px;
+}
+
+/* 8.1 页头 */
+.doc-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 18px;
+  font-family: var(--ws-mono);
+  font-size: 10.5px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--ws-accent);
+}
+.doc-kicker::before { content: ""; width: 22px; height: 1px; background: currentColor; }
+.doc-title {
+  margin: 0 0 16px;
+  font-family: var(--ws-serif);
+  font-size: clamp(30px, 5vw, 46px);
+  font-weight: 600;
+  line-height: 1.18;
+  letter-spacing: .01em;
+  color: var(--ws-ink);
+}
+.doc-title em { font-style: normal; color: var(--ws-accent); }
+.doc-lead {
+  max-width: 44em;
+  margin: 0 0 22px;
+  font-size: 14.5px;
+  line-height: 1.95;
+  color: var(--ws-muted);
+}
+.doc-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 26px; }
+.doc-tags span {
+  padding: 4px 11px;
+  border: 1px solid var(--ws-rule);
+  border-radius: 99px;
+  background: var(--ws-elev);
+  font-size: 11.5px;
+  color: var(--ws-muted);
+}
+.doc-tags span.accent { border-color: var(--ws-accent); color: var(--ws-accent); }
+.doc-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 1px;
+  margin: 0 0 34px;
+  border: 1px solid var(--ws-rule);
+  background: var(--ws-rule);
+}
+.doc-stats div { padding: 14px 16px; background: var(--ws-elev); }
+.doc-stats b {
+  display: block;
+  font-family: var(--ws-serif);
+  font-size: 21px;
+  line-height: 1.2;
+  color: var(--ws-ink);
+}
+.doc-stats span { font-family: var(--ws-mono); font-size: 10px; letter-spacing: .08em; color: var(--ws-faint); }
+
+/* 8.2 章节 */
+.doc-sec { margin: 0 0 46px; scroll-margin-top: calc(var(--ws-h) + 64px); }
+.doc-sec-h {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin: 0 0 6px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--ws-rule);
+}
+.doc-sec-h .n {
+  font-family: var(--ws-mono);
+  font-size: 11px;
+  letter-spacing: .1em;
+  color: var(--ws-accent);
+}
+.doc-sec-h h3 {
+  margin: 0;
+  font-family: var(--ws-serif);
+  font-size: clamp(19px, 2.4vw, 24px);
+  font-weight: 600;
+  color: var(--ws-ink);
+}
+.doc-sec-h .en {
+  margin-left: auto;
+  font-family: var(--ws-mono);
+  font-size: 9.5px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--ws-faint);
+}
+.doc-sec > p { margin: 14px 0 0; font-size: 14px; line-height: 1.95; color: var(--ws-ink-soft); }
+.doc-sec > p.quiet { color: var(--ws-muted); font-size: 13.5px; }
+
+/* 8.3 表格 */
+.tbl { margin: 18px 0 0; overflow-x: auto; border: 1px solid var(--ws-rule); background: var(--ws-elev); scrollbar-width: thin; scrollbar-color: var(--ws-rule-strong) transparent; }
+.tbl::-webkit-scrollbar { height: 7px; }
+.tbl::-webkit-scrollbar-thumb { background: var(--ws-rule-strong); }
+.tbl table { width: 100%; min-width: 600px; border-collapse: collapse; font-size: 12.8px; }
+.tbl th, .tbl td { padding: 10px 12px; text-align: left; vertical-align: top; line-height: 1.7; border-bottom: 1px solid var(--ws-rule); }
+.tbl th {
+  background: var(--ws-paper-2);
+  font-family: var(--ws-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--ws-muted);
+  white-space: nowrap;
+}
+.tbl tr:last-child td { border-bottom: 0; }
+.tbl td { color: var(--ws-ink-soft); }
+.tbl td:first-child { color: var(--ws-ink); font-weight: 600; white-space: nowrap; }
+.tbl td .sub { display: block; font-weight: 400; font-size: 11px; color: var(--ws-faint); font-family: var(--ws-mono); }
+.tbl .pick { color: var(--ws-green); }
+.tbl .warn { color: var(--ws-amber); }
+.tbl .no { color: var(--ws-red); }
+
+/* 8.4 卡片与提示 */
+.card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin: 18px 0 0; }
+.card {
+  padding: 16px 18px;
+  border: 1px solid var(--ws-rule);
+  background: var(--ws-elev);
+}
+.card h4 { margin: 0 0 6px; font-family: var(--ws-serif); font-size: 15px; font-weight: 600; color: var(--ws-ink); }
+.card p { margin: 0; font-size: 12.8px; line-height: 1.85; color: var(--ws-muted); }
+.card .tag {
+  display: inline-block;
+  margin-bottom: 8px;
+  padding: 2px 8px;
+  border: 1px solid var(--ws-rule);
+  font-family: var(--ws-mono);
+  font-size: 9.5px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--ws-faint);
+}
+.note {
+  margin: 18px 0 0;
+  padding: 13px 16px;
+  border-left: 2px solid var(--ws-accent);
+  background: var(--ws-paper-2);
+  font-size: 13px;
+  line-height: 1.9;
+  color: var(--ws-ink-soft);
+}
+.note b { color: var(--ws-ink); }
+.note.amber { border-left-color: var(--ws-amber); }
+
+.doc-list { margin: 16px 0 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+.doc-list li {
+  position: relative;
+  padding-left: 22px;
+  font-size: 13.5px;
+  line-height: 1.9;
+  color: var(--ws-ink-soft);
+}
+.doc-list li::before {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: .82em;
+  width: 5px;
+  height: 5px;
+  background: var(--ws-accent);
+}
+.doc-list li b { color: var(--ws-ink); }
+
+.doc-foot {
+  margin: 8px 0 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--ws-rule);
+  font-family: var(--ws-mono);
+  font-size: 11px;
+  line-height: 1.9;
+  color: var(--ws-faint);
+}
+
+/* 8.5 窄屏：侧栏抽屉化 */
+@media (max-width: 820px) {
+  body.wiki--doc .doc-side {
+    display: none;
+    top: var(--ws-h);
+    box-shadow: 0 20px 40px rgb(0 0 0 / .18);
+  }
+  body.wiki--doc.is-side-open .doc-side { display: block; }
+  body.wiki--doc .doc-main { margin-left: 0; }
+  body.wiki--doc .ws-footer { margin-left: 0; }
+  body.wiki--doc .doc-menu-btn { display: inline-flex; align-items: center; justify-content: center; }
+  body.wiki--doc .doc-stats { grid-template-columns: 1fr 1fr; }
+}
+
+/* 8.6 窄屏：对照表堆叠成字段行，避免横向拖动 */
+@media (max-width: 1040px) {
+  body.wiki--doc .tbl { border: 0; background: none; overflow: visible; }
+  body.wiki--doc .tbl table { display: block; min-width: 0; width: 100%; }
+  body.wiki--doc .tbl thead { display: none; }
+  body.wiki--doc .tbl tbody { display: grid; gap: 10px; }
+  body.wiki--doc .tbl tr {
+    display: block;
+    padding: 4px 0;
+    border: 1px solid var(--ws-rule);
+    background: var(--ws-elev);
+  }
+  body.wiki--doc .tbl td {
+    display: block;
+    padding: 7px 14px 7px 104px;
+    border-bottom: 1px dashed var(--ws-rule);
+    font-size: 12.8px;
+  }
+  body.wiki--doc .tbl td:last-child { border-bottom: 0; }
+  body.wiki--doc .tbl td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 14px;
+    top: 7px;
+    width: 78px;
+    font-family: var(--ws-mono);
+    font-size: 9.5px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--ws-muted);
+  }
+  body.wiki--doc .tbl td { position: relative; }
+  body.wiki--doc .tbl td:first-child { white-space: normal; font-size: 13.5px; }
+}

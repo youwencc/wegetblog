@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html lang="zh-CN" data-theme="light">
 <head>
+<script>
+  try {
+    var t = localStorage.getItem("cy-theme");
+    if (!t) t = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    document.documentElement.setAttribute("data-theme", t);
+  } catch (e) {}
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>GitWiki · GitHub 入门指南知识库</title>
@@ -12,28 +19,28 @@
 <style>
   :root{
     --bg:#fbfaf7;
-    --bg-elev:#ffffff;
-    --panel:#f4f2eb;
-    --panel-2:#efede4;
-    --ink:#15191a;
-    --muted:#6c716b;
-    --faint:#929890;
-    --line:#e5e1d5;
-    --line-strong:#d3cdbd;
-    --accent:#176b4f;
-    --accent-2:#2c8b6a;
-    --accent-soft:#e7f2ec;
-    --accent-line:#bcd9cc;
-    --amber:#a36a1c;
-    --amber-soft:#fbf1dd;
-    --amber-line:#ecd9b1;
-    --red:#b3423b;
-    --red-soft:#fbeceb;
-    --red-line:#edc9c5;
-    --code-bg:#111614;
-    --code-head:#18201c;
-    --code-ink:#d9e5de;
-    --code-muted:#8ca096;
+    --bg-elev:#fffdf7;
+    --panel:#efe9da;
+    --panel-2:#e9e2d1;
+    --ink:#191712;
+    --muted:#77705f;
+    --faint:#948c79;
+    --line:#ddd5c4;
+    --line-strong:#c6bdab;
+    --accent:#a6432b;
+    --accent-2:#c2674c;
+    --accent-soft:#f4e2da;
+    --accent-line:#e3c3b7;
+    --amber:#96701f;
+    --amber-soft:#f8f0dd;
+    --amber-line:#e6d5ae;
+    --red:#a6432b;
+    --red-soft:#f7e6e2;
+    --red-line:#e6c4bb;
+    --code-bg:#1c1a14;
+    --code-head:#252216;
+    --code-ink:#f0ead9;
+    --code-muted:#a69e8b;
     --shadow:0 1px 2px rgba(24,30,26,.04),0 12px 32px -18px rgba(24,30,26,.18);
     --font:"Inter","PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
     --display:"Sora","Inter","PingFang SC",sans-serif;
@@ -41,27 +48,27 @@
     --header-h:64px;
   }
   html[data-theme="dark"]{
-    --bg:#0f1210;
-    --bg-elev:#151a17;
-    --panel:#191f1b;
-    --panel-2:#1e2521;
-    --ink:#e9eee9;
-    --muted:#a0a9a1;
-    --faint:#7e887f;
-    --line:#272f2a;
-    --line-strong:#3a453d;
-    --accent:#63c9a4;
-    --accent-2:#4fb894;
-    --accent-soft:#182b23;
-    --accent-line:#2b4a3d;
+    --bg:#14130e;
+    --bg-elev:#1a1813;
+    --panel:#1f1c15;
+    --panel-2:#252216;
+    --ink:#ece7da;
+    --muted:#a69e8b;
+    --faint:#7f7869;
+    --line:#302d23;
+    --line-strong:#403c2e;
+    --accent:#d2684a;
+    --accent-2:#e08b70;
+    --accent-soft:#2a1f19;
+    --accent-line:#4a342a;
     --amber:#e2b469;
     --amber-soft:#2a2317;
     --amber-line:#4a3c22;
     --red:#e28a83;
     --red-soft:#2b1c1b;
     --red-line:#4d2d2a;
-    --code-bg:#0a0e0c;
-    --code-head:#121814;
+    --code-bg:#100f0a;
+    --code-head:#1a1813;
     --shadow:0 1px 2px rgba(0,0,0,.2),0 18px 40px -22px rgba(0,0,0,.8);
   }
   *{box-sizing:border-box}
@@ -86,9 +93,9 @@
   .brand{display:flex;align-items:center;gap:10px;flex:none;min-width:242px}
   .brand-mark{
     width:34px;height:34px;border-radius:10px;display:grid;place-items:center;color:#fff;
-    background:linear-gradient(145deg,#1d7a59,#124d3a);box-shadow:inset 0 1px 0 rgba(255,255,255,.18);
+    background:linear-gradient(145deg,#a6432b,#7d3324);box-shadow:inset 0 1px 0 rgba(255,255,255,.18);
   }
-  html[data-theme="dark"] .brand-mark{background:linear-gradient(145deg,#237d5e,#143f31)}
+  html[data-theme="dark"] .brand-mark{background:linear-gradient(145deg,#b8503a,#5f2a1f)}
   .brand-text{display:flex;flex-direction:column;line-height:1.15}
   .brand-text b{font-family:var(--display);font-size:15.5px;letter-spacing:-.02em;font-weight:600}
   .brand-text small{font-size:10.5px;color:var(--muted);letter-spacing:.04em}
@@ -261,26 +268,26 @@
   .hero-stat b{display:block;font-family:var(--display);font-size:19px;line-height:1.2;letter-spacing:-.02em}
   .hero-stat span{font-size:10.5px;color:var(--faint);font-family:var(--mono);letter-spacing:.02em}
   .terminal{
-    background:#0e1411;border:1px solid #2a3831;border-radius:12px;overflow:hidden;
+    background:var(--code-bg);border:1px solid var(--line);border-radius:12px;overflow:hidden;
     box-shadow:0 20px 40px -22px rgba(0,0,0,.55),0 1px 0 rgba(255,255,255,.06) inset;
-    font-family:var(--mono);font-size:10px;line-height:1.8;color:#afc2b7;min-width:0;
+    font-family:var(--mono);font-size:10px;line-height:1.8;color:var(--code-ink);min-width:0;
   }
-  .term-bar{display:flex;align-items:center;gap:8px;padding:8px 11px;background:#151d19;border-bottom:1px solid #26332c}
+  .term-bar{display:flex;align-items:center;gap:8px;padding:8px 11px;background:var(--code-head);border-bottom:1px solid var(--line)}
   .term-bar .dots{display:flex;gap:4px}
-  .term-bar .dots i{width:7px;height:7px;border-radius:50%;background:#40554b;display:block}
-  .term-bar .dots i:nth-child(1){background:#b96e64}.term-bar .dots i:nth-child(2){background:#c3a35b}.term-bar .dots i:nth-child(3){background:#63a785}
-  .term-title{color:#6e857a;font-size:9.5px;margin-left:auto}
+  .term-bar .dots i{width:7px;height:7px;border-radius:50%;background:var(--line-strong);display:block}
+  .term-bar .dots i:nth-child(1){background:var(--red)}.term-bar .dots i:nth-child(2){background:var(--amber)}.term-bar .dots i:nth-child(3){background:var(--amber)}
+  .term-title{color:var(--code-muted);font-size:9.5px;margin-left:auto}
   .term-body{padding:13px 14px 15px;overflow-x:auto}
   .term-body>div{white-space:nowrap}
-  .term-body .prompt{color:#63c9a4}
-  .term-body .path{color:#8fb6cd}
-  .term-body .branch{color:#c3a35b}
-  .term-body .cmd{color:#e2ece6}
-  .term-body .out{color:#6f8378}
-  .term-body .ok{color:#63c9a4}
-  .term-body .arrow{color:#c3a35b}
+  .term-body .prompt{color:var(--accent)}
+  .term-body .path{color:var(--accent-2)}
+  .term-body .branch{color:var(--amber)}
+  .term-body .cmd{color:var(--code-ink)}
+  .term-body .out{color:var(--code-muted)}
+  .term-body .ok{color:var(--accent)}
+  .term-body .arrow{color:var(--amber)}
   .term-body .gap{height:8px}
-  .term-cursor{display:inline-block;width:5px;height:11px;background:#63c9a4;vertical-align:-1px;margin-left:2px;animation:blink 1.2s steps(1) infinite}
+  .term-cursor{display:inline-block;width:5px;height:11px;background:var(--accent);vertical-align:-1px;margin-left:2px;animation:blink 1.2s steps(1) infinite}
   @keyframes blink{50%{opacity:0}}
 
   /* ---------- buttons / cards / misc ---------- */
@@ -292,7 +299,7 @@
   .btn:hover{border-color:var(--line-strong);transform:translateY(-1px)}
   .btn-primary{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:0 1px 2px rgba(0,0,0,.1),inset 0 1px 0 rgba(255,255,255,.14)}
   .btn-primary:hover{background:color-mix(in srgb,var(--accent) 88%,#000)}
-  html[data-theme="dark"] .btn-primary{color:#08110d}
+  html[data-theme="dark"] .btn-primary{color:#fdf8ec}
   .btn-ghost{background:transparent}
   .btn svg{flex:none}
   .card-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:20px 0 26px}
@@ -357,7 +364,7 @@
     padding:4px 7px;border-radius:5px;cursor:pointer;transition:.15s;
   }
   .copy-btn:hover{background:rgba(255,255,255,.1);color:#e4efe8}
-  .copy-btn.copied{color:#63c9a4;border-color:#356b55}
+  .copy-btn.copied{color:var(--accent);border-color:#356b55}
   .code pre{margin:0;padding:14px 15px;overflow-x:auto;font-family:var(--mono);font-size:12.3px;line-height:1.78;color:var(--code-ink);tab-size:2}
   .code pre code{font-family:inherit;font-size:inherit;background:none;border:0;padding:0;color:inherit;white-space:pre}
   .code pre .cm{color:#71857a}
@@ -603,8 +610,36 @@
     .code{break-inside:avoid}
   }
 </style>
+<link rel="stylesheet" href="../assets/fonts.css">
+<link rel="stylesheet" href="../assets/wiki-shell.css">
 </head>
-<body>
+<body class="wiki wiki--git">
+<header class="ws-header">
+  <div class="wrap">
+    <a class="ws-brand" href="../index.html"><b>电脑小百科</b><i>/</i><small>技术笔记</small></a>
+    <nav class="ws-nav" aria-label="主导航">
+      <a href="../index.html">首页</a>
+      <a href="../works.html">作品</a>
+      <a href="../blog.html">博客</a>
+      <div class="ws-drop" data-ws-drop>
+        <a class="ws-drop-label" href="ai-agent-wiki.html">知识库</a>
+        <button class="ws-drop-toggle" type="button" aria-expanded="false" aria-label="展开知识库菜单"><svg viewBox="0 0 12 8" aria-hidden="true"><path d="M1 1.5 6 6.5l5-5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></button>
+        <ul class="ws-drop-menu">
+          <li><a href="ai-agent-wiki.html">Agent 智能体</a></li>
+          <li><a href="git.html">Git 常用命令</a></li>
+          <li><a href="architecture.html">架构选型</a></li>
+          <li><a href="models.html">模型对比</a></li>
+        </ul>
+      </div>
+      <a href="https://soft.weget.site" target="_blank" rel="noopener">软件下载</a>
+      <a href="../about.html">关于</a>
+    </nav>
+    <button class="ws-theme" type="button" data-ws-theme aria-label="切换深浅色">
+      <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+      <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M19.1 4.9l-1.8 1.8M6.7 17.3l-1.8 1.8" stroke="currentColor" stroke-width="1.4"/></svg>
+    </button>
+  </div>
+</header>
 <div class="read-progress" id="readProgress"></div>
 
 <header class="site-header">
@@ -4065,6 +4100,62 @@ git reset --hard HEAD~1</code></pre>
   updateProgress();
   handleRoute(true);
   onScroll();
+})();
+</script>
+<footer class="ws-footer">
+  <div class="wrap">
+    <div class="ws-wordmark"><b>电脑小百科</b><span>Chen Yu · Technical Notes</span></div>
+    <div class="ws-foot-grid">
+      <div>
+        <p class="ws-foot-name">技术笔记</p>
+        <p class="ws-foot-note">桌面软件、像素游戏，以及把东西做完的过程。更新不固定，写清楚了才发。</p>
+      </div>
+      <div>
+        <p class="ws-foot-label">目录</p>
+        <ul class="ws-foot-links">
+          <li><a href="../index.html">首页</a></li>
+          <li><a href="../works.html">作品</a></li>
+          <li><a href="../blog.html">博客</a></li>
+          <li><a href="../about.html">关于</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="ws-foot-label">联系</p>
+        <ul class="ws-foot-links">
+          <li><a href="mailto:2591735711@qq.com">邮箱</a></li>
+          <li><a href="https://github.com/chenyu" rel="me noopener" target="_blank">GitHub</a></li>
+          <li><a href="../feed.xml">RSS 订阅</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="ws-colophon"><span>© 2021–2026 电脑小百科</span></div>
+  </div>
+</footer>
+<script>
+(function () {
+  var root = document.documentElement;
+  function setTheme(t, persist) {
+    root.setAttribute('data-theme', t);
+    var m = document.querySelector('meta[name="theme-color"]');
+    if (m) m.setAttribute('content', t === 'dark' ? '#14130e' : '#f7f3e9');
+    if (persist) { try { localStorage.setItem('cy-theme', t); } catch (e) {} }
+  }
+  var btn = document.querySelector('[data-ws-theme]');
+  if (btn) btn.addEventListener('click', function () {
+    setTheme(root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark', true);
+  });
+  var drop = document.querySelector('[data-ws-drop]');
+  if (drop) {
+    var tg = drop.querySelector('.ws-drop-toggle');
+    tg.addEventListener('click', function (e) {
+      e.preventDefault();
+      var open = drop.classList.toggle('is-open');
+      tg.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    document.addEventListener('click', function (e) {
+      if (!drop.contains(e.target)) { drop.classList.remove('is-open'); tg.setAttribute('aria-expanded', 'false'); }
+    });
+  }
 })();
 </script>
 </body>

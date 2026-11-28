@@ -79,10 +79,20 @@
     </a>
     <nav class="site-nav" aria-label="主导航">
       <a href="index.html" aria-current="page">首页</a>
-      <a href="about.html">关于</a>
-      <a href="blog.html">博客</a>
-      <a href="column.html">专栏</a>
       <a href="works.html">作品</a>
+      <a href="blog.html">博客</a>
+      <div class="nav-drop" data-nav-drop>
+        <a class="nav-drop-label" href="wiki/ai-agent-wiki.html">知识库</a>
+        <button class="nav-drop-toggle" type="button" aria-expanded="false" aria-label="展开知识库菜单"><svg viewBox="0 0 12 8" aria-hidden="true"><path d="M1 1.5 6 6.5l5-5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></button>
+        <ul class="nav-drop-menu">
+          <li><a href="wiki/ai-agent-wiki.html">Agent 智能体</a></li>
+          <li><a href="wiki/git.html">Git 常用命令</a></li>
+          <li><a href="wiki/architecture.html">架构选型</a></li>
+          <li><a href="wiki/models.html">模型对比</a></li>
+        </ul>
+      </div>
+      <a href="https://soft.weget.site" target="_blank" rel="noopener">软件下载</a>
+      <a href="about.html">关于</a>
     </nav>
     <button class="theme-toggle" type="button" data-theme-toggle aria-label="切换到深色模式">
       <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
@@ -193,7 +203,7 @@
       </aside>
     </div>
 
-    <div class="figures"><div><b>09</b>篇文章</div><div><b>03</b>个作品</div><div><b>2021</b>开始写</div><div><b>2026.11.27</b>最近更新</div></div>
+    <div class="figures"><div><b>09</b>篇文章</div><div><b>05</b>个作品</div><div><b>2021</b>开始写</div><div><b>2026.11.27</b>最近更新</div></div>
     <div class="logbook" aria-label="工作日志">
       <p class="logbook-tag"><i class="logbook-dot" aria-hidden="true"></i>Logbook<span>近期</span></p>
       <div class="logbook-viewport">
@@ -239,11 +249,11 @@
     <div class="split">
       <div class="rail">
         <h2 class="rail-title" id="works-title">作品</h2>
-        <p class="rail-note">Selected / 3</p>
+        <p class="rail-note">Selected / 5</p>
         <a class="rail-more" href="works.html">全部作品 →</a>
       </div>
       <ul class="works">
-        <li><article class="work"><div class="work-mark" aria-hidden="true"><svg viewBox="0 0 64 44"><rect x="3" y="4" width="58" height="36" fill="none" stroke="var(--rule-strong)"/><line x1="3" y1="12" x2="61" y2="12" stroke="var(--rule-strong)"/><rect x="6" y="7" width="2" height="2" fill="var(--accent)"/><rect x="10" y="7" width="2" height="2" fill="var(--rule-strong)"/><rect x="14" y="7" width="2" height="2" fill="var(--rule-strong)"/><rect x="9" y="18" width="38" height="4" fill="var(--rule-strong)"/><rect x="9" y="25" width="26" height="4" fill="var(--ink)"/><rect x="9" y="32" width="13" height="4" fill="var(--accent)"/></svg></div><div><div class="work-title"><h3><a href="works/winlite.html">WinLite</a></h3><span class="work-en">Windows Slim Tool · 2024 —</span></div><p class="work-desc">WinLite 是一个给旧 Windows 笔记本用的精简与调优工具：不做一键优化，每条变更可查、可撤销，动手前自动创建还原点。C# / .NET 8 / WPF，MIT 开源。</p><ul class="work-points"><li>C# / .NET 8</li><li>WPF + MVVM</li><li>PowerShell / CIM</li></ul></div><div class="work-meta"><span class="status status--live">开源 · 1.4k star</span><div>2024.03 — 至今</div><div>冷启动 3:12 → 0:48</div></div></article></li><li><article class="work"><div class="work-mark work-mark--eq" aria-hidden="true"><svg viewBox="0 0 64 44"><line x1="8" y1="36" x2="56" y2="36" stroke="var(--rule-strong)"/><rect x="12" y="22" width="5" height="13" fill="var(--ink)"/><rect x="21" y="14" width="5" height="21" fill="var(--ink)"/><rect x="30" y="25" width="5" height="10" fill="var(--ink)"/><rect x="39" y="9" width="5" height="26" fill="var(--accent)"/><rect x="48" y="19" width="5" height="16" fill="var(--ink)"/></svg></div><div><div class="work-title"><h3><a href="works/tinyplayer.html">TinyPlayer</a></h3><span class="work-en">Tray Music Player · 2025 —</span></div><p class="work-desc">TinyPlayer 是一个常驻 Windows 托盘的本地音乐播放器：拖文件夹、空格暂停、滚轮调音量。安装包 4.2MB，空闲内存 38MB，冷启动 0.4 秒。</p><ul class="work-points"><li>C# / WPF</li><li>NAudio · WASAPI</li><li>SQLite 曲库</li></ul></div><div class="work-meta"><span class="status status--live">v2.1 · 已发布</span><div>2025.04 — 至今</div><div>安装包 4.2 MB</div></div></article></li><li><article class="work"><div class="work-mark" aria-hidden="true"><svg viewBox="0 0 64 44"><rect x="14" y="6" width="36" height="24" fill="none" stroke="var(--rule-strong)"/><rect x="17" y="9" width="30" height="18" fill="var(--paper-3)"/><rect x="21" y="12" width="4" height="4" fill="var(--accent)"/><rect x="27" y="12" width="4" height="4" fill="var(--ink)"/><rect x="33" y="12" width="4" height="4" fill="var(--rule-strong)"/><rect x="21" y="18" width="4" height="4" fill="var(--ink)"/><rect x="27" y="18" width="4" height="4" fill="var(--accent)"/><rect x="33" y="18" width="4" height="4" fill="var(--ink)"/><rect x="30" y="30" width="4" height="4" fill="var(--ink)"/><rect x="24" y="34" width="16" height="3" fill="var(--ink)"/></svg></div><div><div class="work-title"><h3><a href="works/pixel-workshop.html">像素数码工坊</a></h3><span class="work-en">Pixel Repair Shop · 2026 —</span></div><p class="work-desc">《像素数码工坊》是一个 PixiJS 网页像素经营游戏：继承一间快倒闭的电脑维修铺，靠诊断、报价和装机撑下去。故障靠推理，不靠随机。</p><ul class="work-points"><li>TypeScript</li><li>PixiJS 8</li><li>Vite</li></ul></div><div class="work-meta"><span class="status status--wip">进行中 · 垂直切片</span><div>2026.02 — 至今</div><div>目标 2013 核显 60 fps</div></div></article></li>      </ul>
+        <li><article class="work"><div class="work-mark" aria-hidden="true"><svg viewBox="0 0 64 44"><rect x="10" y="8" width="34" height="28" rx="4" fill="none" stroke="var(--rule-strong)"/><circle cx="27" cy="22" r="6" fill="var(--accent)"/><path d="M44 16l8 6-8 6z" fill="var(--ink)"/></svg></div><div><div class="work-title"><h3><a href="works/micarec.html">MicaRec · 轻录屏</a></h3><span class="work-en">Light Screen Recorder · 2026 —</span></div><p class="work-desc">MicaRec 是一款免费无水印的桌面录屏软件：全屏、区域、指定窗口录制，支持系统声音、麦克风与摄像头，硬件加速自动适配，常用区域一键复用，全局热键与日志导出。</p><ul class="work-points"><li>桌面录屏 · Windows</li><li>系统声音 + 麦克风</li><li>硬件加速适配</li></ul></div><div class="work-meta"><span class="status status--wip">v2.1已发布</span><div>2026.3 — 2026.3.5</div><div>三模式录制</div></div></article></li><li><article class="work"><div class="work-mark" aria-hidden="true"><svg viewBox="0 0 64 44"><rect x="14" y="6" width="36" height="24" fill="none" stroke="var(--rule-strong)"/><circle cx="22" cy="14" r="3" fill="var(--accent)"/><circle cx="32" cy="14" r="3" fill="var(--ink)"/><circle cx="42" cy="14" r="3" fill="var(--rule-strong)"/><line x1="22" y1="17" x2="32" y2="22" stroke="var(--rule-strong)"/><line x1="42" y1="17" x2="32" y2="22" stroke="var(--rule-strong)"/><rect x="24" y="26" width="16" height="3" fill="var(--ink)"/></svg></div><div><div class="work-title"><h3><a href="works/jiuban-agent.html">久伴 Agent</a></h3><span class="work-en">Desktop Coding Agent · 2026 —</span></div><p class="work-desc">久伴 Agent 是一台桌面编码智能体工作台：目录、编辑器、终端与 AI 面板同处一窗，多智能体拆分并行任务，本地知识库先检索再动手。Tauri 2 · Svelte 5 · Rust。</p><ul class="work-points"><li>Tauri 2 · Svelte 5</li><li>Rust · WebView2</li><li>多智能体编排</li></ul></div><div class="work-meta"><span class="status status--wip">智能AI编码 · 进行中</span><div>2026.11 — 至今</div><div>单窗口三栏</div></div></article></li><li><article class="work"><div class="work-mark" aria-hidden="true"><svg viewBox="0 0 64 44"><rect x="14" y="6" width="36" height="24" fill="none" stroke="var(--rule-strong)"/><rect x="17" y="9" width="30" height="18" fill="var(--paper-3)"/><rect x="21" y="12" width="4" height="4" fill="var(--accent)"/><rect x="27" y="12" width="4" height="4" fill="var(--ink)"/><rect x="33" y="12" width="4" height="4" fill="var(--rule-strong)"/><rect x="21" y="18" width="4" height="4" fill="var(--ink)"/><rect x="27" y="18" width="4" height="4" fill="var(--accent)"/><rect x="33" y="18" width="4" height="4" fill="var(--ink)"/><rect x="30" y="30" width="4" height="4" fill="var(--ink)"/><rect x="24" y="34" width="16" height="3" fill="var(--ink)"/></svg></div><div><div class="work-title"><h3><a href="works/pixel-workshop.html">像素数码工坊</a></h3><span class="work-en">Pixel Repair Shop · 2026 —</span></div><p class="work-desc">《像素数码工坊》是一个 PixiJS 网页像素经营游戏：继承一间快倒闭的电脑维修铺，靠诊断、报价和装机撑下去。故障靠推理，不靠随机。</p><ul class="work-points"><li>TypeScript</li><li>PixiJS 8</li><li>Vite</li></ul></div><div class="work-meta"><span class="status status--wip">进行中 · 垂直切片</span><div>2026.02 — 至今</div><div>目标 2013 核显 60 fps</div></div></article></li><li><article class="work"><div class="work-mark work-mark--eq" aria-hidden="true"><svg viewBox="0 0 64 44"><line x1="8" y1="36" x2="56" y2="36" stroke="var(--rule-strong)"/><rect x="12" y="22" width="5" height="13" fill="var(--ink)"/><rect x="21" y="14" width="5" height="21" fill="var(--ink)"/><rect x="30" y="25" width="5" height="10" fill="var(--ink)"/><rect x="39" y="9" width="5" height="26" fill="var(--accent)"/><rect x="48" y="19" width="5" height="16" fill="var(--ink)"/></svg></div><div><div class="work-title"><h3><a href="works/tinyplayer.html">TinyPlayer</a></h3><span class="work-en">Tray Music Player · 2025 —</span></div><p class="work-desc">TinyPlayer 是一个常驻 Windows 托盘的本地音乐播放器：拖文件夹、空格暂停、滚轮调音量。安装包 4.2MB，空闲内存 38MB，冷启动 0.4 秒。</p><ul class="work-points"><li>C# / WPF</li><li>NAudio · WASAPI</li><li>SQLite 曲库</li></ul></div><div class="work-meta"><span class="status status--live">v2.1 · 已发布</span><div>2025.04 — 至今</div><div>安装包 4.2 MB</div></div></article></li><li><article class="work"><div class="work-mark" aria-hidden="true"><svg viewBox="0 0 64 44"><rect x="3" y="4" width="58" height="36" fill="none" stroke="var(--rule-strong)"/><line x1="3" y1="12" x2="61" y2="12" stroke="var(--rule-strong)"/><rect x="6" y="7" width="2" height="2" fill="var(--accent)"/><rect x="10" y="7" width="2" height="2" fill="var(--rule-strong)"/><rect x="14" y="7" width="2" height="2" fill="var(--rule-strong)"/><rect x="9" y="18" width="38" height="4" fill="var(--rule-strong)"/><rect x="9" y="25" width="26" height="4" fill="var(--ink)"/><rect x="9" y="32" width="13" height="4" fill="var(--accent)"/></svg></div><div><div class="work-title"><h3><a href="works/winlite.html">WinLite</a></h3><span class="work-en">Windows Slim Tool · 2024 —</span></div><p class="work-desc">WinLite 是一个给旧 Windows 笔记本用的精简与调优工具：不做一键优化，每条变更可查、可撤销，动手前自动创建还原点。C# / .NET 8 / WPF，MIT 开源。</p><ul class="work-points"><li>C# / .NET 8</li><li>WPF + MVVM</li><li>PowerShell / CIM</li></ul></div><div class="work-meta"><span class="status status--live">开源 · 1.4k star</span><div>2024.03 — 至今</div><div>冷启动 3:12 → 0:48</div></div></article></li>      </ul>
     </div>
   </section>
 
@@ -300,7 +310,9 @@
         <p class="f-label">联系</p>
         <ul class="f-links">
           <li><a href="mailto:2591735711@qq.com">邮箱</a></li>
-          <li><a href="https://github.com/chenyu" rel="me noopener">GitHub</a></li>
+          <li><a href="https://github.com/youwencc/" rel="me noopener" target="_blank">GitHub</a></li>
+          <li><span>微信：e259800</span></li>
+          <li><span>QQ：2591735711</span></li>
           <li><a href="feed.xml">RSS 订阅</a></li>
         </ul>
       </div>

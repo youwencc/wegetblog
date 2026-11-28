@@ -1,43 +1,57 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+<script>
+  try {
+    var t = localStorage.getItem("cy-theme");
+    if (!t) t = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    document.documentElement.setAttribute("data-theme", t);
+  } catch (e) {}
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AI Agent 全栈 Wiki · 从入门到精通 | 模型 · Agent · RAG · 优化 · Skills</title>
 <style>
 :root{
-  --bg:#0b0f1a; --bg2:#111827; --card:#151e32; --card2:#1a2742; --border:#243656; --border2:#2f4670;
-  --text:#e6edf7; --muted:#94a3b8; --muted2:#64748b; --accent:#6366f1; --accent2:#06b6d4; --accent3:#a855f7;
-  --green:#22c55e; --orange:#f59e0b; --red:#ef4444; --pink:#ec4899;
+  --bg:#f7f3e9; --bg2:#efe9da; --card:#fffdf7; --card2:#f3ede0; --border:#ddd5c4; --border2:#c6bdab;
+  --text:#191712; --muted:#77705f; --muted2:#948c79;
+  --accent:#a6432b; --accent2:#c2674c; --accent3:#d99a72;
+  --green:#586848; --orange:#a8702a; --red:#a6432b; --pink:#b0637a;
   --radius:14px; --sidebar:300px;
+}
+html[data-theme="dark"]{
+  --bg:#14130e; --bg2:#1c1a13; --card:#201d15; --card2:#252216; --border:#302d23; --border2:#403c2e;
+  --text:#ece7da; --muted:#948c79; --muted2:#cbc4b4;
+  --accent:#d2684a; --accent2:#e08b70; --accent3:#e8b08f;
+  --green:#8ea87a; --orange:#d9a95f; --red:#e28a83; --pink:#d99aa8;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);line-height:1.7;font-size:15px}
-a{color:#818cf8;text-decoration:none}
+a{color:var(--accent);text-decoration:none}
 a:hover{text-decoration:underline}
-::selection{background:#6366f1;color:#fff}
+::selection{background:var(--accent);color:#fff}
 ::-webkit-scrollbar{width:8px;height:8px}
-::-webkit-scrollbar-thumb{background:#334155;border-radius:99px}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:99px}
 ::-webkit-scrollbar-track{background:transparent}
-*{scrollbar-width:thin;scrollbar-color:#334155 transparent}
+*{scrollbar-width:thin;scrollbar-color:var(--border2) transparent}
 
 /* Layout */
 .layout{display:flex;min-height:100vh}
-.sidebar{width:var(--sidebar);flex-shrink:0;background:linear-gradient(180deg,#0f172a 0%,#0b1220 100%);border-right:1px solid var(--border);position:fixed;top:0;left:0;bottom:0;overflow-y:auto;z-index:50;padding:0 0 40px}
+.sidebar{width:var(--sidebar);flex-shrink:0;background:linear-gradient(180deg,var(--bg2) 0%,var(--bg) 100%);border-right:1px solid var(--border);position:fixed;top:0;left:0;bottom:0;overflow-y:auto;z-index:50;padding:0 0 40px}
 .main{flex:1;margin-left:var(--sidebar);min-width:0}
-.topbar{position:sticky;top:0;z-index:40;background:rgba(11,15,26,.88);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);padding:12px 28px;display:flex;align-items:center;gap:16px}
+.topbar{position:sticky;top:0;z-index:40;background:color-mix(in srgb, var(--bg) 88%, transparent);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);padding:12px 28px;display:flex;align-items:center;gap:16px}
 .topbar .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:17px;letter-spacing:-.02em;white-space:nowrap}
-.logo-icon{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#6366f1,#06b6d4);display:grid;place-items:center;font-size:19px;flex-shrink:0}
+.logo-icon{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:grid;place-items:center;font-size:19px;flex-shrink:0}
 .searchbox{flex:1;max-width:520px;position:relative}
-.searchbox input{width:100%;background:#0f1b33;border:1px solid var(--border);border-radius:99px;padding:9px 16px 9px 40px;color:var(--text);font-size:14px;outline:none;transition:.2s}
-.searchbox input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(99,102,241,.18)}
+.searchbox input{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:99px;padding:9px 16px 9px 40px;color:var(--text);font-size:14px;outline:none;transition:.2s}
+.searchbox input:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent)}
 .searchbox .icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:15px}
 .top-actions{margin-left:auto;display:flex;gap:8px;align-items:center}
-.btn{border:1px solid var(--border);background:#0f1b33;color:var(--text);padding:7px 14px;border-radius:99px;font-size:13px;cursor:pointer;white-space:nowrap}
+.btn{border:1px solid var(--border);background:var(--bg2);color:var(--text);padding:7px 14px;border-radius:99px;font-size:13px;cursor:pointer;white-space:nowrap}
 .btn:hover{border-color:var(--accent)}
 .hamburger{display:none;background:none;border:1px solid var(--border);color:var(--text);border-radius:8px;padding:7px 11px;cursor:pointer;font-size:16px}
-.progressbar{height:3px;background:linear-gradient(90deg,#6366f1,#06b6d4,#a855f7);width:0%;position:fixed;top:0;left:0;z-index:100;transition:width .1s}
+.progressbar{height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2),var(--accent3));width:0%;position:fixed;top:0;left:0;z-index:100;transition:width .1s}
 
 /* Sidebar */
 .side-head{padding:22px 20px 14px;border-bottom:1px solid var(--border)}
@@ -46,27 +60,27 @@ a:hover{text-decoration:underline}
 .side-nav{padding:10px 12px}
 .nav-group{margin-bottom:4px}
 .nav-group-title{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted2);padding:14px 10px 6px;font-weight:700}
-.nav-item{display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:9px;color:#cbd5e1;font-size:13.5px;cursor:pointer;border:1px solid transparent;transition:.15s}
-.nav-item:hover{background:#1e293b;color:#fff}
-.nav-item.active{background:linear-gradient(90deg,rgba(99,102,241,.22),rgba(6,182,212,.12));border-color:rgba(99,102,241,.35);color:#fff}
-.nav-item .num{font-size:11px;background:#1e293b;border:1px solid var(--border);border-radius:6px;padding:1px 6px;color:var(--muted);flex-shrink:0}
+.nav-item{display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:9px;color:var(--text);font-size:13.5px;cursor:pointer;border:1px solid transparent;transition:.15s}
+.nav-item:hover{background:var(--card2);color:#fff}
+.nav-item.active{background:linear-gradient(90deg,color-mix(in srgb, var(--accent) 22%, transparent),color-mix(in srgb, var(--accent2) 12%, transparent));border-color:color-mix(in srgb, var(--accent) 35%, transparent);color:#fff}
+.nav-item .num{font-size:11px;background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:1px 6px;color:var(--muted);flex-shrink:0}
 .nav-item.active .num{background:var(--accent);color:#fff;border-color:var(--accent)}
-.side-foot{margin:18px 14px 0;padding:14px;background:linear-gradient(135deg,rgba(99,102,241,.18),rgba(168,85,247,.12));border:1px solid rgba(99,102,241,.3);border-radius:12px;font-size:12.5px;color:#c7d2fe}
-.side-foot b{color:#fff}
+.side-foot{margin:18px 14px 0;padding:14px;background:linear-gradient(135deg,color-mix(in srgb, var(--accent) 18%, transparent),color-mix(in srgb, var(--accent3) 12%, transparent));border:1px solid color-mix(in srgb, var(--accent) 30%, transparent);border-radius:12px;font-size:12.5px;color:var(--accent)}
+.side-foot b{color:var(--text)}
 
 /* Content */
 .content{max-width:1400px;margin:0 auto;padding:36px 44px 80px}
-.hero{background:linear-gradient(135deg,#1e1b4b 0%,#0f2a4a 55%,#134e4a 100%);border:1px solid var(--border2);border-radius:20px;padding:36px 34px;position:relative;overflow:hidden;margin-bottom:28px}
-.hero::after{content:"";position:absolute;right:-60px;top:-60px;width:260px;height:260px;background:radial-gradient(circle,rgba(99,102,241,.45),transparent 70%);border-radius:50%}
+.hero{background:linear-gradient(135deg,color-mix(in srgb, var(--accent) 14%, var(--card)) 0%,color-mix(in srgb, var(--accent2) 16%, var(--card)) 55%,color-mix(in srgb, var(--accent2) 14%, var(--card)) 100%);border:1px solid var(--border2);border-radius:20px;padding:36px 34px;position:relative;overflow:hidden;margin-bottom:28px}
+.hero::after{content:"";position:absolute;right:-60px;top:-60px;width:260px;height:260px;background:radial-gradient(circle,color-mix(in srgb, var(--accent) 45%, transparent),transparent 70%);border-radius:50%}
 .hero h2{font-size:34px;line-height:1.2;letter-spacing:-.03em;position:relative;z-index:1}
-.hero h2 span{background:linear-gradient(90deg,#a5b4fc,#67e8f9,#f0abfc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.hero p{color:#cbd5e1;margin-top:12px;max-width:640px;position:relative;z-index:1;font-size:15px}
+.hero h2 span{background:linear-gradient(90deg,var(--accent),var(--accent2),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{color:var(--text);margin-top:12px;max-width:640px;position:relative;z-index:1;font-size:15px}
 .hero-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px;position:relative;z-index:1}
-.tag{font-size:12px;padding:5px 11px;border-radius:99px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.08);color:#e2e8f0}
+.tag{font-size:12px;padding:5px 11px;border-radius:99px;border:1px solid color-mix(in srgb, var(--ink) 12%, transparent);background:color-mix(in srgb, var(--ink) 6%, transparent);color:var(--text)}
 .hero-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:22px;position:relative;z-index:1}
-.stat{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:13px 14px}
+.stat{background:color-mix(in srgb, var(--ink) 6%, transparent);border:1px solid color-mix(in srgb, var(--ink) 8%, transparent);border-radius:12px;padding:13px 14px}
 .stat b{font-size:22px;display:block;line-height:1.1}
-.stat span{font-size:12px;color:#94a3b8}
+.stat span{font-size:12px;color:var(--muted)}
 
 .chapter{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:30px 30px 26px;margin-bottom:22px;scroll-margin-top:80px}
 .chapter-head{display:flex;gap:16px;align-items:flex-start;margin-bottom:18px;padding-bottom:16px;border-bottom:1px solid var(--border)}
@@ -75,36 +89,36 @@ a:hover{text-decoration:underline}
 .ch-title p{color:var(--muted);font-size:13.5px;margin-top:3px}
 .chapter h4{font-size:17px;margin:24px 0 10px;display:flex;align-items:center;gap:8px}
 .chapter h4:first-of-type{margin-top:6px}
-.chapter h5{font-size:15px;margin:18px 0 8px;color:#c7d2fe}
-.chapter p{color:#dbe4f0;margin:8px 0}
-.chapter ul,.chapter ol{margin:8px 0 8px 22px;color:#dbe4f0}
+.chapter h5{font-size:15px;margin:18px 0 8px;color:var(--accent)}
+.chapter p{color:var(--text);margin:8px 0}
+.chapter ul,.chapter ol{margin:8px 0 8px 22px;color:var(--text)}
 .chapter li{margin:5px 0}
 .chapter li::marker{color:var(--accent)}
-code.inline{background:#0f1b33;border:1px solid var(--border);padding:1px 7px;border-radius:6px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;color:#a5f3fc}
-pre{background:#0a1120;border:1px solid var(--border);border-radius:12px;padding:16px 18px;overflow-x:auto;margin:12px 0;font-size:13px;line-height:1.65;position:relative}
-pre code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:#e2e8f0}
-.copy-btn{position:absolute;top:10px;right:10px;background:#1e293b;border:1px solid var(--border);color:#cbd5e1;font-size:11px;padding:4px 10px;border-radius:99px;cursor:pointer}
-.copy-btn:hover{background:#334155;color:#fff}
-.kw{color:#c084fc}.str{color:#86efac}.cm{color:#64748b;font-style:italic}.fn{color:#67e8f9}.numc{color:#fbbf24}
+code.inline{background:var(--bg2);border:1px solid var(--border);padding:1px 7px;border-radius:6px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;color:var(--accent2)}
+pre{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:16px 18px;overflow-x:auto;margin:12px 0;font-size:13px;line-height:1.65;position:relative}
+pre code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--text)}
+.copy-btn{position:absolute;top:10px;right:10px;background:var(--card2);border:1px solid var(--border);color:var(--text);font-size:11px;padding:4px 10px;border-radius:99px;cursor:pointer}
+.copy-btn:hover{background:var(--border2);color:var(--text)}
+.kw{color:var(--accent3)}.str{color:var(--green)}.cm{color:var(--muted2);font-style:italic}.fn{color:var(--accent2)}.numc{color:var(--orange)}
 
 .callout{border-radius:12px;padding:14px 16px;margin:14px 0;border:1px solid;font-size:14px;display:flex;gap:11px}
 .callout .ci{font-size:18px;flex-shrink:0;line-height:1.5}
 .callout b{display:block;margin-bottom:2px}
-.callout.tip{background:rgba(34,197,94,.09);border-color:rgba(34,197,94,.35)}
-.callout.warn{background:rgba(245,158,11,.09);border-color:rgba(245,158,11,.35)}
-.callout.info{background:rgba(99,102,241,.10);border-color:rgba(99,102,241,.35)}
-.callout.pro{background:rgba(168,85,247,.10);border-color:rgba(168,85,247,.35)}
+.callout.tip{background:color-mix(in srgb, var(--green) 9%, transparent);border-color:color-mix(in srgb, var(--green) 35%, transparent)}
+.callout.warn{background:color-mix(in srgb, var(--orange) 9%, transparent);border-color:color-mix(in srgb, var(--orange) 35%, transparent)}
+.callout.info{background:color-mix(in srgb, var(--accent) 10%, transparent);border-color:color-mix(in srgb, var(--accent) 35%, transparent)}
+.callout.pro{background:color-mix(in srgb, var(--accent3) 10%, transparent);border-color:color-mix(in srgb, var(--accent3) 35%, transparent)}
 
 table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13.5px;overflow:hidden;border-radius:12px;border:1px solid var(--border)}
-th{background:#1e293b;color:#fff;text-align:left;padding:11px 13px;font-size:13px}
-td{padding:10px 13px;border-top:1px solid var(--border);color:#dbe4f0;vertical-align:top}
-tr:hover td{background:rgba(255,255,255,.02)}
+th{background:var(--card2);color:var(--text);text-align:left;padding:11px 13px;font-size:13px}
+td{padding:10px 13px;border-top:1px solid var(--border);color:var(--text);vertical-align:top}
+tr:hover td{background:color-mix(in srgb, var(--ink) 3%, transparent)}
 .badge{display:inline-block;font-size:11px;padding:2px 8px;border-radius:99px;font-weight:700;white-space:nowrap}
-.b-green{background:rgba(34,197,94,.16);color:#4ade80;border:1px solid rgba(34,197,94,.35)}
-.b-blue{background:rgba(59,130,246,.16);color:#60a5fa;border:1px solid rgba(59,130,246,.35)}
-.b-purple{background:rgba(168,85,247,.16);color:#c084fc;border:1px solid rgba(168,85,247,.35)}
-.b-orange{background:rgba(245,158,11,.16);color:#fbbf24;border:1px solid rgba(245,158,11,.35)}
-.b-gray{background:rgba(148,163,184,.16);color:#94a3b8;border:1px solid rgba(148,163,184,.35)}
+.b-green{background:color-mix(in srgb, var(--green) 16%, transparent);color:var(--green);border:1px solid color-mix(in srgb, var(--green) 35%, transparent)}
+.b-blue{background:color-mix(in srgb, var(--accent2) 16%, transparent);color:var(--accent2);border:1px solid color-mix(in srgb, var(--accent2) 35%, transparent)}
+.b-purple{background:color-mix(in srgb, var(--accent3) 16%, transparent);color:var(--accent3);border:1px solid color-mix(in srgb, var(--accent3) 35%, transparent)}
+.b-orange{background:color-mix(in srgb, var(--orange) 16%, transparent);color:var(--orange);border:1px solid color-mix(in srgb, var(--orange) 35%, transparent)}
+.b-gray{background:color-mix(in srgb, var(--muted) 18%, transparent);color:var(--muted);border:1px solid color-mix(in srgb, var(--muted) 35%, transparent)}
 
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0}
 .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:14px 0}
@@ -113,25 +127,25 @@ tr:hover td{background:rgba(255,255,255,.02)}
 .card p{font-size:13.5px;color:var(--muted)}
 .card .emoji{font-size:24px;margin-bottom:8px;display:block}
 
-.diagram{background:#0a1120;border:1px solid var(--border);border-radius:14px;padding:20px;margin:14px 0;text-align:center;overflow-x:auto}
+.diagram{background:var(--bg);border:1px solid var(--border);border-radius:14px;padding:20px;margin:14px 0;text-align:center;overflow-x:auto}
 .flow{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;font-size:13px}
-.flow-box{background:linear-gradient(135deg,#1e293b,#0f172a);border:1px solid var(--border2);border-radius:10px;padding:9px 14px;font-weight:600;white-space:nowrap}
+.flow-box{background:linear-gradient(135deg,var(--card2),var(--bg2));border:1px solid var(--border2);border-radius:10px;padding:9px 14px;font-weight:600;white-space:nowrap}
 .flow-arrow{color:var(--accent2);font-size:18px;font-weight:800}
 .timeline{position:relative;margin:16px 0 8px 10px;padding-left:26px;border-left:2px solid var(--border)}
 .tl-item{position:relative;margin-bottom:16px}
 .tl-item::before{content:"";position:absolute;left:-33px;top:5px;width:12px;height:12px;border-radius:50%;background:var(--accent);border:3px solid var(--bg)}
-.tl-item b{color:#fff}
+.tl-item b{color:var(--text)}
 .tl-item p{font-size:13.5px;color:var(--muted);margin:2px 0 0}
 .checklist{list-style:none;margin-left:0!important}
 .checklist li{padding-left:26px;position:relative}
 .checklist li::before{content:"✓";position:absolute;left:2px;color:var(--green);font-weight:800}
 .faq details{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:13px 16px;margin:9px 0}
-.faq summary{cursor:pointer;font-weight:600;color:#fff}
+.faq summary{cursor:pointer;font-weight:600;color:var(--text)}
 .faq p{font-size:14px;color:var(--muted);margin-top:8px}
 .toc-inline{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
-.toc-inline a{font-size:12.5px;background:#0f1b33;border:1px solid var(--border);padding:6px 12px;border-radius:99px;color:#cbd5e1}
-.toc-inline a:hover{border-color:var(--accent);color:#fff;text-decoration:none}
-.backtop{position:fixed;right:22px;bottom:22px;width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#06b6d4);color:#fff;border:none;font-size:18px;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.4);display:none;z-index:60}
+.toc-inline a{font-size:12.5px;background:var(--bg2);border:1px solid var(--border);padding:6px 12px;border-radius:99px;color:var(--text)}
+.toc-inline a:hover{border-color:var(--accent);color:var(--text);text-decoration:none}
+.backtop{position:fixed;right:22px;bottom:22px;width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;font-size:18px;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.4);display:none;z-index:60}
 .footer{text-align:center;color:var(--muted2);font-size:13px;padding:30px 20px;border-top:1px solid var(--border);margin-top:10px}
 .hidden{display:none!important}
 .no-result{text-align:center;padding:40px 20px;color:var(--muted)}
@@ -151,27 +165,27 @@ tr:hover td{background:rgba(255,255,255,.02)}
   .searchbox{max-width:none}
 }
 /* ===== Appendix A: rank tables (merged from top30-skills-mcp.html) ===== */
-.rank-twrap{overflow-x:auto;border:1px solid var(--border);border-radius:12px;margin:14px 0;background:rgba(11,15,26,.35)}
+.rank-twrap{overflow-x:auto;border:1px solid var(--border);border-radius:12px;margin:14px 0;background:color-mix(in srgb, var(--ink) 14%, transparent)}
 .rank-twrap table{min-width:1180px;width:100%;border-collapse:collapse;font-size:13.5px}
 .rank-twrap th,.rank-twrap td{border-bottom:1px solid var(--border);padding:10px 12px;text-align:left;vertical-align:top;line-height:1.55}
-.rank-twrap th{background:rgba(99,102,241,.12);font-size:12.5px;white-space:nowrap}
+.rank-twrap th{background:color-mix(in srgb, var(--accent) 12%, transparent);font-size:12.5px;white-space:nowrap}
 .rank-twrap tr:last-child td{border-bottom:none}
-.rank-twrap tbody tr:hover{background:rgba(99,102,241,.07)}
-.rank-twrap td code{background:rgba(6,182,212,.12);color:#7dd3fc;padding:2px 6px;border-radius:6px;font-size:12px;word-break:break-all}
+.rank-twrap tbody tr:hover{background:color-mix(in srgb, var(--accent) 7%, transparent)}
+.rank-twrap td code{background:color-mix(in srgb, var(--accent2) 12%, transparent);color:var(--accent2);padding:2px 6px;border-radius:6px;font-size:12px;word-break:break-all}
 .rank-twrap td.num,.rank-twrap .num{white-space:nowrap;font-variant-numeric:tabular-nums}
-.rank-twrap .rank{display:inline-block;min-width:30px;height:30px;line-height:30px;text-align:center;border-radius:9px;background:linear-gradient(135deg,#6366f1,#06b6d4);color:#fff;font-weight:700;font-size:13px}
+.rank-twrap .rank{display:inline-block;min-width:30px;height:30px;line-height:30px;text-align:center;border-radius:9px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-weight:700;font-size:13px}
 .rank-twrap .score{margin-top:6px;font-size:12px;color:var(--muted)}
 .rank-twrap .stars{color:var(--muted);font-size:11.5px;margin-top:2px}
 .rank-twrap .badge{display:inline-block;padding:1px 8px;border-radius:999px;font-size:11px;margin:2px 3px 2px 0;border:1px solid transparent;white-space:nowrap}
-.rank-twrap .b-mcp{background:rgba(99,102,241,.16);color:#a5b4fc;border-color:#6366f1}
-.rank-twrap .b-skill{background:rgba(236,72,153,.14);color:#f9a8d4;border-color:#ec4899}
-.rank-twrap .b-off{background:rgba(34,197,94,.14);color:#86efac;border-color:#22c55e}
-.rank-twrap .b-com{background:rgba(148,163,184,.14);color:#cbd5e1;border-color:#64748b}
-.rank-twrap .b-dup{background:rgba(251,191,36,.14);color:#fcd34d;border-color:#f59e0b}
-.rank-twrap .b-audit-ok{background:rgba(34,197,94,.14);color:#86efac;border-color:#22c55e}
-.rank-twrap .b-audit-bad{background:rgba(239,68,68,.14);color:#fca5a5;border-color:#ef4444}
+.rank-twrap .b-mcp{background:color-mix(in srgb, var(--accent) 16%, transparent);color:var(--accent);border-color:var(--accent)}
+.rank-twrap .b-skill{background:color-mix(in srgb, var(--pink) 14%, transparent);color:var(--pink);border-color:var(--pink)}
+.rank-twrap .b-off{background:color-mix(in srgb, var(--green) 14%, transparent);color:var(--green);border-color:var(--green)}
+.rank-twrap .b-com{background:color-mix(in srgb, var(--muted) 16%, transparent);color:var(--text);border-color:var(--muted2)}
+.rank-twrap .b-dup{background:rgba(251,191,36,.14);color:var(--orange);border-color:var(--orange)}
+.rank-twrap .b-audit-ok{background:color-mix(in srgb, var(--green) 14%, transparent);color:var(--green);border-color:var(--green)}
+.rank-twrap .b-audit-bad{background:color-mix(in srgb, var(--red) 14%, transparent);color:var(--red);border-color:var(--red)}
 .rank-twrap .repo{color:var(--muted);font-size:11.5px;margin-top:3px}
-.rank-twrap a{color:#8ab4ff;white-space:nowrap}
+.rank-twrap a{color:var(--accent);white-space:nowrap}
 #rank-toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:16px 0 6px}
 #rankSearch{flex:1;min-width:240px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 14px;color:var(--text);font-size:13.5px;outline:none}
 #rankSearch:focus{border-color:var(--accent)}
@@ -181,8 +195,36 @@ tr:hover td{background:rgba(255,255,255,.02)}
 #rankCount{color:var(--muted);font-size:12px}
 @media(max-width:900px){.rank-twrap table{min-width:900px}}
 </style>
+<link rel="stylesheet" href="../assets/fonts.css">
+<link rel="stylesheet" href="../assets/wiki-shell.css">
 </head>
-<body>
+<body class="wiki wiki--agent">
+<header class="ws-header">
+  <div class="wrap">
+    <a class="ws-brand" href="../index.html"><b>电脑小百科</b><i>/</i><small>技术笔记</small></a>
+    <nav class="ws-nav" aria-label="主导航">
+      <a href="../index.html">首页</a>
+      <a href="../works.html">作品</a>
+      <a href="../blog.html">博客</a>
+      <div class="ws-drop" data-ws-drop>
+        <a class="ws-drop-label" href="ai-agent-wiki.html">知识库</a>
+        <button class="ws-drop-toggle" type="button" aria-expanded="false" aria-label="展开知识库菜单"><svg viewBox="0 0 12 8" aria-hidden="true"><path d="M1 1.5 6 6.5l5-5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></button>
+        <ul class="ws-drop-menu">
+          <li><a href="ai-agent-wiki.html">Agent 智能体</a></li>
+          <li><a href="git.html">Git 常用命令</a></li>
+          <li><a href="architecture.html">架构选型</a></li>
+          <li><a href="models.html">模型对比</a></li>
+        </ul>
+      </div>
+      <a href="https://soft.weget.site" target="_blank" rel="noopener">软件下载</a>
+      <a href="../about.html">关于</a>
+    </nav>
+    <button class="ws-theme" type="button" data-ws-theme aria-label="切换深浅色">
+      <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+      <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M19.1 4.9l-1.8 1.8M6.7 17.3l-1.8 1.8" stroke="currentColor" stroke-width="1.4"/></svg>
+    </button>
+  </div>
+</header>
 <div class="progressbar" id="progressbar"></div>
 
 <div class="layout">
@@ -298,7 +340,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
       <!-- ROADMAP -->
       <div class="chapter" id="roadmap">
         <div class="chapter-head">
-          <div class="ch-num" style="background:linear-gradient(135deg,#6366f1,#06b6d4)">🗺️</div>
+          <div class="ch-num" style="background:linear-gradient(135deg,var(--accent),var(--accent2))">🗺️</div>
           <div class="ch-title"><h3>学习路线图：四阶段精通路径</h3><p>建议按阶段推进，每个阶段都有明确产出物</p></div>
         </div>
         <div class="timeline">
@@ -313,7 +355,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
       <!-- CH1 -->
       <div class="chapter" id="ch1">
         <div class="chapter-head">
-          <div class="ch-num" style="background:linear-gradient(135deg,#22c55e,#84cc16)">🌱</div>
+          <div class="ch-num" style="background:linear-gradient(135deg,var(--green),var(--green))">🌱</div>
           <div class="ch-title"><h3>第一章 · 入门基础：什么是大模型</h3><p>从零理解 LLM —— 你需要知道的全部地基知识</p></div>
         </div>
         <div class="toc-inline">
@@ -328,7 +370,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
             <span class="flow-box">🎓 预训练<br><small>预测下一个 Token</small></span><span class="flow-arrow">→</span>
             <span class="flow-box">📝 指令微调 SFT<br><small>学会听指令</small></span><span class="flow-arrow">→</span>
             <span class="flow-box">👍 RLHF 对齐<br><small>学会说人话、守规矩</small></span><span class="flow-arrow">→</span>
-            <span class="flow-box" style="border-color:#22c55e">🤖 ChatGPT / Claude<br><small>可用的 AI 助手</small></span>
+            <span class="flow-box" style="border-color:var(--green)">🤖 ChatGPT / Claude<br><small>可用的 AI 助手</small></span>
           </div>
         </div>
         <div class="grid3">
@@ -346,7 +388,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
             <span class="flow-box">多头自注意力<br><small>Q / K / V</small></span><span class="flow-arrow">→</span>
             <span class="flow-box">前馈网络 FFN</span><span class="flow-arrow">→</span>
             <span class="flow-box">× N 层堆叠</span><span class="flow-arrow">→</span>
-            <span class="flow-box" style="border-color:#06b6d4">输出概率分布</span>
+            <span class="flow-box" style="border-color:var(--accent2)">输出概率分布</span>
           </div>
           <p style="font-size:12.5px;color:var(--muted);margin-top:10px">Q（查询）决定关注谁 · K（键）决定被谁关注 · V（值）决定传递什么信息 —— 这就是注意力的精髓</p>
         </div>
@@ -395,7 +437,7 @@ prompt = <span class="str">"""
       <!-- CH2 -->
       <div class="chapter" id="ch2">
         <div class="chapter-head">
-          <div class="ch-num" style="background:linear-gradient(135deg,#a855f7,#ec4899)">🚀</div>
+          <div class="ch-num" style="background:linear-gradient(135deg,var(--accent3),var(--pink))">🚀</div>
           <div class="ch-title"><h3>第二章 · 先进模型全景（2025-2026）</h3><p>主流模型对比、能力边界与选型决策指南</p></div>
         </div>
         <div class="toc-inline">
@@ -453,7 +495,7 @@ resp = requests.<span class="fn">post</span>(<span class="str">"http://localhost
       <!-- CH3 -->
       <div class="chapter" id="ch3">
         <div class="chapter-head">
-          <div class="ch-num" style="background:linear-gradient(135deg,#06b6d4,#3b82f6)">🕸️</div>
+          <div class="ch-num" style="background:linear-gradient(135deg,var(--accent2),var(--accent2))">🕸️</div>
           <div class="ch-title"><h3>第三章 · Agent 智能体构建</h3><p>从“会聊天”到“会干活”——Agent 的完整架构与实战</p></div>
         </div>
         <div class="toc-inline">
@@ -468,7 +510,7 @@ resp = requests.<span class="fn">post</span>(<span class="str">"http://localhost
             <span class="flow-box">🧠 LLM 大脑<br><small>规划与决策</small></span><span class="flow-arrow">→</span>
             <span class="flow-box">🛠️ 工具调用<br><small>搜索/代码/数据库</small></span><span class="flow-arrow">→</span>
             <span class="flow-box">👀 观察结果</span><span class="flow-arrow">→</span>
-            <span class="flow-box" style="border-color:#22c55e">🔁 循环直到完成</span>
+            <span class="flow-box" style="border-color:var(--green)">🔁 循环直到完成</span>
           </div>
         </div>
         <div class="grid2">
@@ -564,7 +606,7 @@ result = agent.<span class="fn">invoke</span>({<span class="str">"messages"</spa
       <!-- CH4 -->
       <div class="chapter" id="ch4">
         <div class="chapter-head">
-          <div class="ch-num" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">🗄️</div>
+          <div class="ch-num" style="background:linear-gradient(135deg,var(--orange),var(--red))">🗄️</div>
           <div class="ch-title"><h3>第四章 · RAG 与向量数据库</h3><p>让大模型“查资料再回答”——企业级知识库的核心技术</p></div>
         </div>
         <div class="toc-inline">
@@ -580,7 +622,7 @@ result = agent.<span class="fn">invoke</span>({<span class="str">"messages"</spa
             <span class="flow-box">🔢 向量化 Embedding</span><span class="flow-arrow">→</span>
             <span class="flow-box">🗄 向量数据库</span><span class="flow-arrow">→</span>
             <span class="flow-box">🔍 检索 Top-K</span><span class="flow-arrow">→</span>
-            <span class="flow-box" style="border-color:#f59e0b">🤖 LLM 生成答案</span>
+            <span class="flow-box" style="border-color:var(--orange)">🤖 LLM 生成答案</span>
           </div>
         </div>
 
@@ -653,7 +695,7 @@ resp = client.chat.completions.<span class="fn">create</span>(model=<span class=
       <!-- CH5 -->
       <div class="chapter" id="ch5">
         <div class="chapter-head">
-          <div class="ch-num" style="background:linear-gradient(135deg,#ef4444,#f97316)">⚡</div>
+          <div class="ch-num" style="background:linear-gradient(135deg,var(--red),var(--orange))">⚡</div>
           <div class="ch-title"><h3>第五章 · 模型优化与微调</h3><p>让模型更准、更快、更便宜——从微调到量化的完整工具箱</p></div>
         </div>
         <div class="toc-inline">
@@ -667,7 +709,7 @@ resp = client.chat.completions.<span class="fn">create</span>(model=<span class=
             <span class="flow-box">先优化 Prompt<br><small>成本最低</small></span><span class="flow-arrow">→</span>
             <span class="flow-box">还不够？加 RAG<br><small>补知识</small></span><span class="flow-arrow">→</span>
             <span class="flow-box">风格/格式不对？<br>微调 SFT/LoRA</span><span class="flow-arrow">→</span>
-            <span class="flow-box" style="border-color:#ef4444">太慢太贵？<br>量化 + 推理优化</span>
+            <span class="flow-box" style="border-color:var(--red)">太慢太贵？<br>量化 + 推理优化</span>
           </div>
         </div>
         <div class="callout warn"><span class="ci">🧭</span><div><b>黄金原则</b>优化顺序：<b>Prompt → RAG → 微调 → 量化/加速</b>。每一步先验证收益再进入下一步。很多“模型不行”的问题，其实是 Prompt 或数据问题。</div></div>
@@ -736,7 +778,7 @@ client = <span class="fn">OpenAI</span>(base_url=<span class="str">"http://local
       <!-- CH6 -->
       <div class="chapter" id="ch6">
         <div class="chapter-head">
-          <div class="ch-num" style="background:linear-gradient(135deg,#ec4899,#a855f7)">🧩</div>
+          <div class="ch-num" style="background:linear-gradient(135deg,var(--pink),var(--accent3))">🧩</div>
           <div class="ch-title"><h3>第六章 · Skills 技能系统</h3><p>2025 年兴起的 Agent 能力扩展范式——让 Agent 学会专业技能</p></div>
         </div>
         <div class="toc-inline">
@@ -751,7 +793,7 @@ client = <span class="fn">OpenAI</span>(base_url=<span class="str">"http://local
             <span class="flow-box">🧩 Skill：PDF 处理</span><span class="flow-arrow">+</span>
             <span class="flow-box">🧩 Skill：代码审查</span><span class="flow-arrow">+</span>
             <span class="flow-box">🧩 Skill：数据分析</span><span class="flow-arrow">=</span>
-            <span class="flow-box" style="border-color:#ec4899">⭐ 专业级 Agent</span>
+            <span class="flow-box" style="border-color:var(--pink)">⭐ 专业级 Agent</span>
           </div>
         </div>
         <p>核心理念：<b>渐进式披露（Progressive Disclosure）</b>——Agent 先只看到 Skill 的简介（name + description），需要时再加载完整说明与脚本，既省上下文又灵活可靠。</p>
@@ -828,7 +870,7 @@ skill = <span class="fn">load_skill</span>(<span class="str">"pdf-processor"</sp
       <!-- CH7 -->
       <div class="chapter" id="ch7">
         <div class="chapter-head">
-          <div class="ch-num" style="background:linear-gradient(135deg,#3b82f6,#06b6d4)">🎓</div>
+          <div class="ch-num" style="background:linear-gradient(135deg,var(--accent2),var(--accent2))">🎓</div>
           <div class="ch-title"><h3>第七章 · 实战项目与进阶</h3><p>三个从 0 到 1 的完整项目 + 生产部署清单</p></div>
         </div>
         <div class="toc-inline">
@@ -875,7 +917,7 @@ skill = <span class="fn">load_skill</span>(<span class="str">"pdf-processor"</sp
             <!-- ===== 附录 A：Skills & MCP 生态榜单（合并自 top30-skills-mcp.html） ===== -->
       <div class="chapter" id="rank">
         <div class="chapter-head">
-          <div class="ch-num" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">🏆</div>
+          <div class="ch-num" style="background:linear-gradient(135deg,var(--orange),var(--red))">🏆</div>
           <div class="ch-title"><h3>附录 A · 生态榜单：Top 30 Skills + Top 30 MCP</h3><p>每条都写清「能做什么 → 怎么装 / 怎么连 → 去哪儿看原文」，命令可直接复制</p></div>
         </div>
         <div class="toc-inline">
@@ -1010,7 +1052,7 @@ claude mcp list</code></pre>
 
 <div class="chapter" id="glossary">
         <div class="chapter-head">
-          <div class="ch-num" style="background:linear-gradient(135deg,#64748b,#334155)">📖</div>
+          <div class="ch-num" style="background:linear-gradient(135deg,var(--muted2),var(--border2))">📖</div>
           <div class="ch-title"><h3>附录 · 术语表与工具箱</h3><p>随时查阅的核心术语与推荐工具</p></div>
         </div>
         <table>
@@ -1134,6 +1176,62 @@ document.querySelectorAll('pre').forEach(pre => {
   });
   pre.appendChild(btn);
 });
+</script>
+<footer class="ws-footer">
+  <div class="wrap">
+    <div class="ws-wordmark"><b>电脑小百科</b><span>Chen Yu · Technical Notes</span></div>
+    <div class="ws-foot-grid">
+      <div>
+        <p class="ws-foot-name">技术笔记</p>
+        <p class="ws-foot-note">桌面软件、像素游戏，以及把东西做完的过程。更新不固定，写清楚了才发。</p>
+      </div>
+      <div>
+        <p class="ws-foot-label">目录</p>
+        <ul class="ws-foot-links">
+          <li><a href="../index.html">首页</a></li>
+          <li><a href="../works.html">作品</a></li>
+          <li><a href="../blog.html">博客</a></li>
+          <li><a href="../about.html">关于</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="ws-foot-label">联系</p>
+        <ul class="ws-foot-links">
+          <li><a href="mailto:2591735711@qq.com">邮箱</a></li>
+          <li><a href="https://github.com/chenyu" rel="me noopener" target="_blank">GitHub</a></li>
+          <li><a href="../feed.xml">RSS 订阅</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="ws-colophon"><span>© 2021–2026 电脑小百科</span></div>
+  </div>
+</footer>
+<script>
+(function () {
+  var root = document.documentElement;
+  function setTheme(t, persist) {
+    root.setAttribute('data-theme', t);
+    var m = document.querySelector('meta[name="theme-color"]');
+    if (m) m.setAttribute('content', t === 'dark' ? '#14130e' : '#f7f3e9');
+    if (persist) { try { localStorage.setItem('cy-theme', t); } catch (e) {} }
+  }
+  var btn = document.querySelector('[data-ws-theme]');
+  if (btn) btn.addEventListener('click', function () {
+    setTheme(root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark', true);
+  });
+  var drop = document.querySelector('[data-ws-drop]');
+  if (drop) {
+    var tg = drop.querySelector('.ws-drop-toggle');
+    tg.addEventListener('click', function (e) {
+      e.preventDefault();
+      var open = drop.classList.toggle('is-open');
+      tg.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    document.addEventListener('click', function (e) {
+      if (!drop.contains(e.target)) { drop.classList.remove('is-open'); tg.setAttribute('aria-expanded', 'false'); }
+    });
+  }
+})();
 </script>
 </body>
 </html>

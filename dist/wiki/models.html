@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<script>
+  try {
+    var t = localStorage.getItem("cy-theme");
+    if (!t) t = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    document.documentElement.setAttribute("data-theme", t);
+  } catch (e) {}
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>模型对比 · 国内外大模型参数 / 价格 / 实现方法全表 | 电脑小百科</title>
+<meta name="description" content="海内外 23 家大模型厂商对照：总参数与激活参数、专家数、注意力与 KV 缓存方案、上下文、许可、API 价格，以及 MoE 路由、稀疏注意力、MTP、量化、后训练等实现方法的拆解。">
+<meta name="theme-color" content="#f7f3e9">
+<link rel="stylesheet" href="../assets/fonts.css">
+<link rel="stylesheet" href="../assets/wiki-shell.css">
+</head>
+<body class="wiki wiki--doc">
+
+<header class="ws-header">
+  <div class="wrap">
+    <a class="ws-brand" href="../index.html"><b>电脑小百科</b><i>/</i><small>技术笔记</small></a>
+    <nav class="ws-nav" aria-label="主导航">
+      <a href="../index.html">首页</a>
+      <a href="../works.html">作品</a>
+      <a href="../blog.html">博客</a>
+      <div class="ws-drop" data-ws-drop>
+        <a class="ws-drop-label" href="ai-agent-wiki.html">知识库</a>
+        <button class="ws-drop-toggle" type="button" aria-expanded="false" aria-label="展开知识库菜单"><svg viewBox="0 0 12 8" aria-hidden="true"><path d="M1 1.5 6 6.5l5-5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></button>
+        <ul class="ws-drop-menu">
+          <li><a href="ai-agent-wiki.html">Agent 智能体</a></li>
+          <li><a href="git.html">Git 常用命令</a></li>
+          <li><a href="architecture.html">架构选型</a></li>
+          <li><a href="models.html">模型对比</a></li>
+        </ul>
+      </div>
+      <a href="https://soft.weget.site" target="_blank" rel="noopener">软件下载</a>
+      <a href="../about.html">关于</a>
+    </nav>
+    <button class="ws-theme" type="button" data-ws-theme aria-label="切换深浅色">
+      <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+      <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M19.1 4.9l-1.8 1.8M6.7 17.3l-1.8 1.8" stroke="currentColor" stroke-width="1.4"/></svg>
+    </button>
+  </div>
+</header>
+
+<aside class="doc-side" id="docSide">
+  <p class="doc-side-t">目录</p>
+  <a href="#s1"><span class="num">01</span>读法与口径</a>
+  <a href="#s2"><span class="num">02</span>一线六家</a>
+  <a href="#s3"><span class="num">03</span>第二梯队</a>
+  <a href="#s4"><span class="num">04</span>垂直与端侧</a>
+  <a href="#s5"><span class="num">05</span>海外三巨头</a>
+  <a href="#s6"><span class="num">06</span>海外开源与挑战者</a>
+  <a href="#s7"><span class="num">07</span>参数细节总表</a>
+  <a href="#s8"><span class="num">08</span>实现方法拆解</a>
+  <a href="#s9"><span class="num">09</span>价格全景</a>
+  <a href="#s10"><span class="num">10</span>开源与许可</a>
+  <a href="#s11"><span class="num">11</span>按场景选</a>
+  <a href="#s12"><span class="num">12</span>隐性成本</a>
+  <a href="#s13"><span class="num">13</span>一页速查</a>
+  <p class="doc-side-tip">数据核对于 2026-11-28，取官方刊例价（不含限时活动）。官方未披露的参数一律标"—"，不做推测。</p>
+</aside>
+
+<main class="doc-main">
+  <div class="doc-bar">
+    <button class="doc-menu-btn" type="button" id="docMenuBtn" aria-label="打开目录">☰</button>
+    <h2>模型对比</h2>
+    <span class="bar-meta">2026 · 更新于 11 月</span>
+  </div>
+
+  <div class="doc-body">
+
+    <p class="doc-kicker">知识库 · 模型选型</p>
+    <h1 class="doc-title">参数看规模，<br>账单看<em>单价</em>。</h1>
+    <p class="doc-lead">模型之间的差距已经不是"能不能用"，而是"这一档能力配这个价，值不值"。这份对照覆盖海内外 23 家厂商、45 个在售模型：先看参数与上下文，再看许可与价格，最后拆一层实现方法——同样是 1M 上下文，有人靠稀疏注意力省算力，有人靠压缩 KV 缓存省显存，路线不同，长文本上的实际表现也不同。</p>
+
+    <div class="doc-tags">
+      <span class="accent">DeepSeek</span>
+      <span>通义千问</span>
+      <span>Kimi</span>
+      <span>GLM</span>
+      <span>MiniMax</span>
+      <span>豆包</span>
+      <span>混元</span>
+      <span>文心</span>
+      <span>星火</span>
+      <span>日日新</span>
+      <span>Step</span>
+      <span>MiMo</span>
+      <span>盘古</span>
+      <span>端侧</span>
+      <span>GPT-6</span>
+      <span>Claude</span>
+      <span>Gemini</span>
+      <span>Grok</span>
+      <span>Llama</span>
+      <span>Mistral</span>
+    </div>
+
+    <div class="doc-stats">
+      <div><b>23</b><span>家厂商</span></div>
+      <div><b>45</b><span>个在售模型</span></div>
+      <div><b>8</b><span>项关键参数</span></div>
+      <div><b>10</b><span>类实现方法</span></div>
+    </div>
+
+    <section class="doc-sec" id="s1">
+      <div class="doc-sec-h"><span class="n">01</span><h3>读法与口径</h3><span class="en">metrics</span></div>
+      <p>厂商的宣传口径差异很大，先统一读法。后面所有参数都按这个定义走。</p>
+      <div class="tbl">
+        <table>
+          <thead><tr><th>指标</th><th>怎么读</th><th>容易误解的地方</th></tr></thead>
+          <tbody>
+            <tr><td data-label="指标">总参数 / 激活参数</td><td data-label="怎么读">MoE 每个 token 只走少数专家，激活参数决定单次推理的算力</td><td data-label="容易误解的地方">把"2.4 万亿参数"当成显存需求；实际激活可能只有百亿级</td></tr>
+            <tr><td data-label="指标">专家数与稀疏度</td><td data-label="怎么读">路由专家总数、每 token 激活几个，稀疏度越高越省算力也越难训稳</td><td data-label="容易误解的地方">只看总数：896 选 16 和 256 选 8 是完全不同的工程难度</td></tr>
+            <tr><td data-label="指标">注意力结构</td><td data-label="怎么读">MLA、DSA、MSA、KDA 等决定长上下文的算力与 KV 缓存大小</td><td data-label="容易误解的地方">以为"支持 1M"就等于"1M 上不掉点"</td></tr>
+            <tr><td data-label="指标">上下文 / 最大输出</td><td data-label="怎么读">单次请求能吃的输入与能吐的输出，两者常不是同一个数</td><td data-label="容易误解的地方">把最大输出当成上下文；1M 输入往往只有 128K 输出</td></tr>
+            <tr><td data-label="指标">价格与缓存价</td><td data-label="怎么读">元/百万 tokens，输入 / 输出分开，缓存命中常为输入的一到两折</td><td data-label="容易误解的地方">只比输入价，最后被输出价和思考 token 反杀</td></tr>
+            <tr><td data-label="指标">许可</td><td data-label="怎么读">MIT/Apache 可自由商用；自定义许可常限规模与再分发</td><td data-label="容易误解的地方">把"权重可下载"当成"可随便商用"</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note">一个必须先建立的概念：模型能力不是线性买的。旗舰与轻量版的智能差距，通常小于它们的价格差距——多数业务能把 80% 的请求压在轻量版上，只在关键节点调用旗舰。</div>
+    </section>
+
+    <section class="doc-sec" id="s2">
+      <div class="doc-sec-h"><span class="n">02</span><h3>一线六家：旗舰细节</h3><span class="en">frontier</span></div>
+      <p>这六家决定了国产模型的能力上限，也是大多数生产系统的实际选项。价格单位：元/百万 tokens（输入 / 输出）。</p>
+      <div class="tbl">
+        <table>
+          <thead><tr><th>厂商 · 模型</th><th>参数</th><th>上下文</th><th>开源</th><th>价格</th><th>特点与短板</th></tr></thead>
+          <tbody>
+            <tr><td data-label="厂商 · 模型">DeepSeek V4.1-Flash</td><td data-label="参数">552B / 输入激活 8B · 输出 16B</td><td data-label="上下文">1M</td><td data-label="开源">MIT</td><td data-label="价格">1 / 4（缓存 0.02，闲时；高峰翻倍）</td><td data-label="特点与短板" class="pick">KV 缓存每 token 仅 890B，同等上下文下显存占用极小；原生多模态；短板是复杂 Agent 任务上限略低</td></tr>
+            <tr><td data-label="厂商 · 模型">DeepSeek V4-Pro</td><td data-label="参数">1.6T / 49B</td><td data-label="上下文">1M</td><td data-label="开源">MIT</td><td data-label="价格">4.5 / 13.5（闲时）；高峰 9 / 27</td><td data-label="特点与短板">旧旗舰，官方已把请求逐步路由到 V4.1-Flash，新项目不建议再接</td></tr>
+            <tr><td data-label="厂商 · 模型">阿里通义 Qwen3.8-Max</td><td data-label="参数">2.4T / 约 95B</td><td data-label="上下文">1M</td><td data-label="开源">闭源（同代有开源版）</td><td data-label="价格">12 / 36（缓存 1.5；Batch 6 / 18）</td><td data-label="特点与短板">编程与办公、长文档与长视频理解、长程任务规划；短板是单价高，重活才划算</td></tr>
+            <tr><td data-label="厂商 · 模型">月之暗面 Kimi K3</td><td data-label="参数">2.8T / 104B（896 路由 / 16 激活）</td><td data-label="上下文">1M</td><td data-label="开源">Kimi K3 License</td><td data-label="价格">20 / 100（缓存 2）；K3.1-Pro 13 / 68</td><td data-label="特点与短板" class="pick">长程编程、Agent 与原生视觉的第一梯队；短板是输出价最贵，闲聊类调用不划算</td></tr>
+            <tr><td data-label="厂商 · 模型">智谱 GLM-5.3</td><td data-label="参数">未披露（Flash 版 320B / 18B）</td><td data-label="上下文">1M</td><td data-label="开源">开放权重</td><td data-label="价格">8 / 28（缓存 2）；Flash 0.8 / 2.8</td><td data-label="特点与短板">编程与网络安全能力突出，Flash 版原生多模态且极便宜；短板是 GLM-5.3 只有文本</td></tr>
+            <tr><td data-label="厂商 · 模型">MiniMax M3</td><td data-label="参数">428B / 23B（128 路由 top-4 + 1 共享）</td><td data-label="上下文">1M</td><td data-label="开源">社区许可（有商用限制）</td><td data-label="价格">4.2 / 16.8（≤512K）；超过翻倍</td><td data-label="特点与短板">原生图/视频输入、可操作桌面、Coding 强；短板是许可限制与超长上下文加价</td></tr>
+            <tr><td data-label="厂商 · 模型">字节豆包 Seed 2.1 Pro</td><td data-label="参数">未披露</td><td data-label="上下文">256K</td><td data-label="开源">闭源</td><td data-label="价格">6 / 30（turbo 3 / 15）</td><td data-label="特点与短板">多模态与工具调用均衡、工程配套最全；短板是上下文只有 256K，超长文档要切</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note amber">这一层的变化速度按月算：2026 年 11 月内 DeepSeek 在迁 V4-Pro、智谱把 GLM-5.3-Flash 打到 0.8 元输入、Kimi 上线 K3.1-Pro、小米开源 V2.6。把它当"价格带地图"用，具体型号下单前回官方页核。</div>
+    </section>
+
+    <section class="doc-sec" id="s3">
+      <div class="doc-sec-h"><span class="n">03</span><h3>第二梯队：国产算力与性价比</h3><span class="en">second tier</span></div>
+      <p>这四家的共同点是：不在"最强"上硬拼，而是把某一条做到极致——全国产算力、办公多模态、成本帕累托、端侧全模态。</p>
+      <div class="tbl">
+        <table>
+          <thead><tr><th>厂商 · 模型</th><th>参数</th><th>上下文</th><th>开源</th><th>价格</th><th>特点与短板</th></tr></thead>
+          <tbody>
+            <tr><td data-label="厂商 · 模型">科大讯飞 Spark-X2.6</td><td data-label="参数">293B / 30B</td><td data-label="上下文">1M</td><td data-label="开源">闭源；端侧 4B、1.7B 开源</td><td data-label="价格">0.9 / 3.6（限时六折，原 1.5 / 6；缓存 0.08）</td><td data-label="特点与短板" class="pick">全国产算力训练，DSA 稀疏注意力 + MTP，长上下文训练效率提升约 4 倍；适配端云一体与行业（教育/医疗/法律）</td></tr>
+            <tr><td data-label="厂商 · 模型">讯飞 Spark-X2-Flash</td><td data-label="参数">30B</td><td data-label="上下文">256K</td><td data-label="开源">闭源</td><td data-label="价格">1 / 2</td><td data-label="特点与短板">面向 Agent 的中等尺寸，同等工作流下 token 消耗约为大模型的三分之一</td></tr>
+            <tr><td data-label="厂商 · 模型">商汤 SenseNova 6.8 Flash</td><td data-label="参数">未披露</td><td data-label="上下文">—</td><td data-label="开源">闭源</td><td data-label="价格">旧版 V6.5-Pro 3 / 9；Turbo 1.5 / 4.5；Reasoner 4 / 16</td><td data-label="特点与短板">原生多模态智能体，主打数据分析、PPT、3D/网页设计与长链路办公；短板是参数不公开、偏应用交付</td></tr>
+            <tr><td data-label="厂商 · 模型">阶跃 Step 5 Preview</td><td data-label="参数">600B / 27B</td><td data-label="上下文">1M</td><td data-label="开源">开放权重</td><td data-label="价格">7 / 20（缓存 0.7）</td><td data-label="特点与短板" class="pick">单任务成本约为 Opus 5 的 1/8，AA 智能指数 44、开源前三；短板是生态与工具链相对薄</td></tr>
+            <tr><td data-label="厂商 · 模型">小米 MiMo-V2.6-Pro</td><td data-label="参数">未披露（V2-Pro：&gt;1T / 42B）</td><td data-label="上下文">1M</td><td data-label="开源">开放权重</td><td data-label="价格">约 3.1 / 6.2（V2.6 Pro，美元价折算）；V2-Pro 1 / 3（≤256K）</td><td data-label="特点与短板">原生全模态、混合注意力 7:1 + MTP、UltraSpeed 模式最高 20 倍输出速度；短板是上下文超 256K 单价翻倍</td></tr>
+            <tr><td data-label="厂商 · 模型">小米 MiMo-V2.6-Flash</td><td data-label="参数">未披露</td><td data-label="上下文">1M</td><td data-label="开源">开放权重（MIT 系）</td><td data-label="价格">约 1 / 2</td><td data-label="特点与短板">极致性价比，许可宽松，可直接商用与二次训练</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="doc-sec" id="s4">
+      <div class="doc-sec-h"><span class="n">04</span><h3>垂直、企业与端侧</h3><span class="en">vertical &amp; edge</span></div>
+      <p>这一组不适合用"排行榜"衡量：有的只做行业交付，有的只做端侧几 B 的模型，有的干脆退出了通用模型竞赛。</p>
+      <div class="tbl">
+        <table>
+          <thead><tr><th>厂商 · 模型</th><th>参数</th><th>定位</th><th>开源</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr><td data-label="厂商 · 模型">华为 openPangu-2.0-Pro</td><td data-label="参数">505B / 18B</td><td data-label="定位">昇腾原生通用基座</td><td data-label="开源">开放权重</td><td data-label="说明">512K 上下文、约 34T tokens 训练；后训练做快慢合一 SFT + 多专项 RL + 在线蒸馏合一。闭源侧盘古 5.5 NLP 为 718B / 256 专家，走行业交付</td></tr>
+            <tr><td data-label="厂商 · 模型">百度文心 ERNIE 5.1</td><td data-label="参数">未披露</td><td data-label="定位">中文知识与政企</td><td data-label="开源">闭源</td><td data-label="说明">约 119K 上下文，价格约 4 / 18；中文知识、搜索增强与合规流程是优势</td></tr>
+            <tr><td data-label="厂商 · 模型">百川 Baichuan5-Turbo</td><td data-label="参数">未披露</td><td data-label="定位">搜索增强 + 医疗</td><td data-label="开源">闭源</td><td data-label="说明">约 512K 上下文、约 3 / 8；公司已收缩到医疗与行业，通用 API 迭代放缓</td></tr>
+            <tr><td data-label="厂商 · 模型">零一万物 Yi-2-Large</td><td data-label="参数">千亿级 Dense</td><td data-label="定位">双语、政企交付</td><td data-label="开源">闭源</td><td data-label="说明">已停止超大模型预训练，转向行业与出海项目，通用模型不再是主线</td></tr>
+            <tr><td data-label="厂商 · 模型">昆仑万维 SkyClaw-v1.0</td><td data-label="参数">未披露</td><td data-label="定位">Agent 专用</td><td data-label="开源">闭源</td><td data-label="说明">1M 上下文，面向工具调用、多轮任务与代码编辑优化；同门还有 SkyReels（视频）、Mureka（音乐）、Matrix-Game（世界模型）</td></tr>
+            <tr><td data-label="厂商 · 模型">面壁 MiniCPM5-2B</td><td data-label="参数">2B Dense</td><td data-label="定位">端侧 Agent</td><td data-label="开源">开源</td><td data-label="说明" class="pick">2B 规模支持工具调用、深度搜索、代码生成；同系列 MiniCPM-V 4.7（35B-A3B / 1B）做端侧多模态，VoxCPM 0.5B 做语音</td></tr>
+            <tr><td data-label="厂商 · 模型">腾讯混元 Hy3</td><td data-label="参数">295B / 21B</td><td data-label="定位">开源 Agent 基座</td><td data-label="开源">开放权重</td><td data-label="说明">256K 上下文，1 / 4（缓存 0.25）；Hy4 系列 6 / 18，Hy4-flash 0.5 / 2</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note">判断这类厂商只看一件事：它有没有"非你不可"的场景。行业交付靠数据与流程，端侧靠芯片适配与体积——这些护城河比多考几分更实在。</div>
+    </section>
+
+    <section class="doc-sec" id="s5">
+      <div class="doc-sec-h"><span class="n">05</span><h3>海外三巨头</h3><span class="en">frontier global</span></div>
+      <p>这三家仍是能力上限，也是"贵"这个词的来源。价格单位：美元 / 百万 tokens，与国内页分开记，别混着算。</p>
+      <div class="tbl">
+        <table>
+          <thead><tr><th>厂商 · 模型</th><th>上下文 / 输出</th><th>价格 $</th><th>特点与短板</th></tr></thead>
+          <tbody>
+            <tr><td data-label="厂商 · 模型">OpenAI GPT-6.2 Astra</td><td data-label="上下文 / 输出">1.05M / 128K</td><td data-label="价格 $">8 / 40</td><td data-label="特点与短板" class="pick">端到端长任务：电脑与浏览器操作、深度调研、科学工作；短板是输出价 5 倍于输入，超过 272K 另有费率</td></tr>
+            <tr><td data-label="厂商 · 模型">OpenAI GPT-6.2 Sol</td><td data-label="上下文 / 输出">1.05M / 128K</td><td data-label="价格 $">2 / 10</td><td data-label="特点与短板">主力档，能力与成本最平衡，多数业务应从这里起步</td></tr>
+            <tr><td data-label="厂商 · 模型">OpenAI GPT-6.1 Terra</td><td data-label="上下文 / 输出">1.05M / 128K</td><td data-label="价格 $">1 / 5</td><td data-label="特点与短板">便宜量大的通用档：分类、抽取、改写、客服</td></tr>
+            <tr><td data-label="厂商 · 模型">OpenAI GPT-6 Luna</td><td data-label="上下文 / 输出">1.05M / 128K</td><td data-label="价格 $">0.10 / 0.50</td><td data-label="特点与短板">价格杀手，单位成本接近"按调用次数付费"</td></tr>
+            <tr><td data-label="厂商 · 模型">Anthropic Claude Fable 5.2</td><td data-label="上下文 / 输出">1M / 128K</td><td data-label="价格 $">8 / 40（缓存读 0.20）</td><td data-label="特点与短板" class="pick">自适应思考常开，编程、金融、科研最强档；Fast 模式 16 / 80、最高 2.5 倍速</td></tr>
+            <tr><td data-label="厂商 · 模型">Anthropic Claude Opus 5.5</td><td data-label="上下文 / 输出">1M / 128K</td><td data-label="价格 $">4 / 20</td><td data-label="特点与短板">长程 agentic 编码与知识工作的默认选择，比上一代 Opus 5 的 5 / 25 便宜两成</td></tr>
+            <tr><td data-label="厂商 · 模型">Anthropic Claude Sonnet 5.5</td><td data-label="上下文 / 输出">1M / 128K</td><td data-label="价格 $">2 / 10</td><td data-label="特点与短板">速度与智能的平衡点，日常编码主力</td></tr>
+            <tr><td data-label="厂商 · 模型">Anthropic Claude Haiku 5.5</td><td data-label="上下文 / 输出">1M / 128K</td><td data-label="价格 $">0.10 / 0.50（超 100K 后 0.50 / 2.50）</td><td data-label="特点与短板">分类、抽取、路由这类高频任务；注意长提示会跳档</td></tr>
+            <tr><td data-label="厂商 · 模型">Google Gemini 4 Argon</td><td data-label="上下文 / 输出">—</td><td data-label="价格 $">2 / 10（12-01 起 4 / 20）</td><td data-label="特点与短板">当前旗舰促销价，多模态与长上下文强；短板是限时价，明年直接翻倍</td></tr>
+            <tr><td data-label="厂商 · 模型">Google Gemini 3.1 Pro</td><td data-label="上下文 / 输出">1M / 64K</td><td data-label="价格 $">2 / 12（&gt;200K：4 / 18）</td><td data-label="特点与短板">文本、图像、视频、音频、代码一体理解，缓存 0.20</td></tr>
+            <tr><td data-label="厂商 · 模型">Google Gemini 3.8 Flash</td><td data-label="上下文 / 输出">—</td><td data-label="价格 $">0.75 / 3.75（2027-01-01 起 1.50 / 7.50）</td><td data-label="特点与短板">高吞吐 agent 工作流主力，Batch 再打五折</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note amber">三家都在用"阶梯价"管成本：OpenAI 超过 272K、Gemini 超过 200K 都翻倍；Claude 的 Haiku 超过 100K 提示直接跳到 5 倍。长文档场景先算这一步，再谈单价。</div>
+    </section>
+
+    <section class="doc-sec" id="s6">
+      <div class="doc-sec-h"><span class="n">06</span><h3>海外开源与挑战者</h3><span class="en">open weights abroad</span></div>
+      <p>xAI 拼速度与上下文，Meta 与 Mistral 拼"权重能拿下来"。这一组决定的是私有化和边缘部署的选项。</p>
+      <div class="tbl">
+        <table>
+          <thead><tr><th>厂商 · 模型</th><th>上下文 / 输出</th><th>价格 $</th><th>特点与短板</th></tr></thead>
+          <tbody>
+            <tr><td data-label="厂商 · 模型">xAI Grok 4.7</td><td data-label="上下文 / 输出">500K / 未公开上限</td><td data-label="价格 $">2 / 6（≥200K：4 / 12）</td><td data-label="特点与短板">推理强度可调（默认低），工具调用稳；Batch 减 20%，Priority 两倍价，美国区端点 1.1 倍</td></tr>
+            <tr><td data-label="厂商 · 模型">xAI Grok 4.20</td><td data-label="上下文 / 输出">2M / 未公开上限</td><td data-label="价格 $">1.25 / 2.50（≥200K：2.50 / 5）</td><td data-label="特点与短板" class="pick">2M 上下文是当前最长的一档；另有 Multi-Agent 变体，按推理强度起 4 或 16 个子 agent 并行</td></tr>
+            <tr><td data-label="厂商 · 模型">xAI Grok 4 Fast</td><td data-label="上下文 / 输出">2M</td><td data-label="价格 $">0.20 / 0.50</td><td data-label="特点与短板">前沿附近最便宜的档位之一，适合当"便宜的大上下文"用</td></tr>
+            <tr><td data-label="厂商 · 模型">xAI Grok Build 0.1</td><td data-label="上下文 / 输出">256K</td><td data-label="价格 $">1 / 2</td><td data-label="特点与短板">终端编程 agent 的专用底座，配 Grok Build CLI</td></tr>
+            <tr><td data-label="厂商 · 模型">Meta Llama 4 Maverick</td><td data-label="上下文 / 输出">1M（托管商常给更小）</td><td data-label="价格 $">托管 0.15 / 0.60</td><td data-label="特点与短板" class="pick">开放权重、自定义社区许可（非 OSI 开源）；私有化与二次训练的主流选择</td></tr>
+            <tr><td data-label="厂商 · 模型">Meta Muse Ember</td><td data-label="上下文 / 输出">1.05M</td><td data-label="价格 $">0.10 / 0.50</td><td data-label="特点与短板">2026-11 新出的小型全模态：文、图、视频、音频、PDF 进，文本出</td></tr>
+            <tr><td data-label="厂商 · 模型">Mistral Large 3</td><td data-label="上下文 / 输出">256K</td><td data-label="价格 $">0.50 / 1.50</td><td data-label="特点与短板">开放权重；欧盟数据驻留与多语言是卖点，旗舰档里最便宜的一档</td></tr>
+            <tr><td data-label="厂商 · 模型">Mistral Small 3.2</td><td data-label="上下文 / 输出">—</td><td data-label="价格 $">0.075 / 0.20</td><td data-label="特点与短板">自托管性价比档，24B 可单机跑</td></tr>
+            <tr><td data-label="厂商 · 模型">Mistral Ministral 3B</td><td data-label="上下文 / 输出">—</td><td data-label="价格 $">0.04 / 0.04</td><td data-label="特点与短板">端侧与边缘场景，输入输出同价</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note">注意这里只有 Llama 和 Mistral 能拿到权重。GPT、Claude、Gemini、Grok 全是闭源 API——"海外开源"这个词，实际只指这两条主线加一批小厂。</div>
+    </section>
+    <section class="doc-sec" id="s7">
+      <div class="doc-sec-h"><span class="n">07</span><h3>参数细节总表</h3><span class="en">specs</span></div>
+      <p>横向对比用。空格为官方未披露，不做推测；"上下文 / 输出"按官方 API 文档口径填。</p>
+      <div class="tbl">
+        <table>
+          <thead><tr><th>模型</th><th>总参</th><th>激活</th><th>专家</th><th>注意力</th><th>上下文 / 输出</th><th>模态</th><th>许可</th></tr></thead>
+          <tbody>
+            <tr><td data-label="模型">DeepSeek V4.1-Flash</td><td data-label="总参">552B</td><td data-label="激活">8B / 16B</td><td data-label="专家">—</td><td data-label="注意力">CSA + HCA 混合压缩注意力</td><td data-label="上下文 / 输出">1M / 384K</td><td data-label="模态">文、图</td><td data-label="许可">MIT</td></tr>
+            <tr><td data-label="模型">DeepSeek V4-Pro</td><td data-label="总参">1.6T</td><td data-label="激活">49B</td><td data-label="专家">—</td><td data-label="注意力">同上（KV 缓存为 V3.2 的 1/10）</td><td data-label="上下文 / 输出">1M / 384K</td><td data-label="模态">文本</td><td data-label="许可">MIT</td></tr>
+            <tr><td data-label="模型">Qwen3.8-Max</td><td data-label="总参">2.4T</td><td data-label="激活">约 95B</td><td data-label="专家">—</td><td data-label="注意力">MoE + 混合注意力</td><td data-label="上下文 / 输出">1M / 128K</td><td data-label="模态">文、图、视频</td><td data-label="许可">闭源</td></tr>
+            <tr><td data-label="模型">Qwen3.8-2.4T-A95B</td><td data-label="总参">2.4T</td><td data-label="激活">95B</td><td data-label="专家">—</td><td data-label="注意力">稀疏 MoE + 混合注意力</td><td data-label="上下文 / 输出">1M / 128K</td><td data-label="模态">文、图</td><td data-label="许可">开源</td></tr>
+            <tr><td data-label="模型">Kimi K3</td><td data-label="总参">2.8T</td><td data-label="激活">104B</td><td data-label="专家">896 路由 / 16 激活</td><td data-label="注意力">KDA 线性注意力 + AttnRes</td><td data-label="上下文 / 输出">1M / 128K+</td><td data-label="模态">文、图</td><td data-label="许可">Kimi K3 License</td></tr>
+            <tr><td data-label="模型">GLM-5.3</td><td data-label="总参">未披露</td><td data-label="激活">未披露</td><td data-label="专家">—</td><td data-label="注意力">强制思考，三档推理强度</td><td data-label="上下文 / 输出">1M / 128K</td><td data-label="模态">文本</td><td data-label="许可">开放权重</td></tr>
+            <tr><td data-label="模型">GLM-5.3-Flash</td><td data-label="总参">320B</td><td data-label="激活">18B</td><td data-label="专家">—</td><td data-label="注意力">稀疏 + 线性注意力混合</td><td data-label="上下文 / 输出">1M / 128K</td><td data-label="模态">文/图/视频/文件</td><td data-label="许可">开放权重</td></tr>
+            <tr><td data-label="模型">MiniMax M3</td><td data-label="总参">428B</td><td data-label="激活">23B</td><td data-label="专家">128 路由 top-4 + 1 共享</td><td data-label="注意力">MSA 稀疏注意力</td><td data-label="上下文 / 输出">1M / —</td><td data-label="模态">文、图、视频</td><td data-label="许可">社区许可</td></tr>
+            <tr><td data-label="模型">豆包 Seed 2.1 Pro</td><td data-label="总参">未披露</td><td data-label="激活">未披露</td><td data-label="专家">—</td><td data-label="注意力">—</td><td data-label="上下文 / 输出">256K / 256K</td><td data-label="模态">全模态</td><td data-label="许可">闭源</td></tr>
+            <tr><td data-label="模型">混元 Hy3</td><td data-label="总参">295B</td><td data-label="激活">21B</td><td data-label="专家">—</td><td data-label="注意力">快慢思考融合</td><td data-label="上下文 / 输出">256K / —</td><td data-label="模态">文本</td><td data-label="许可">开放权重</td></tr>
+            <tr><td data-label="模型">讯飞 Spark-X2.6</td><td data-label="总参">293B</td><td data-label="激活">30B</td><td data-label="专家">—</td><td data-label="注意力">DSA 稀疏注意力 + MTP</td><td data-label="上下文 / 输出">1M / —</td><td data-label="模态">文本（多语言）</td><td data-label="许可">闭源</td></tr>
+            <tr><td data-label="模型">阶跃 Step 5 Preview</td><td data-label="总参">600B</td><td data-label="激活">27B</td><td data-label="专家">—</td><td data-label="注意力">稀疏 MoE</td><td data-label="上下文 / 输出">1M / —</td><td data-label="模态">文、图</td><td data-label="许可">开放权重</td></tr>
+            <tr><td data-label="模型">小米 MiMo-V2.6-Pro</td><td data-label="总参">未披露</td><td data-label="激活">未披露</td><td data-label="专家">—</td><td data-label="注意力">混合注意力 7:1 + MTP</td><td data-label="上下文 / 输出">1M / —</td><td data-label="模态">全模态</td><td data-label="许可">开放权重</td></tr>
+            <tr><td data-label="模型">openPangu-2.0-Pro</td><td data-label="总参">505B</td><td data-label="激活">18B</td><td data-label="专家">—</td><td data-label="注意力">MoE + 快慢合一</td><td data-label="上下文 / 输出">512K / —</td><td data-label="模态">文本</td><td data-label="许可">开放权重</td></tr>
+            <tr><td data-label="模型">面壁 MiniCPM5-2B</td><td data-label="总参">2B</td><td data-label="激活">2B（Dense）</td><td data-label="专家">—</td><td data-label="注意力">端侧优化</td><td data-label="上下文 / 输出">—</td><td data-label="模态">文本</td><td data-label="许可">开源</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="doc-sec" id="s8">
+      <div class="doc-sec-h"><span class="n">08</span><h3>实现方法拆解</h3><span class="en">methods</span></div>
+      <p>参数是结果，方法是原因。同样是 1M 上下文，为什么有的模型输入 1 元、有的 20 元？差别几乎全在这九件事上。</p>
+
+      <div class="card-grid">
+        <div class="card"><span class="tag">结构</span><h4>稀疏 MoE 路由</h4><p>把 FFN 拆成几十到近千个专家，每 token 只激活少数（Kimi K3 为 896 选 16，MiniMax M3 为 128 选 4 加 1 个共享专家）。总参决定知识容量，激活参数决定推理成本。难点在负载均衡与专家并行通信。</p></div>
+        <div class="card"><span class="tag">结构</span><h4>Stable LatentMoE</h4><p>Kimi K3 在潜空间做路由与专家计算，抑制万亿参数下的激活爆炸；配合全宽共享专家兜底通用能力，避免"专家越来越多、常识越来越差"。</p></div>
+        <div class="card"><span class="tag">注意力</span><h4>MLA / 低秩压缩</h4><p>DeepSeek 系用多头潜注意力把 KV 压成低秩向量，V4 系列进一步把每 token KV 缓存降到 890 字节，才让 1M 上下文在单机放得下。</p></div>
+        <div class="card"><span class="tag">注意力</span><h4>稀疏注意力</h4><p>DSA（DeepSeek / 讯飞）、MSA（MiniMax）先做块级初筛再算注意力，把平方复杂度压成近线性；牺牲的是一部分长程精确检索能力。</p></div>
+        <div class="card"><span class="tag">注意力</span><h4>线性 / 混合注意力</h4><p>Kimi 的 KDA、小米的 7:1 混合、GLM-5.3-Flash 的稀疏+线性混合，都是用线性层承担长程、用全注意力保精度，换取长上下文吞吐。</p></div>
+        <div class="card"><span class="tag">解码</span><h4>MTP 多 token 预测</h4><p>一次前向预测多个 token 再校验，提升解码吞吐；讯飞、小米、DeepSeek 都在用，也是"便宜还能快"的关键一环。</p></div>
+        <div class="card"><span class="tag">训练</span><h4>长上下文训练</h4><p>序列并行 + 上下文并行 + 长程任务动态并行（讯飞在国产芯片上按任务长度分配算力，长文本训练效率提升约 4 倍）。</p></div>
+        <div class="card"><span class="tag">后训练</span><h4>多阶段 RL 与蒸馏</h4><p>先 SFT 分专长，再做编码 / Agent / 数学等多专项 RL，最后在线蒸馏合并成一个模型（openPangu 的 OPD 路线）。小米把可验证任务环境与 RL 代码一并开源。</p></div>
+        <div class="card"><span class="tag">部署</span><h4>量化与推理栈</h4><p>FP8 / MXFP8 权重、vLLM 与 SGLang、PD 分离、前缀缓存复用。同一模型换不同推理栈，实际单价能差一倍。</p></div>
+        <div class="card"><span class="tag">推理</span><h4>自适应思考预算</h4><p>Claude 的 adaptive thinking 常开但可调 effort，GPT-6 与 Grok 4.x 用 reasoning effort 分档，Gemini 把思考 token 直接算进输出价。同一模型按任务难度调档，比换模型更省钱。</p></div>
+      </div>
+
+      <p class="quiet">把这九项对上号，很多"参数看不懂"的地方就通了：Kimi K3 的 2.8T 却比 1.6T 便宜不了多少，是因为激活 104B；DeepSeek 敢卖 1 元，是因为 KV 缓存省到极致 + 缓存命中 0.02。</p>
+
+      <div class="note">多模态也分两派：真原生（MiniMax M3、豆包 Seed、小米 MiMo、商汤 6.8 在预训练阶段就混入图 / 视频 / 音频）与后接适配器（文本基座 + 视觉编码器）。前者的跨模态推理更稳，后者迭代成本更低。选型时看"能不能直接操作界面、读表格"，这一项最能区分两者。</div>
+    </section>
+
+    <section class="doc-sec" id="s9">
+      <div class="doc-sec-h"><span class="n">09</span><h3>价格全景</h3><span class="en">pricing</span></div>
+      <p>国内按人民币、海外按美元，各自从低到高排。注意看"备注"里的加价条件——那才是账单的真凶。</p>
+      <div class="tbl">
+        <table>
+          <thead><tr><th>模型</th><th>输入</th><th>输出</th><th>缓存命中</th><th>备注</th></tr></thead>
+          <tbody>
+            <tr><td data-label="模型">混元 Hy4-flash</td><td data-label="输入">0.5</td><td data-label="输出">2</td><td data-label="缓存命中">0.02</td><td data-label="备注">限时五折</td></tr>
+            <tr><td data-label="模型">Step-3.5-flash</td><td data-label="输入">0.7</td><td data-label="输出">2.1</td><td data-label="缓存命中">0.14</td><td data-label="备注">—</td></tr>
+            <tr><td data-label="模型">GLM-5.3-Flash</td><td data-label="输入">0.8</td><td data-label="输出">2.8</td><td data-label="缓存命中">0.23</td><td data-label="备注">限时五折时 0.4 / 1.4</td></tr>
+            <tr><td data-label="模型">Qwen3.8-Flash</td><td data-label="输入">0.8</td><td data-label="输出">2.7</td><td data-label="缓存命中">0.1</td><td data-label="备注">—</td></tr>
+            <tr><td data-label="模型">Spark-X2.6</td><td data-label="输入">0.9</td><td data-label="输出">3.6</td><td data-label="缓存命中">0.08</td><td data-label="备注">六折后，原价 1.5 / 6</td></tr>
+            <tr><td data-label="模型">DeepSeek V4.1-Flash</td><td data-label="输入">1</td><td data-label="输出">4</td><td data-label="缓存命中">0.02</td><td data-label="备注">闲时价，高峰翻倍</td></tr>
+            <tr><td data-label="模型">混元 Hy3</td><td data-label="输入">1</td><td data-label="输出">4</td><td data-label="缓存命中">0.25</td><td data-label="备注">—</td></tr>
+            <tr><td data-label="模型">讯飞 Spark-X2-Flash</td><td data-label="输入">1</td><td data-label="输出">2</td><td data-label="缓存命中">—</td><td data-label="备注">30B，输入上限 192K</td></tr>
+            <tr><td data-label="模型">商汤 V6.5-Turbo</td><td data-label="输入">1.5</td><td data-label="输出">4.5</td><td data-label="缓存命中">—</td><td data-label="备注">—</td></tr>
+            <tr><td data-label="模型">MiniMax M3</td><td data-label="输入">4.2</td><td data-label="输出">16.8</td><td data-label="缓存命中">0.84</td><td data-label="备注">超过 512K 输入翻倍</td></tr>
+            <tr><td data-label="模型">DeepSeek V4-Pro</td><td data-label="输入">4.5</td><td data-label="输出">13.5</td><td data-label="缓存命中">0.15</td><td data-label="备注">闲时价，高峰 9 / 27</td></tr>
+            <tr><td data-label="模型">豆包 Seed 2.1 Pro</td><td data-label="输入">6</td><td data-label="输出">30</td><td data-label="缓存命中">—</td><td data-label="备注">turbo 版 3 / 15</td></tr>
+            <tr><td data-label="模型">Step 5 Preview</td><td data-label="输入">7</td><td data-label="输出">20</td><td data-label="缓存命中">0.7</td><td data-label="备注">—</td></tr>
+            <tr><td data-label="模型">GLM-5.3</td><td data-label="输入">8</td><td data-label="输出">28</td><td data-label="缓存命中">2</td><td data-label="备注">—</td></tr>
+            <tr><td data-label="模型">Qwen3.8-Max</td><td data-label="输入">12</td><td data-label="输出">36</td><td data-label="缓存命中">1.5</td><td data-label="备注">Batch 6 / 18</td></tr>
+            <tr><td data-label="模型">Kimi K3</td><td data-label="输入">20</td><td data-label="输出">100</td><td data-label="缓存命中">2</td><td data-label="备注">K3.1-Pro 13 / 68</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="quiet">海外按美元计价，同样从低到高。汇率粗算 1 : 7.1，只用于量级对照，不做精确换算。</p>
+      <div class="tbl">
+        <table>
+          <thead><tr><th>模型</th><th>输入 $</th><th>输出 $</th><th>备注</th></tr></thead>
+          <tbody>
+            <tr><td data-label="模型">Mistral Ministral 3B</td><td data-label="输入 $">0.04</td><td data-label="输出 $">0.04</td><td data-label="备注">端侧，输入输出同价</td></tr>
+            <tr><td data-label="模型">Mistral Small 3.2</td><td data-label="输入 $">0.075</td><td data-label="输出 $">0.20</td><td data-label="备注">24B 可单机</td></tr>
+            <tr><td data-label="模型">GPT-6 Luna</td><td data-label="输入 $">0.10</td><td data-label="输出 $">0.50</td><td data-label="备注">1.05M 上下文</td></tr>
+            <tr><td data-label="模型">Claude Haiku 5.5</td><td data-label="输入 $">0.10</td><td data-label="输出 $">0.50</td><td data-label="备注">≤100K；超了 0.50 / 2.50</td></tr>
+            <tr><td data-label="模型">Meta Muse Ember</td><td data-label="输入 $">0.10</td><td data-label="输出 $">0.50</td><td data-label="备注">全模态，1.05M</td></tr>
+            <tr><td data-label="模型">Llama 4 Maverick（托管）</td><td data-label="输入 $">0.15</td><td data-label="输出 $">0.60</td><td data-label="备注">开放权重，价随托管商</td></tr>
+            <tr><td data-label="模型">Grok 4 Fast</td><td data-label="输入 $">0.20</td><td data-label="输出 $">0.50</td><td data-label="备注">2M 上下文</td></tr>
+            <tr><td data-label="模型">Gemini 3.5 Flash-Lite</td><td data-label="输入 $">0.30</td><td data-label="输出 $">2.50</td><td data-label="备注">—</td></tr>
+            <tr><td data-label="模型">Mistral Large 3</td><td data-label="输入 $">0.50</td><td data-label="输出 $">1.50</td><td data-label="备注">开放权重，256K</td></tr>
+            <tr><td data-label="模型">Gemini 3.8 Flash</td><td data-label="输入 $">0.75</td><td data-label="输出 $">3.75</td><td data-label="备注">2027-01-01 起翻倍</td></tr>
+            <tr><td data-label="模型">Grok Build 0.1</td><td data-label="输入 $">1</td><td data-label="输出 $">2</td><td data-label="备注">编程 agent 专用</td></tr>
+            <tr><td data-label="模型">GPT-6.1 Terra</td><td data-label="输入 $">1</td><td data-label="输出 $">5</td><td data-label="备注">通用便宜档</td></tr>
+            <tr><td data-label="模型">Grok 4.20</td><td data-label="输入 $">1.25</td><td data-label="输出 $">2.50</td><td data-label="备注">≥200K 翻倍</td></tr>
+            <tr><td data-label="模型">Grok 4.7</td><td data-label="输入 $">2</td><td data-label="输出 $">6</td><td data-label="备注">≥200K：4 / 12</td></tr>
+            <tr><td data-label="模型">GPT-6.2 Sol · Sonnet 5.5 · Gemini 4 Argon</td><td data-label="输入 $">2</td><td data-label="输出 $">10</td><td data-label="备注">Argon 为限时价，12-01 起 4 / 20</td></tr>
+            <tr><td data-label="模型">Gemini 3.1 Pro</td><td data-label="输入 $">2</td><td data-label="输出 $">12</td><td data-label="备注">&gt;200K：4 / 18</td></tr>
+            <tr><td data-label="模型">Claude Opus 5.5</td><td data-label="输入 $">4</td><td data-label="输出 $">20</td><td data-label="备注">缓存读 0.20</td></tr>
+            <tr><td data-label="模型">GPT-6.2 Astra · Claude Fable 5.2</td><td data-label="输入 $">8</td><td data-label="输出 $">40</td><td data-label="备注">缓存读（Claude）0.20；Fast 模式 16 / 80</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note">把这张表压成一句话：输入价差 40 倍，输出价差 50 倍，但能力差远没有 40 倍。绝大多数业务该做的不是选最强的，而是把请求拆成"难的"和"不难的"，分别路由。</div>
+    </section>
+
+    <section class="doc-sec" id="s10">
+      <div class="doc-sec-h"><span class="n">10</span><h3>开源与许可</h3><span class="en">licensing</span></div>
+      <p>"开源"在国内分成两件事：权重能不能下载，和许可证允许你做什么。真正能进商业产品的，看后者。</p>
+      <div class="tbl">
+        <table>
+          <thead><tr><th>许可类型</th><th>代表模型</th><th>能不能商用</th><th>要注意什么</th></tr></thead>
+          <tbody>
+            <tr><td data-label="许可类型">MIT</td><td data-label="代表模型">DeepSeek V4 系列、小米 MiMo-V2.5</td><td data-label="能不能商用" class="pick">可以，几乎无限制</td><td data-label="要注意什么">仍需自行承担合规与内容安全责任</td></tr>
+            <tr><td data-label="许可类型">Apache 2.0 / 厂商宽松许可</td><td data-label="代表模型">Qwen 系列、多数国产开源基座</td><td data-label="能不能商用" class="pick">可以</td><td data-label="要注意什么">保留版权与变更声明</td></tr>
+            <tr><td data-label="许可类型">自定义开放权重</td><td data-label="代表模型">Kimi K3 License、MiniMax 社区许可</td><td data-label="能不能商用">有条件</td><td data-label="要注意什么">常限用户规模、要求署名、禁止托管转售</td></tr>
+            <tr><td data-label="许可类型">Llama 4 社区许可</td><td data-label="代表模型">Meta Llama 4</td><td data-label="能不能商用">可商用，有条件</td><td data-label="要注意什么">月活超 7 亿需单独授权；不得用其输出训练其他模型</td></tr>
+            <tr><td data-label="许可类型">开放权重（分档）</td><td data-label="代表模型">Mistral Large 3 / Small 3.2</td><td data-label="能不能商用">看具体模型</td><td data-label="要注意什么">Large 系按研究许可，Small 与 Ministral 多为 Apache 2.0</td></tr>
+            <tr><td data-label="许可类型">仅 API 闭源</td><td data-label="代表模型">豆包、文心、商汤、讯飞旗舰</td><td data-label="能不能商用">按调用量付费</td><td data-label="要注意什么">不能私有化，数据出境与留存要审</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note amber">2.8T 的 Kimi K3、2.4T 的 Qwen 开源版，实际是"能下载但装不下"——千卡级部署不是普通团队的选择。真正可私有化的是 300B 级以下、且做了量化的模型：GLM-5.3-Flash（320B / 18B）、混元 Hy3（295B / 21B）、openPangu（505B / 18B，昇腾栈）。</div>
+    </section>
+
+    <section class="doc-sec" id="s11">
+      <div class="doc-sec-h"><span class="n">11</span><h3>按场景选</h3><span class="en">by scenario</span></div>
+      <p>同一份榜单在不同任务上给出不同答案，所以按场景列，比排名有用。</p>
+      <div class="tbl">
+        <table>
+          <thead><tr><th>场景</th><th>首选</th><th>备选</th><th>理由</th></tr></thead>
+          <tbody>
+            <tr><td data-label="场景">长程编程 / 编码 Agent</td><td data-label="首选">Kimi K3.1-Pro、GLM-5.3</td><td data-label="备选">Step 5、DeepSeek V4.1-Flash、MiMo-V2.6-Pro</td><td data-label="理由">多步工具调用与跨文件改动稳；GLM 与 Step 的性价比更好</td></tr>
+            <tr><td data-label="场景">长文档 / 代码库分析</td><td data-label="首选">Qwen3.8-Max、Kimi K3</td><td data-label="备选">GLM-5.3、DeepSeek V4.1-Flash、Step 5</td><td data-label="理由">1M 上下文 + 长文检索精度，128K 以上必须实测</td></tr>
+            <tr><td data-label="场景">图片 / 视频理解</td><td data-label="首选">MiniMax M3、GLM-5.3-Flash</td><td data-label="备选">豆包 Seed 2.1、MiMo-V2.6、商汤 6.8</td><td data-label="理由">原生多模态，不是"文本模型挂个 OCR"</td></tr>
+            <tr><td data-label="场景">办公交付（PPT / 报表 / 调研）</td><td data-label="首选">商汤 SenseNova 6.8 Flash</td><td data-label="备选">Qwen3.8-Max、豆包 Seed 2.1</td><td data-label="理由">端到端产出文件，少一步人工拼装</td></tr>
+            <tr><td data-label="场景">高并发低成本</td><td data-label="首选">DeepSeek V4.1-Flash（闲时）</td><td data-label="备选">混元 Hy3、Spark-X2-Flash、GLM-5.3-Flash</td><td data-label="理由">单价 1 / 4 级别，缓存价还能再压一个量级</td></tr>
+            <tr><td data-label="场景">私有化 / 信创</td><td data-label="首选">DeepSeek（MIT）、GLM-5.3-Flash</td><td data-label="备选">混元 Hy3、openPangu（昇腾）、Spark 端侧</td><td data-label="理由">许可干净、部署门槛可控；昇腾栈选 openPangu</td></tr>
+            <tr><td data-label="场景">端侧 / 离线</td><td data-label="首选">面壁 MiniCPM5-2B、讯飞 X2.6-4B</td><td data-label="备选">MiniCPM-V 4.7（1B 多模态）</td><td data-label="理由">几 B 规模就能做工具调用，数据不出端</td></tr>
+            <tr><td data-label="场景">海外合规 / 数据驻留</td><td data-label="首选">Mistral（欧盟）、Gemini（区域端点）</td><td data-label="备选">Claude（US-only 1.1 倍价）、Bedrock / Vertex 托管</td><td data-label="理由">GDPR 与数据驻留各有对应档，价格会溢价</td></tr>
+            <tr><td data-label="场景">最难的编程 / 科研</td><td data-label="首选">Claude Fable 5.2、GPT-6.2 Astra</td><td data-label="备选">Gemini 4 Argon、Kimi K3.1-Pro</td><td data-label="理由">这一档不看单价看一次做对率，重试成本更高</td></tr>
+            <tr><td data-label="场景">中文知识问答</td><td data-label="首选">豆包 Seed 2.1、文心 5.1</td><td data-label="备选">Qwen3.8-Max、Baichuan5（医疗 / 法律）</td><td data-label="理由">中文语料与行业知识打磨久</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card-grid">
+        <div class="card"><span class="tag">默认架构</span><h4>双模型路由</h4><p>轻量版接 80% 请求，命中"难任务"信号再转旗舰。一套路由能把成本砍一半，体验几乎不掉。</p></div>
+        <div class="card"><span class="tag">成本控制</span><h4>缓存优先</h4><p>系统提示、检索片段、历史摘要固定顺序放前缀，缓存命中率能从 30% 提到 80% 以上。</p></div>
+        <div class="card"><span class="tag">稳定性</span><h4>两家互备</h4><p>主备接不同厂商，都兼容 OpenAI 协议时切换只改 base_url 与模型名。</p></div>
+      </div>
+    </section>
+
+    <section class="doc-sec" id="s12">
+      <div class="doc-sec-h"><span class="n">12</span><h3>隐性成本与陷阱</h3><span class="en">hidden costs</span></div>
+      <p>刊例价只是起点，真实账单常比估算高一倍。下面这些是最常被漏算的。</p>
+      <div class="tbl">
+        <table>
+          <thead><tr><th>陷阱</th><th>表现</th><th>规避</th></tr></thead>
+          <tbody>
+            <tr><td data-label="陷阱">思考 token 计费</td><td data-label="表现">复杂问题输出几千 token 思维链，按输出价结账</td><td data-label="规避">分类、抽取任务关掉思考；只对推理任务开高档</td></tr>
+            <tr><td data-label="陷阱">峰谷价</td><td data-label="表现">DeepSeek 高峰翻倍，白天跑批直接预算翻番</td><td data-label="规避">批处理、离线任务排到空闲时段</td></tr>
+            <tr><td data-label="陷阱">长上下文加价档</td><td data-label="表现">MiniMax M3 超过 512K 翻倍，小米 256K 以上翻倍</td><td data-label="规避">先压缩上下文，别把整份文档一股脑塞进去</td></tr>
+            <tr><td data-label="陷阱">订阅与 API 混用</td><td data-label="表现">Coding Plan 的额度不能用于生产 API</td><td data-label="规避">开发用订阅，线上走按量，账单分开核算</td></tr>
+            <tr><td data-label="陷阱">只看输入价</td><td data-label="表现">输出价常是输入的 3–5 倍，长回答成本全在输出</td><td data-label="规避">按"输入 : 输出 = 4 : 1"估算真实单价</td></tr>
+            <tr><td data-label="陷阱">拿榜单当结论</td><td data-label="表现">榜一在你的任务上翻车，因为考卷不同</td><td data-label="规避">用 100 条真实工单盲测，比成功率与延迟</td></tr>
+            <tr><td data-label="陷阱">服务分级</td><td data-label="表现">Flex 半价但要排队、Priority 约 1.8–2 倍、Batch 五折</td><td data-label="规避">按任务紧急度分档，别全走标准档</td></tr>
+            <tr><td data-label="陷阱">长上下文阶梯价</td><td data-label="表现">Gemini &gt;200K 输入翻倍、xAI ≥200K 翻倍、OpenAI &gt;272K 单独费率</td><td data-label="规避">先压缩再送，别把整库代码塞进去</td></tr>
+            <tr><td data-label="陷阱">区域与合规溢价</td><td data-label="表现">Claude US-only 1.1 倍、美国区端点 1.1 倍、数据驻留另计</td><td data-label="规避">先确认部署区域与合规要求，再谈报价</td></tr>
+            <tr><td data-label="陷阱">限流与并发</td><td data-label="表现">并发上限低，高峰期排队比省钱更贵</td><td data-label="规避">提前确认 RPM / TPM 与并发上限，做降级队列</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note">一个粗糙但好用的估算：一条普通客服回复约 2K 输入 + 300 输出，用 1 / 4 的模型约 0.003 元；换成 12 / 36 的旗舰就是 0.035 元，差十倍。每天十万条，一个月差价就是九万多。</div>
+    </section>
+
+    <section class="doc-sec" id="s13">
+      <div class="doc-sec-h"><span class="n">13</span><h3>一页速查</h3><span class="en">cheatsheet</span></div>
+      <ul class="doc-list">
+        <li><b>最便宜还能用</b>：DeepSeek V4.1-Flash（闲时 1 / 4）、混元 Hy3（1 / 4）、混元 Hy4-flash（0.5 / 2）。</li>
+        <li><b>性价比主力</b>：GLM-5.3-Flash（0.8 / 2.8）、Spark-X2.6（0.9 / 3.6，国产算力）、MiniMax M3（4.2 / 16.8）。</li>
+        <li><b>编程与 Agent 最强</b>：Kimi K3.1-Pro、GLM-5.3、Step 5；预算紧用 DeepSeek V4.1-Flash 打底。</li>
+        <li><b>长上下文</b>：1M 已是标配，但实现路线不同——DeepSeek 靠压缩 KV、MiniMax 靠稀疏注意力、Kimi 靠线性注意力，128K 以上都要实测。</li>
+        <li><b>多模态</b>：MiniMax M3、GLM-5.3-Flash、豆包 Seed 2.1、小米 MiMo-V2.6、商汤 6.8。</li>
+        <li><b>私有化</b>：MIT 的 DeepSeek、GLM-5.3-Flash、混元 Hy3；昇腾栈选 openPangu。2.4T / 2.8T 的开源模型下载得了装不下。</li>
+        <li><b>端侧</b>：面壁 MiniCPM5-2B、讯飞 X2.6-4B、MiniCPM-V 4.7。</li>
+        <li><b>海外旗舰对标</b>：GPT-6.2 Astra 8 / 40、Claude Fable 5.2 8 / 40、Gemini 4 Argon 2 / 10（限时到 11-30）。同档能力，价格差四倍。</li>
+        <li><b>海外便宜档</b>：GPT-6 Luna 0.10 / 0.50、Grok 4 Fast 0.20 / 0.50、Gemini 3.8 Flash 0.75 / 3.75。</li>
+        <li><b>能拿权重的海外模型</b>：Llama 4、Mistral Large 3 / Small 3.2。私有化与欧盟合规就这两条主线。</li>
+        <li><b>合规省心</b>：文心、混元、通义、讯飞在政企与备案流程上更成熟。</li>
+        <li><b>任何选型</b>：先算清缓存命中率、峰谷时段、思考 token 三项，再谈谁更聪明。</li>
+      </ul>
+      <p class="doc-foot">数据核对：2026-11-28 · 来源：DeepSeek API 定价页与模型博客、Kimi 开放平台定价页与 K3 开源公告、阿里云百炼模型价格页、智谱 BigModel 定价页、火山方舟模型广场、MiniMax 官方发布页、腾讯云 TokenHub 价格页、讯飞星火 API 页与讯飞研究院发布稿、商汤 SenseNova 官网与大装置计费页、阶跃 StepFun 定价页、小米 MiMo 官方发布页、华为云盘古与 openPangu 文档、百川开放平台、面壁与 OpenBMB、昆仑万维半年报；OpenAI API 定价页与 OpenRouter、Anthropic 定价页与模型文档、Google Gemini API 定价页、xAI 模型页与 OpenRouter、Mistral 与 Meta 官方页。价格为刊例价，型号与价格变动频繁，正式采购前请回官方页面复核。</p>
+    </section>
+
+  </div>
+</main>
+
+<footer class="ws-footer">
+  <div class="wrap">
+    <div class="ws-wordmark"><b>电脑小百科</b><span>Chen Yu · Technical Notes</span></div>
+    <div class="ws-foot-grid">
+      <div>
+        <p class="ws-foot-name">技术笔记</p>
+        <p class="ws-foot-note">桌面软件、像素游戏，以及把东西做完的过程。更新不固定，写清楚了才发。</p>
+      </div>
+      <div>
+        <p class="ws-foot-label">目录</p>
+        <ul class="ws-foot-links">
+          <li><a href="../index.html">首页</a></li>
+          <li><a href="../works.html">作品</a></li>
+          <li><a href="../blog.html">博客</a></li>
+          <li><a href="../about.html">关于</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="ws-foot-label">联系</p>
+        <ul class="ws-foot-links">
+          <li><a href="mailto:2591735711@qq.com">邮箱</a></li>
+          <li><a href="https://github.com/chenyu" rel="me noopener" target="_blank">GitHub</a></li>
+          <li><a href="../feed.xml">RSS 订阅</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="ws-colophon"><span>© 2021–2026 电脑小百科</span></div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var root = document.documentElement;
+  function setTheme(t, persist) {
+    root.setAttribute('data-theme', t);
+    var m = document.querySelector('meta[name="theme-color"]');
+    if (m) m.setAttribute('content', t === 'dark' ? '#14130e' : '#f7f3e9');
+    if (persist) { try { localStorage.setItem('cy-theme', t); } catch (e) {} }
+  }
+  var btn = document.querySelector('[data-ws-theme]');
+  if (btn) btn.addEventListener('click', function () {
+    setTheme(root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark', true);
+  });
+
+  var drop = document.querySelector('[data-ws-drop]');
+  if (drop) {
+    var tg = drop.querySelector('.ws-drop-toggle');
+    tg.addEventListener('click', function (e) {
+      e.preventDefault();
+      var open = drop.classList.toggle('is-open');
+      tg.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    document.addEventListener('click', function (e) {
+      if (!drop.contains(e.target)) { drop.classList.remove('is-open'); tg.setAttribute('aria-expanded', 'false'); }
+    });
+  }
+
+  var links = [].slice.call(document.querySelectorAll('.doc-side a'));
+  var secs = links.map(function (a) { return document.querySelector(a.getAttribute('href')); }).filter(Boolean);
+  function syncActive() {
+    var y = window.scrollY + 140, idx = 0;
+    secs.forEach(function (s, i) { if (s.offsetTop <= y) idx = i; });
+    links.forEach(function (a, i) { a.classList.toggle('is-active', i === idx); });
+  }
+  window.addEventListener('scroll', syncActive, { passive: true });
+  syncActive();
+
+  var menuBtn = document.getElementById('docMenuBtn');
+  if (menuBtn) menuBtn.addEventListener('click', function () {
+    document.body.classList.toggle('is-side-open');
+  });
+  document.addEventListener('click', function (e) {
+    if (document.body.classList.contains('is-side-open') && !e.target.closest('.doc-side') && !e.target.closest('#docMenuBtn')) {
+      document.body.classList.remove('is-side-open');
+    }
+  });
+  links.forEach(function (a) {
+    a.addEventListener('click', function () { document.body.classList.remove('is-side-open'); });
+  });
+})();
+</script>
+</body>
+</html>

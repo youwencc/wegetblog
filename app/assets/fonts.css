@@ -1,0 +1,16 @@
+/* 本地字体定义。Noto Sans SC 400 镜像自原远程 CSS 实际返回的字体；
+   Noto Serif SC 为按站点文案 + GB2312 常用字子集化的可变字体 woff2（覆盖 200-900 字重），
+   供 --serif 栈使用，消除 Windows 回退宋体的可读性问题。 */
+@font-face {
+  font-family: 'Noto Sans SC';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('fonts/noto-sans-sc-400.ttf') format('truetype');
+}@font-face {
+  font-family: 'Noto Serif SC';
+  font-style: normal;
+  font-weight: 200 900;
+  font-display: swap;
+  src: url('fonts/noto-serif-sc-subset.woff2') format('woff2');
+}

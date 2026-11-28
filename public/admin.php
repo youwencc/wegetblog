@@ -744,7 +744,7 @@ textarea.code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;f
         <div>
           <label>图示</label>
           <select name="mark_key">
-            <?php foreach (['generic' => '通用', 'winlite' => '窗口', 'eq' => '波形', 'pixel' => '像素屏'] as $k => $label): ?>
+            <?php foreach (['generic' => '通用', 'winlite' => '窗口', 'eq' => '波形', 'pixel' => '像素屏', 'agent' => '智能体', 'rec' => '录制'] as $k => $label): ?>
             <option value="<?= $k ?>" <?= ($w['mark_key'] ?? 'generic') === $k ? 'selected' : '' ?>><?= $label ?></option>
             <?php endforeach; ?>
           </select>
@@ -758,8 +758,8 @@ textarea.code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;f
           <input type="text" name="metric" value="<?= h($w['metric'] ?? '') ?>" placeholder="空闲内存 38 MB">
         </div>
         <div>
-          <label>排序 <span>（越小越前）</span></label>
-          <input type="number" name="sort_order" value="<?= (int) ($w['sort_order'] ?? 0) ?>">
+          <label>排序 <span>（越大越靠前，新作品默认在最前）</span></label>
+          <input type="number" name="sort_order" value="<?= (int) ($w['sort_order'] ?? work_next_order()) ?>">
         </div>
       </div>
       <div class="grid2">
@@ -1033,8 +1033,8 @@ textarea.code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;f
       <?= csrf_field() ?>
 
       <h2>顶部导航</h2>
-      <p class="hint">每行：<code>key | 标签 | 链接</code>。key 用于高亮当前页（home / about / blog / column / works），外部链接填 <code>-</code>。链接可写 <code>blog.html</code>、<code>/blog.html</code> 或完整 <code>https://…</code>。</p>
-      <textarea name="nav_rows" rows="7" spellcheck="false"><?php foreach ($settings['nav'] as $item): ?><?= h(($item['key'] ?: '-') . ' | ' . $item['label'] . ' | ' . $item['url']) . "\n" ?><?php endforeach; ?></textarea>
+      <p class="hint">每行：<code>key | 标签 | 链接</code>，顺序即导航顺序。key 用于高亮当前页（home / works / blog / wiki / about），外部链接填 <code>-</code>。二级菜单：父项链接写 <code>-</code>（纯下拉菜单），子项行以 <code>-</code> 开头紧跟父项，例如<br><code>wiki | 知识库 | -</code><br><code>- | Agent 智能体 | wiki/ai-agent-wiki.html</code><br><code>- | Git 常用命令 | wiki/git.html</code></p>
+      <textarea name="nav_rows" rows="9" spellcheck="false"><?php foreach ($settings['nav'] as $item): ?><?= h(($item['key'] ?: '-') . ' | ' . $item['label'] . ' | ' . ($item['url'] !== '' ? $item['url'] : '-')) . "\n" ?><?php foreach ((array) ($item['children'] ?? []) as $child): ?><?= h('- | ' . $child['label'] . ' | ' . $child['url']) . "\n" ?><?php endforeach; ?><?php endforeach; ?></textarea>
 
       <h2 style="margin-top:28px">联系方式</h2>
       <p class="hint">这里保存后，页脚和「关于」页的联系方式会一起更新；点一次「生成静态站」生效。</p>

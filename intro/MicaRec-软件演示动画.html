@@ -1,0 +1,1621 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MicaRec · 轻录屏 — 功能演示动画</title>
+<style>
+  :root{
+    --bg-deep:#080E1A;
+    --win:#0B1220;
+    --card:#141E31;
+    --input:#0B1220;
+    --line:#232E48;
+    --input-line:#22304C;
+    --text:#EAF0FA;
+    --sec:#A8B6CF;
+    --muted:#7C8CAA;
+    --faint:#5A6A87;
+    --accent:#3E8BFF;
+    --green:#2FD972;
+    --red:#F5485A;
+    --amber:#F0B840;
+    --r-md:12px;
+    --shadow: 0 30px 80px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.05);
+    --font:"Segoe UI","Microsoft YaHei UI","Microsoft YaHei","PingFang SC",system-ui,sans-serif;
+    --mono:"Cascadia Mono","Consolas",monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;font-family:var(--font);color:var(--text);overflow:hidden;
+    background:
+      radial-gradient(1200px 700px at 50% -10%, #16233C 0%, rgba(8,14,26,0) 60%),
+      radial-gradient(900px 600px at 90% 110%, #142038 0%, rgba(8,14,26,0) 55%),
+      var(--bg-deep);
+  }
+  .page{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:16px;}
+
+  .hero{display:flex;align-items:center;gap:12px;opacity:.96;}
+  .hero .mark{
+    width:32px;height:32px;border-radius:10px;display:grid;place-items:center;
+    background:linear-gradient(160deg,#5B9BFF,#3E8BFF 55%,#2D6FE0);
+    box-shadow:0 8px 20px rgba(62,139,255,.35), inset 0 1px 0 rgba(255,255,255,.35);
+  }
+  .hero .mark svg{width:17px;height:17px;}
+  .hero h1{margin:0;font-size:17px;font-weight:650;letter-spacing:.3px;}
+  .hero h1 span{color:var(--muted);font-weight:400;font-size:12.5px;margin-left:9px;}
+
+  .stageWrap{position:relative;width:1280px;height:800px;flex:0 0 auto;transform-origin:center center;}
+  .stage{
+    position:absolute;inset:0;border-radius:18px;overflow:hidden;
+    background:
+      radial-gradient(760px 420px at 50% 0%, #16233C, rgba(16,25,42,0) 70%),
+      linear-gradient(180deg,#101A2C,#0A111E);
+    border:1px solid rgba(255,255,255,.06);
+    box-shadow:0 40px 90px rgba(0,0,0,.55);
+  }
+  .stage::before{
+    content:"";position:absolute;inset:0;pointer-events:none;
+    background-image:
+      linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);
+    background-size:44px 44px;
+    -webkit-mask-image:radial-gradient(circle at 50% 40%,#000 30%,transparent 78%);
+    mask-image:radial-gradient(circle at 50% 40%,#000 30%,transparent 78%);
+  }
+
+  /* ================= 主窗口 ================= */
+  .win{
+    position:absolute;left:100px;top:46px;width:1080px;height:660px;
+    display:flex;flex-direction:column;overflow:hidden;
+    background:radial-gradient(700px 420px at 20% -10%, #16233C, rgba(11,18,32,0) 65%), var(--win);
+    border-radius:12px;border:1px solid rgba(255,255,255,.07);
+    box-shadow:var(--shadow);
+    transition:opacity .5s ease, transform .55s cubic-bezier(.22,.9,.28,1), filter .5s ease;
+  }
+  .win.dimmed{opacity:0;transform:translateY(-18px) scale(.96);filter:blur(2px);}
+
+  .titlebar{
+    height:42px;flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;
+    padding:0 8px 0 14px;background:rgba(255,255,255,.03);
+    border-bottom:1px solid rgba(255,255,255,.06);
+  }
+  .tleft{display:flex;align-items:center;gap:8px;}
+  .appIcon{
+    width:19px;height:19px;border-radius:6px;display:grid;place-items:center;
+    background:linear-gradient(160deg,#5B9BFF,#3E8BFF 60%,#2D6FE0);
+    box-shadow:0 4px 10px rgba(62,139,255,.35), inset 0 1px 0 rgba(255,255,255,.4);
+  }
+  .appIcon svg{width:11px;height:11px;}
+  .appName{font-size:15px;font-weight:700;letter-spacing:.2px;}
+  .ver{font-size:11px;color:var(--muted);margin-top:2px;}
+
+  /* GPU 胶囊（真实控件：点击跳到设置里的编码器行） */
+  .gpu{
+    display:inline-flex;align-items:center;gap:7px;margin-left:4px;
+    padding:4px 11px 4px 9px;border-radius:13px;font-size:12px;color:#D5E1F2;
+    background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.10);
+    transition:background .3s ease, border-color .3s ease;
+  }
+  .gpu i{width:6px;height:6px;border-radius:50%;background:#7C8CAA;flex:0 0 auto;
+    box-shadow:0 0 0 4px rgba(124,140,170,.14);transition:all .3s ease;}
+  .gpu.ok i{background:var(--green);box-shadow:0 0 0 4px rgba(47,217,114,.16),0 0 10px rgba(47,217,114,.55);}
+  .gpu.rec i{background:var(--red);box-shadow:0 0 0 4px rgba(245,72,90,.18),0 0 10px rgba(245,72,90,.6);animation:pulse 1.1s infinite;}
+  .gpu.busy i{animation:blink .85s infinite;}
+  @keyframes pulse{50%{box-shadow:0 0 0 6px rgba(245,72,90,.10),0 0 14px rgba(245,72,90,.75);}}
+  @keyframes blink{50%{opacity:.3;}}
+
+  .winbtns{display:flex;align-items:center;gap:2px;color:#9FAEC9;}
+  .winbtns span{width:34px;height:30px;display:grid;place-items:center;border-radius:8px;font-size:13px;
+    transition:background .2s ease,color .2s ease;}
+  .winbtns span:hover{background:rgba(255,255,255,.07);color:#EAF0FA;}
+  .winbtns .close:hover{background:#D93A4A;color:#fff;}
+
+  .body{flex:1 1 auto;display:grid;grid-template-columns:336px 14px 702px;padding:14px 14px 12px;min-height:0;}
+
+  /* ---------- 左栏：一张卡，四节 ---------- */
+  .card{
+    grid-column:1;
+    background:linear-gradient(160deg,#1B2740,#161F33);
+    border:1px solid #2A3856;border-radius:var(--r-md);
+    padding:14px 16px;overflow:hidden;
+  }
+  .stit{font-size:13px;font-weight:700;letter-spacing:.3px;color:var(--text);margin:0 0 10px;}
+  .divider{height:1px;margin:12px -16px 13px;background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.10),rgba(255,255,255,0));}
+
+  .chips{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;}
+  .chipbtn{
+    height:34px;display:grid;place-items:center;cursor:pointer;user-select:none;
+    font-size:13px;color:var(--sec);background:var(--input);
+    border:1px solid var(--input-line);border-radius:8px;
+    transition:all .22s ease;position:relative;overflow:hidden;
+  }
+  .chipbtn::before{
+    content:"";position:absolute;left:1px;right:1px;top:0;height:1px;
+    background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.10),rgba(255,255,255,0));
+  }
+  .chipbtn:hover{border-color:#33496F;background:#101A2B;color:var(--text);}
+  .chipbtn.on{
+    color:#E9F1FF;border-color:rgba(62,139,255,.44);
+    background:linear-gradient(180deg,rgba(62,139,255,.24),rgba(62,139,255,.12));
+  }
+  .chipbtn.on:hover{border-color:rgba(62,139,255,.65);}
+
+  .row{display:flex;align-items:center;gap:8px;margin-top:10px;}
+  .btn-ghost{
+    height:32px;padding:0 14px;display:inline-flex;align-items:center;justify-content:center;
+    font-size:12.5px;color:var(--sec);background:rgba(255,255,255,.055);
+    border:1px solid rgba(255,255,255,.10);border-radius:7px;cursor:pointer;
+    transition:all .2s ease;white-space:nowrap;
+  }
+  .btn-ghost:hover{background:rgba(255,255,255,.10);color:#fff;border-color:rgba(255,255,255,.18);}
+  .btn-ghost.sm{height:30px;padding:0 16px;}
+
+  .field{
+    height:32px;display:flex;align-items:center;padding:0 9px;font-size:12px;
+    background:var(--input);border:1px solid var(--input-line);border-radius:6px;
+    color:var(--sec);min-width:0;position:relative;cursor:pointer;
+  }
+  .field .val{flex:1 1 auto;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;color:var(--text);}
+  .field .val.dim{color:var(--faint);}
+  .field::after{content:"";width:6px;height:6px;flex:0 0 auto;margin-left:8px;
+    border-right:1.4px solid #7C8CAA;border-bottom:1.4px solid #7C8CAA;transform:rotate(45deg) translateY(-2px);}
+  .field.nocaret::after{display:none;}
+  .field.flash{animation:flashOk .9s ease;}
+  @keyframes flashOk{0%,100%{border-color:var(--input-line);}35%{border-color:rgba(47,217,114,.7);box-shadow:0 0 0 3px rgba(47,217,114,.12);}}
+
+  .path{font-size:12px;color:var(--sec);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
+  .right{display:flex;justify-content:flex-end;gap:8px;margin-top:8px;}
+
+  .check{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--sec);cursor:pointer;
+    transition:color .2s ease;white-space:nowrap;}
+  .check:hover{color:var(--text);}
+  .check .box{
+    width:16px;height:16px;border-radius:4px;flex:0 0 auto;position:relative;
+    background:var(--input);border:1px solid #2A3856;transition:all .2s ease;
+  }
+  .check.on{color:var(--text);}
+  .check.on .box{background:linear-gradient(180deg,#4E96FF,#3E8BFF);border-color:#4E96FF;
+    box-shadow:0 2px 8px rgba(62,139,255,.35);}
+  .check.on .box::after{content:"";position:absolute;left:5px;top:2px;width:3px;height:8px;
+    border-right:1.8px solid #fff;border-bottom:1.8px solid #fff;transform:rotate(40deg);}
+
+  .kvrow{display:flex;align-items:center;justify-content:space-between;margin-top:10px;}
+  .kvrow:first-of-type{margin-top:0;}
+  .kvrow .k{font-size:12px;color:var(--muted);}
+  .kvrow .field{width:176px;flex:0 0 auto;}
+
+  /* 下拉浮层 */
+  .menu{
+    position:absolute;z-index:60;min-width:180px;padding:4px;
+    background:#101A2B;border:1px solid #2A3856;border-radius:8px;
+    box-shadow:0 18px 40px rgba(0,0,0,.55);
+    opacity:0;transform:translateY(-6px) scale(.98);pointer-events:none;
+    transition:opacity .18s ease,transform .18s ease;
+  }
+  .menu.open{opacity:1;transform:none;pointer-events:auto;}
+  .menu div{
+    padding:7px 10px;border-radius:5px;font-size:12px;color:var(--sec);cursor:pointer;
+    display:flex;align-items:center;justify-content:space-between;gap:12px;white-space:nowrap;
+  }
+  .menu div:hover{background:rgba(62,139,255,.16);color:#fff;}
+  .menu div s{text-decoration:none;font-size:11px;color:var(--faint);}
+  .menu div.on{color:#CFE0FF;}
+  .menu .sep{height:1px;background:rgba(255,255,255,.07);margin:4px 6px;padding:0;}
+
+  /* ---------- 预览：屏幕边框两层 ---------- */
+  .preview{
+    grid-column:3;position:relative;border-radius:14px;border:1px solid #263149;
+    background:linear-gradient(160deg,#1D2839,#111A28 55%,#0A111C);
+    box-shadow:0 10px 26px rgba(0,0,0,.5);
+  }
+  .preview::before{
+    content:"";position:absolute;inset:0;border-radius:14px;pointer-events:none;
+    border:1px solid rgba(92,115,158,.35);
+    -webkit-mask-image:linear-gradient(150deg,#000,transparent 62%);
+    mask-image:linear-gradient(150deg,#000,transparent 62%);
+  }
+  .inner{
+    position:absolute;inset:4px;border-radius:11px;overflow:hidden;
+    background:#0A101C;border:1px solid #03070D;
+  }
+  .glow{
+    position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(520px 300px at 26% 8%, rgba(62,139,255,.14), transparent 68%);
+  }
+  .vignette{position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(120% 100% at 50% 40%, transparent 55%, rgba(0,0,0,.42) 100%);}
+
+  /* 假桌面 */
+  .desk{position:absolute;inset:0;overflow:hidden;background:linear-gradient(152deg,#14243F,#0B1526 58%,#0A1220);}
+  .desk .wall{position:absolute;inset:0;
+    background:
+      radial-gradient(420px 280px at 18% 14%, rgba(62,139,255,.28), transparent 64%),
+      radial-gradient(400px 320px at 86% 84%, rgba(47,217,114,.12), transparent 64%);}
+  .dicons{position:absolute;left:10px;top:10px;display:grid;grid-template-columns:repeat(5,20px);gap:9px 12px;}
+  .dicons i{width:20px;height:20px;border-radius:5px;background:rgba(255,255,255,.1);
+    border:1px solid rgba(255,255,255,.14);box-shadow:inset 0 1px 0 rgba(255,255,255,.12);}
+  .dicons i:nth-child(1){background:linear-gradient(160deg,rgba(62,139,255,.6),rgba(62,139,255,.22));border-color:rgba(62,139,255,.32);}
+  .dicons i:nth-child(4){background:linear-gradient(160deg,rgba(240,184,64,.4),rgba(240,184,64,.14));border-color:rgba(240,184,64,.26);}
+  .dwin{
+    position:absolute;left:16%;top:15%;width:72%;height:72%;border-radius:6px;overflow:hidden;
+    background:linear-gradient(180deg,#101C31,#0C1526);border:1px solid rgba(255,255,255,.10);
+    box-shadow:0 18px 40px rgba(0,0,0,.45);
+  }
+  .dbar{height:22px;display:flex;align-items:center;gap:5px;padding:0 8px;
+    background:rgba(255,255,255,.05);border-bottom:1px solid rgba(255,255,255,.05);}
+  .dbar i{width:5px;height:5px;border-radius:50%;background:#3C4E70;}
+  .dbar .dtitle{margin-left:6px;font-size:9px;color:#7C8CAA;letter-spacing:.2px;}
+  .dmain{position:absolute;inset:22px 0 0;display:grid;grid-template-columns:96px 1fr;}
+  .dside{border-right:1px solid rgba(255,255,255,.06);padding:8px 9px;display:flex;flex-direction:column;gap:7px;}
+  .dcode{padding:9px 11px;display:flex;flex-direction:column;gap:6px;}
+  .dl{height:5px;border-radius:3px;background:rgba(255,255,255,.09);}
+  .dl.w1{width:52%;background:rgba(62,139,255,.45);}
+  .dl.w2{width:82%;}
+  .dl.w3{width:68%;}
+  .cl{height:5px;border-radius:3px;background:rgba(255,255,255,.085);}
+  .cl.k{background:rgba(62,139,255,.42);}
+  .cl.g{background:rgba(47,217,114,.30);}
+  .cl.y{background:rgba(240,184,64,.26);}
+  .taskbar{position:absolute;left:0;right:0;bottom:0;height:24px;display:flex;align-items:center;gap:9px;padding:0 10px;
+    background:rgba(6,10,18,.66);border-top:1px solid rgba(255,255,255,.07);}
+  .taskbar span{width:12px;height:12px;border-radius:3px;background:rgba(255,255,255,.16);}
+  .taskbar span:first-child{background:rgba(62,139,255,.8);}
+
+  /* 参数胶囊：压在画面上沿正中 */
+  .pill{
+    position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:8;
+    height:30px;display:flex;align-items:center;gap:0;padding:0 13px;border-radius:15px;
+    background:rgba(10,17,28,.72);border:1px solid rgba(255,255,255,.16);
+    box-shadow:0 6px 16px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.06);
+    -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+    font-size:12px;white-space:nowrap;pointer-events:none;max-width:94%;
+  }
+  .pill b{color:#E7EEFA;font-weight:600;}
+  .pill .dot{color:#7A8AA6;margin:0 8px;}
+  .pill .dim{color:#9FB0C9;max-width:190px;overflow:hidden;text-overflow:ellipsis;}
+  .pill .mid{color:#C2D0E6;}
+  .pill .sep{width:1px;height:12px;background:rgba(255,255,255,.22);margin:0 12px;}
+
+  /* 框选 */
+  .marqueeLayer{position:absolute;inset:0;z-index:7;opacity:0;pointer-events:none;transition:opacity .3s ease;}
+  .marqueeLayer.show{opacity:1;}
+  .marquee{position:absolute;border:1.5px dashed rgba(120,180,255,.95);border-radius:4px;
+    background:rgba(62,139,255,.06);
+    box-shadow:0 0 0 9999px rgba(6,10,18,.55), inset 0 0 24px rgba(62,139,255,.28);
+    transition:all .4s cubic-bezier(.3,.9,.3,1);}
+  .marquee .sizeTag{position:absolute;left:0;top:-22px;background:#2A5FC7;color:#fff;
+    font-size:10.5px;padding:2px 7px;border-radius:5px;white-space:nowrap;box-shadow:0 4px 12px rgba(0,0,0,.4);}
+
+  /* 录制 / 暂停 中央状态 */
+  .state{
+    position:absolute;inset:0;z-index:9;display:grid;place-items:center;
+    background:rgba(11,16,27,.55);opacity:0;pointer-events:none;transition:opacity .3s ease;
+  }
+  .state.show{opacity:1;}
+  .state .box{text-align:center;}
+  .state .top{display:flex;align-items:center;justify-content:center;gap:10px;}
+  .state .top i{width:10px;height:10px;border-radius:50%;background:var(--red);
+    box-shadow:0 0 0 5px rgba(245,72,90,.14),0 0 14px rgba(245,72,90,.7);animation:pulse 1.2s infinite;}
+  .state .top b{font-size:20px;font-weight:700;color:#FF8492;letter-spacing:.5px;}
+  .state .stats{margin-top:10px;font-size:12px;color:var(--sec);font-variant-numeric:tabular-nums;}
+  .state.paused .top i{background:var(--accent);box-shadow:0 0 0 5px rgba(62,139,255,.16);animation:none;}
+  .state.paused .top b{color:#8CBAFF;}
+
+  /* 点击特效 */
+  .fxLayer{position:absolute;inset:0;z-index:10;pointer-events:none;}
+  .fx{position:absolute;width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:50%;
+    border:2px solid rgba(120,180,255,.95);animation:fxOut .85s ease-out forwards;}
+  .fx.core{width:5px;height:5px;margin:-2.5px 0 0 -2.5px;background:rgba(160,205,255,.9);border:0;
+    animation:fxCore .5s ease-out forwards;}
+  @keyframes fxOut{0%{transform:scale(.4);opacity:.95;}100%{transform:scale(5.4);opacity:0;}}
+  @keyframes fxCore{0%{opacity:1;}100%{transform:scale(2.6);opacity:0;}}
+
+  /* 结果条 / 错误条：浮在底栏之上，不挤压内容（真实窗口靠 SizeToContent 长高） */
+  .strip{position:absolute;left:12px;right:12px;bottom:84px;z-index:22;border-radius:10px;border:1px solid;
+    display:none;align-items:center;gap:10px;padding:9px 18px;font-size:13px;
+    border-top:1px solid;border-bottom:1px solid;box-shadow:0 -8px 20px rgba(0,0,0,.35);}
+  .strip.show{display:flex;}
+  .strip.ok{background:#0F2620;border-color:#1F4A36;color:#7EE2A0;}
+  .strip.err{background:#26121A;border-color:#5A2333;color:#FF8E9B;}
+  .strip .txt{flex:1 1 auto;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
+  .strip .txt b{color:#fff;font-weight:600;}
+
+  /* ---------- 底栏 ---------- */
+  .footer{
+    height:78px;flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;
+    padding:0 16px 0 20px;border-top:1px solid rgba(255,255,255,.07);
+  }
+  .author{font-size:11px;color:var(--muted);}
+  .author a{color:var(--muted);text-decoration:none;}
+  .fright{display:flex;align-items:center;}
+  .clock{display:flex;align-items:center;margin-right:18px;}
+  .clock i{width:8px;height:8px;border-radius:50%;background:#6C7D9D;opacity:.35;margin-right:9px;
+    transition:all .3s ease;}
+  .clock.on i{background:var(--red);opacity:1;box-shadow:0 0 10px rgba(245,72,90,.8);}
+  .clock b{font-family:var(--mono);font-size:20px;font-weight:700;letter-spacing:.5px;color:#EAF0FA;}
+  .btn-pause{
+    height:38px;padding:0 18px;margin-right:12px;border-radius:8px;display:none;
+    font-size:13px;color:var(--sec);background:rgba(255,255,255,.055);
+    border:1px solid rgba(255,255,255,.10);cursor:pointer;transition:all .2s ease;
+  }
+  .btn-pause.show{display:inline-flex;align-items:center;}
+  .btn-pause:hover{background:rgba(255,255,255,.10);color:#fff;}
+  .recbtn{
+    height:42px;min-width:132px;padding:0 24px;border:0;border-radius:21px;cursor:pointer;
+    display:inline-flex;align-items:center;justify-content:center;gap:9px;
+    font-family:var(--font);font-size:14px;font-weight:650;color:#fff;
+    background:linear-gradient(180deg,#FF5766,#E82B3D);
+    box-shadow:0 10px 26px rgba(245,72,90,.32), inset 0 1px 0 rgba(255,255,255,.26);
+    transition:transform .16s ease,box-shadow .25s ease,background .3s ease;
+  }
+  .recbtn:hover{box-shadow:0 12px 30px rgba(245,72,90,.45), inset 0 1px 0 rgba(255,255,255,.3);}
+  .recbtn:active{transform:translateY(1px);}
+  .recbtn .b{width:8px;height:8px;border-radius:50%;background:#fff;box-shadow:0 0 10px rgba(255,255,255,.8);}
+
+  /* ================= 设置窗口（按真实 880×980 排版，整体缩放 0.72） ================= */
+  .settings{
+    position:absolute;inset:0;z-index:30;display:grid;place-items:center;
+    background:rgba(6,10,18,.62);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);
+    opacity:0;pointer-events:none;transition:opacity .4s ease;
+  }
+  .settings.show{opacity:1;pointer-events:auto;}
+  .swScale{zoom:.76;}
+  .win2{
+    width:880px;height:900px;display:flex;flex-direction:column;overflow:hidden;
+    background:radial-gradient(600px 400px at 15% -10%, #16233C, rgba(11,18,32,0) 65%), var(--win);
+    border-radius:12px;border:1px solid rgba(255,255,255,.08);box-shadow:var(--shadow);
+  }
+  .win2 .head{height:42px;flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;
+    padding:0 8px 0 14px;background:rgba(255,255,255,.03);border-bottom:1px solid rgba(255,255,255,.06);}
+  .head h2{margin:0;font-size:18px;font-weight:400;color:#fff;display:flex;align-items:center;gap:9px;}
+  .head h2 b{font-size:15px;font-weight:700;}
+  .head h2 em{font-style:normal;font-size:13px;color:var(--sec);}
+
+  .swbody{position:relative;flex:1 1 auto;overflow:hidden;}
+  .swbody::after{content:"";position:absolute;left:0;right:0;bottom:0;height:26px;pointer-events:none;
+    background:linear-gradient(180deg,rgba(11,18,32,0),rgba(11,18,32,.85));}
+  .swinner{position:absolute;left:0;right:0;top:0;padding:14px 22px 18px;transition:transform .55s cubic-bezier(.3,.9,.3,1);}
+
+  .scard{
+    background:linear-gradient(160deg,#1B2740,#161F33);
+    border:1px solid #2A3856;border-radius:12px;padding:13px 15px 12px;margin-bottom:11px;
+    transition:box-shadow .35s ease,border-color .35s ease;
+  }
+  .scard.hi{border-color:rgba(62,139,255,.5);box-shadow:0 0 0 3px rgba(62,139,255,.12);}
+  .scard .ttl{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+  .scard .ttl .bar{width:3px;height:14px;border-radius:2px;background:var(--accent);}
+  .scard .ttl b{font-size:15px;font-weight:700;}
+  .scard .ttl s{text-decoration:none;font-size:11px;color:var(--faint);margin-left:2px;}
+
+  .cols{display:grid;grid-template-columns:1fr 14px 1fr;align-items:start;}
+  .fld{font-size:13px;color:var(--muted);white-space:nowrap;}
+  .frow{display:flex;align-items:center;gap:10px;margin-top:10px;}
+  .frow:first-of-type{margin-top:0;}
+  .inp{
+    flex:1 1 auto;height:34px;display:flex;align-items:center;padding:0 10px;font-size:13px;
+    background:var(--input);border:1px solid var(--input-line);border-radius:6px;color:var(--text);
+    overflow:hidden;white-space:nowrap;text-overflow:ellipsis;
+  }
+  .inp.dim{color:var(--faint);}
+  .sel2{width:100%;height:34px;display:flex;align-items:center;justify-content:space-between;gap:8px;
+    padding:0 10px;font-size:13px;background:var(--input);border:1px solid var(--input-line);
+    border-radius:6px;color:var(--text);cursor:pointer;position:relative;}
+  .sel2::after{content:"";width:6px;height:6px;border-right:1.4px solid #7C8CAA;border-bottom:1.4px solid #7C8CAA;
+    transform:rotate(45deg) translateY(-2px);flex:0 0 auto;}
+  .sel2 .val{flex:1 1 auto;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
+  .sel2.narrow{width:200px;}
+  .sel2.xnarrow{width:150px;}
+  .tip{font-size:11px;color:var(--muted);line-height:1.5;}
+  .btn-sm{height:30px;padding:0 16px;display:inline-flex;align-items:center;justify-content:center;
+    font-size:13px;color:var(--sec);background:rgba(255,255,255,.055);
+    border:1px solid rgba(255,255,255,.10);border-radius:6px;cursor:pointer;white-space:nowrap;
+    transition:all .2s ease;}
+  .btn-sm:hover{background:rgba(255,255,255,.1);color:#fff;}
+
+  .ckrow{display:flex;align-items:center;flex-wrap:wrap;gap:16px;}
+  .hkrow{display:flex;align-items:center;gap:10px;margin-top:10px;}
+  .hkrow .fld{width:44px;}
+  .hkbox{width:160px;height:34px;display:flex;align-items:center;justify-content:center;gap:3px;
+    font-family:var(--mono);font-size:12.5px;color:#D8E5FA;
+    background:var(--input);border:1px solid var(--input-line);border-radius:6px;position:relative;}
+  .hkbox.focus{border-color:rgba(62,139,255,.7);box-shadow:0 0 0 3px rgba(62,139,255,.15);}
+  .hkbox .caret{width:1.5px;height:14px;background:#8FB4FF;animation:blink 1s steps(1) infinite;}
+  .hkbox .ph{color:var(--faint);font-family:var(--font);font-size:12px;}
+  .hkrow .tip{flex:1 1 auto;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+  .card-foot{margin-top:14px;padding-top:10px;border-top:1px solid rgba(255,255,255,.06);
+    font-size:11px;color:var(--faint);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+  .exp{display:flex;align-items:center;gap:10px;margin:-2px 0 12px;}
+  .exp .ttl{margin:0;}
+  .exp .caret2{width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;
+    border-top:5px solid #7C8CAA;transition:transform .25s ease;margin-left:2px;}
+  .exp.open .caret2{transform:rotate(180deg);}
+  .exp .sub{font-size:11px;color:var(--faint);}
+
+  .fxprev{
+    width:132px;height:70px;border-radius:8px;position:relative;overflow:hidden;
+    background:radial-gradient(120px 60px at 30% 20%, rgba(62,139,255,.16), transparent 70%), #0B1424;
+    border:1px solid #2A3856;flex:0 0 auto;
+  }
+  .fxprev .halo{position:absolute;left:46%;top:52%;width:10px;height:10px;margin:-5px 0 0 -5px;
+    border-radius:50%;border:1.5px solid rgba(120,180,255,.85);
+    box-shadow:0 0 0 4px rgba(62,139,255,.12);}
+  .slider{width:96px;height:4px;border-radius:2px;background:#22304C;position:relative;flex:0 0 auto;}
+  .slider i{position:absolute;left:0;top:0;bottom:0;border-radius:2px;background:linear-gradient(90deg,#3E8BFF,#6FA8FF);}
+  .slider b{position:absolute;top:50%;width:11px;height:11px;margin-top:-5.5px;margin-left:-5.5px;
+    border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.5);}
+  .swatch{width:22px;height:22px;border-radius:5px;border:1px solid rgba(255,255,255,.25);flex:0 0 auto;}
+
+  .logbox{height:150px;overflow:hidden;background:var(--input);border:1px solid #2A3856;border-radius:6px;
+    padding:6px;font-family:var(--mono);font-size:11px;line-height:1.75;color:#8FA1C0;}
+  .logbox div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:2px 4px;border-radius:3px;}
+  .logbox em{font-style:normal;color:var(--green);}
+  .logbox i{font-style:normal;color:#8FB4FF;}
+  .logbox u{text-decoration:none;color:#FFB4BC;}
+
+  .swfoot{flex:0 0 auto;height:60px;display:flex;align-items:center;justify-content:space-between;
+    padding:0 24px;border-top:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.02);}
+  .swfoot .hint{font-size:11px;color:var(--faint);}
+  .swfoot .acts{display:flex;align-items:center;gap:10px;}
+  .btn-quiet{height:38px;width:108px;display:grid;place-items:center;font-size:13px;color:var(--sec);
+    border-radius:6px;cursor:pointer;transition:all .2s ease;}
+  .btn-quiet:hover{background:rgba(255,255,255,.07);color:#fff;}
+  .btn-soft{height:38px;width:132px;display:grid;place-items:center;font-size:13px;font-weight:700;
+    color:#9CC2FF;background:rgba(62,139,255,.16);border:1px solid rgba(62,139,255,.35);
+    border-radius:6px;cursor:pointer;transition:all .2s ease;}
+  .btn-soft:hover{background:var(--accent);border-color:var(--accent);color:#fff;
+    box-shadow:0 8px 20px rgba(62,139,255,.35);}
+
+  /* ================= 收尾 ================= */
+  .outro{
+    position:absolute;inset:0;z-index:40;display:grid;place-items:center;
+    background:radial-gradient(700px 400px at 50% 42%, rgba(62,139,255,.14), rgba(8,14,26,0) 70%);
+    opacity:0;pointer-events:none;transition:opacity .55s ease;
+  }
+  .outro.show{opacity:1;}
+  .outro .box{text-align:center;}
+  .outro .mark2{width:64px;height:64px;border-radius:20px;margin:0 auto 16px;display:grid;place-items:center;
+    background:linear-gradient(160deg,#5B9BFF,#3E8BFF 55%,#2D6FE0);
+    box-shadow:0 18px 40px rgba(62,139,255,.4), inset 0 1px 0 rgba(255,255,255,.4);}
+  .outro .mark2 svg{width:33px;height:33px;}
+  .outro h2{margin:0 0 8px;font-size:26px;letter-spacing:.5px;}
+  .outro p{margin:0 0 20px;color:var(--muted);font-size:13px;}
+  .outro .pills{display:flex;gap:9px;justify-content:center;flex-wrap:wrap;max-width:760px;}
+  .outro .pills span{font-size:12px;color:#C6D5EC;padding:7px 13px;border-radius:999px;
+    background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.09);}
+
+  /* 光标 */
+  .cursor{position:absolute;left:0;top:0;width:22px;height:22px;z-index:70;opacity:0;pointer-events:none;
+    transition:transform .7s cubic-bezier(.4,.1,.2,1),opacity .3s ease;filter:drop-shadow(0 4px 8px rgba(0,0,0,.55));}
+  .cursor.show{opacity:1;}
+  .cursor .ripple{position:absolute;left:-9px;top:-9px;width:40px;height:40px;border-radius:50%;
+    border:1.5px solid rgba(255,255,255,.85);opacity:0;transform:scale(.3);}
+  .cursor.click .ripple{animation:curRipple .5s ease-out;}
+  @keyframes curRipple{0%{opacity:.9;transform:scale(.3);}100%{opacity:0;transform:scale(1.2);}}
+
+  /* 字幕 */
+  .caption{
+    position:absolute;left:50%;bottom:16px;transform:translateX(-50%);z-index:65;
+    display:flex;align-items:center;gap:11px;max-width:900px;
+    background:rgba(10,16,28,.78);border:1px solid rgba(255,255,255,.09);
+    border-radius:999px;padding:8px 20px 8px 9px;
+    -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+    box-shadow:0 14px 34px rgba(0,0,0,.45);
+  }
+  .caption .num{width:25px;height:25px;border-radius:50%;flex:0 0 auto;display:grid;place-items:center;
+    font-size:11.5px;font-weight:700;color:#8FB4FF;background:rgba(62,139,255,.16);
+    border:1px solid rgba(62,139,255,.3);font-family:var(--mono);}
+  .caption .tx{font-size:13px;color:#D9E4F6;letter-spacing:.2px;white-space:nowrap;}
+  .caption .tx b{color:#fff;font-weight:600;}
+
+  .controls{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:12px;}
+  .controls button{appearance:none;cursor:pointer;font-family:var(--font);font-size:12px;color:var(--sec);
+    background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);
+    border-radius:999px;padding:7px 16px;transition:all .2s ease;}
+  .controls button:hover{color:#fff;background:rgba(255,255,255,.10);}
+  .controls #btnSnd{min-width:96px;}
+  .controls #btnSnd.off{color:#6C7D9D;}
+  .sndhint{font-size:11.5px;color:#8FB4FF;opacity:.9;animation:hintPulse 2.2s ease-in-out infinite;}
+  @keyframes hintPulse{50%{opacity:.42;}}
+  .dots{display:flex;gap:5px;align-items:center;}
+  .dots i{width:6px;height:6px;border-radius:50%;background:#22304C;transition:all .3s ease;}
+  .dots i.on{width:15px;border-radius:3px;background:var(--accent);box-shadow:0 0 10px rgba(62,139,255,.8);}
+
+  @media (max-width:1320px),(max-height:900px){ .hero{transform:scale(.94);} }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="hero">
+    <div class="mark">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="6" width="13" height="12" rx="2.4"/><path d="M16 10.5 21 8v8l-5-2.5"/>
+      </svg>
+    </div>
+    <h1>MicaRec · 轻录屏<span>功能演示 · 按当前界面 1:1 复刻</span></h1>
+  </div>
+
+  <div class="stageWrap" id="stageWrap">
+    <div class="stage" id="stage">
+
+      <!-- ==================== 主窗口 ==================== -->
+      <div class="win" id="win">
+        <div class="titlebar">
+          <div class="tleft">
+            <div class="appIcon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="6" width="13" height="12" rx="2.6"/><path d="M16 10.5 21 8v8l-5-2.5"/>
+              </svg>
+            </div>
+            <span class="appName">MicaRec · 轻录屏</span>
+            <span class="ver">v1.26</span>
+            <div class="gpu" id="gpu"><i></i><span id="gpuText">检测中…</span></div>
+          </div>
+          <div class="winbtns" id="winbtns"><span>⚙</span><span>ⓘ</span><span>—</span><span class="close">✕</span></div>
+        </div>
+
+        <div class="body">
+          <!-- 左栏：一张卡四节 -->
+          <div class="card">
+            <div class="stit">录制范围</div>
+            <div class="chips" id="modes">
+              <div class="chipbtn on" data-mode="full">全屏</div>
+              <div class="chipbtn" data-mode="region">区域选择</div>
+              <div class="chipbtn" data-mode="window">指定窗口</div>
+            </div>
+
+            <div class="row" id="windowRow" style="display:none">
+              <div class="field" id="winSelect" style="flex:1 1 auto">
+                <span class="val" id="winText">久伴 Agent · 功能演示 — Mozilla Firefox</span>
+              </div>
+              <div class="btn-ghost" id="refreshWin" style="width:38px;padding:0">⟳</div>
+            </div>
+
+            <div class="row" id="regionRow" style="display:none">
+              <div class="btn-ghost" id="pickRegion">框选区域</div>
+              <span class="path" id="regionText">1280 × 720 @ (150,120)</span>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="stit">音频来源</div>
+            <div class="chips">
+              <div class="check on" data-ck="sys"><span class="box"></span>系统声音</div>
+              <div class="check" data-ck="mic"><span class="box"></span>麦克风</div>
+              <div class="check" data-ck="cam"><span class="box"></span>摄像头</div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="stit">画质与输出</div>
+            <div class="chips" id="quals">
+              <div class="chipbtn" data-q="high">高质量</div>
+              <div class="chipbtn on" data-q="balanced">均衡</div>
+              <div class="chipbtn" data-q="compact">小体积</div>
+            </div>
+
+            <div class="kvrow">
+              <span class="k">帧率</span>
+              <div class="field" id="fpsField"><span class="val" id="fpsText">30 FPS（演示课件）</span></div>
+            </div>
+            <div class="kvrow">
+              <span class="k">格式</span>
+              <div class="field" id="fmtField"><span class="val" id="fmtText">MP4</span></div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="stit">保存至</div>
+            <div class="field nocaret">
+              <span class="path" id="savePath">C:\Users\Administrator\Videos</span>
+            </div>
+            <div class="right">
+              <div class="btn-ghost sm" id="btnBrowse">修改</div>
+              <div class="btn-ghost sm" id="btnOpenDir">打开目录</div>
+            </div>
+
+            <!-- 下拉浮层（挂在卡片内，绝对定位到对应项下方） -->
+            <div class="menu" id="menuWin">
+              <div data-item>久伴 Agent · 功能演示 — Mozilla Firefox</div>
+              <div data-item>Visual Studio Code</div>
+              <div data-item>微信</div>
+              <div class="sep"></div>
+              <div data-item style="color:#7C8CAA">⟳ 刷新窗口列表</div>
+            </div>
+            <div class="menu" id="menuFps">
+              <div data-item>15 FPS（省空间）</div>
+              <div data-item>24 FPS（电影感）</div>
+              <div data-item class="on">30 FPS（演示课件）</div>
+              <div data-item>60 FPS（高流畅）</div>
+            </div>
+            <div class="menu" id="menuFmt">
+              <div data-item class="on">MP4 <s>兼容性最好</s></div>
+              <div data-item>GIF <s>无声动图</s></div>
+            </div>
+          </div>
+
+          <!-- 右侧预览 -->
+          <div class="preview" id="preview">
+            <div class="inner">
+              <div class="glow"></div>
+              <div class="desk">
+                <div class="wall"></div>
+                <div class="dwin">
+                  <div class="dbar"><i></i><i></i><i></i><span class="dtitle">演示窗口 — 项目文档</span></div>
+                  <div class="dmain">
+                    <div class="dside">
+                      <div class="dl w1"></div><div class="dl w2"></div><div class="dl w3"></div>
+                      <div class="dl w2"></div><div class="dl w3"></div><div class="dl w1"></div>
+                      <div class="dl w3"></div><div class="dl w2"></div>
+                    </div>
+                    <div class="dcode">
+                      <div class="cl k" style="width:46%"></div>
+                      <div class="cl" style="width:78%"></div>
+                      <div class="cl" style="width:64%"></div>
+                      <div class="cl g" style="width:72%"></div>
+                      <div class="cl" style="width:88%"></div>
+                      <div class="cl" style="width:58%"></div>
+                      <div class="cl y" style="width:40%"></div>
+                      <div class="cl" style="width:70%"></div>
+                      <div class="cl" style="width:52%"></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="taskbar"><span></span><span></span><span></span><span></span></div>
+              </div>
+
+              <div class="marqueeLayer" id="marqueeLayer">
+                <div class="marquee" id="marquee" style="left:0;top:0;width:0;height:0">
+                  <span class="sizeTag" id="sizeTag">0 × 0</span>
+                </div>
+              </div>
+
+              <!-- 参数胶囊 -->
+              <div class="pill" id="pill">
+                <b id="pMode">全屏</b>
+                <span class="dot" id="pDot" style="display:none">·</span>
+                <span class="dim" id="pSize" style="display:none"></span>
+                <span class="sep"></span>
+                <span class="mid" id="pQuality">均衡</span><span class="dot">·</span>
+                <span class="mid" id="pFps">30 FPS</span><span class="dot">·</span>
+                <span class="mid" id="pFmt">MP4</span><span class="dot">·</span>
+                <span class="dim" id="pAudio">系统声音</span>
+              </div>
+
+              <div class="state" id="state">
+                <div class="box">
+                  <div class="top"><i></i><b id="stateText">录制中</b></div>
+                  <div class="stats" id="stateStats">30 fps · 6 200 kbps · 12.4 MB</div>
+                </div>
+              </div>
+
+              <div class="fxLayer" id="fxLayer"></div>
+              <div class="vignette"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="strip ok" id="resultBar">
+          <span class="txt" id="resultText"></span>
+          <div class="btn-ghost sm" id="openFolder">打开文件夹</div>
+        </div>
+        <div class="strip err" id="errBar">
+          <span class="txt" id="errText"></span>
+          <div class="btn-ghost sm">复制日志</div>
+        </div>
+
+        <div class="footer">
+          <span class="author">作者：<a>电脑小百科</a></span>
+          <div class="fright">
+            <span class="clock" id="clock"><i></i><b id="clockText">00:00:00</b></span>
+            <button class="btn-pause" id="btnPause">暂停</button>
+            <button class="recbtn" id="btnRec"><span class="b"></span><span id="recText">开始录制</span></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== 设置窗口 ==================== -->
+      <div class="settings" id="settings">
+        <div class="swScale">
+          <div class="win2" id="win2">
+            <div class="head">
+              <h2><b>MicaRec · 轻录屏</b><em>设置</em></h2>
+              <div class="winbtns"><span class="close">✕</span></div>
+            </div>
+
+            <div class="swbody" id="swbody">
+              <div class="swinner" id="swinner">
+
+                <div class="cols">
+                  <!-- 左列 -->
+                  <div>
+                    <div class="scard" id="swSave">
+                      <div class="ttl"><span class="bar"></span><b>保存与输出</b></div>
+                      <div class="frow">
+                        <span class="fld">保存至</span>
+                        <div class="inp" id="swPath">C:\Users\Administrator\Videos</div>
+                      </div>
+                      <div class="frow">
+                        <span class="fld" style="visibility:hidden">保存至</span>
+                        <div style="display:flex;gap:8px">
+                          <div class="btn-sm">修改</div>
+                          <div class="btn-sm">打开目录</div>
+                        </div>
+                      </div>
+                      <div class="frow" id="gifRow">
+                        <span class="fld">GIF 宽度</span>
+                        <div class="sel2 xnarrow"><span class="val">1280</span></div>
+                        <span class="tip">越小体积越省</span>
+                      </div>
+                    </div>
+
+                    <div class="scard" id="swDevice">
+                      <div class="ttl"><span class="bar"></span><b>音频与摄像头设备</b></div>
+                      <div class="frow">
+                        <span class="fld">麦克风</span>
+                        <div class="sel2"><span class="val">麦克风阵列 (Realtek Audio)</span></div>
+                      </div>
+                      <div class="frow">
+                        <span class="fld">摄像头</span>
+                        <div class="sel2"><span class="val">Integrated Camera</span></div>
+                      </div>
+                      <div class="frow">
+                        <span class="fld">位置</span>
+                        <div class="sel2 narrow"><span class="val">右下角</span></div>
+                      </div>
+                    </div>
+
+                    <div class="scard" id="swBehavior">
+                      <div class="ttl"><span class="bar"></span><b>行为</b></div>
+                      <div class="check on" style="margin-bottom:10px"><span class="box"></span>录制时最小化到托盘</div>
+                      <div class="check"><span class="box"></span>关闭窗口时最小化到托盘</div>
+                      <div class="frow" style="margin-top:12px">
+                        <span class="fld">语言</span>
+                        <div class="sel2 narrow"><span class="val">简体中文</span></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div></div>
+
+                  <!-- 右列：全局快捷键 -->
+                  <div>
+                    <div class="scard" id="swHotkey">
+                      <div class="ttl" style="justify-content:space-between">
+                        <span style="display:flex;align-items:center;gap:8px"><span class="bar"></span><b>全局快捷键</b></span>
+                        <div class="btn-sm">恢复默认</div>
+                      </div>
+                      <div class="check on" style="margin-bottom:14px"><span class="box"></span>启用全局快捷键</div>
+                      <div class="hkrow">
+                        <span class="fld">开始</span>
+                        <div class="hkbox" id="hkStart">Ctrl + Alt + 1</div>
+                        <span class="tip">任意界面直接开录</span>
+                      </div>
+                      <div class="hkrow">
+                        <span class="fld">暂停</span>
+                        <div class="hkbox">Ctrl + Alt + 2</div>
+                        <span class="tip">接电话时按一下</span>
+                      </div>
+                      <div class="hkrow">
+                        <span class="fld">停止</span>
+                        <div class="hkbox">Ctrl + Alt + 3</div>
+                        <span class="tip">停止并生成文件</span>
+                      </div>
+                      <div class="tip" style="margin-top:8px">点击输入框后直接按键即可录制组合键，冲突项会自动标红。</div>
+                      <div class="card-foot">配置文件：%AppData%\ScreenRecorder\settings.json</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 高级设置 + 系统日志 -->
+                <div class="scard" id="swAdvanced">
+                  <div class="exp open" id="advHead">
+                    <span class="caret2"></span>
+                    <span class="ttl"><b>高级设置</b></span>
+                    <span class="sub">硬件加速 · 鼠标指针 · 视频编码 · 输出文件</span>
+                  </div>
+
+                  <div class="frow">
+                    <span class="fld">鼠标</span>
+                    <div class="ckrow">
+                      <div class="check on"><span class="box"></span>显示光标</div>
+                      <div class="check" id="ckFx"><span class="box"></span>点击特效</div>
+                      <div class="check on"><span class="box"></span>自动放大</div>
+                      <span class="tip">播放器窗口里才生效</span>
+                    </div>
+                  </div>
+
+                  <!-- 点击特效细节：开开关才出现 -->
+                  <div class="frow" id="fxDetail" style="display:none">
+                    <span class="fld">特效</span>
+                    <div class="sel2 xnarrow"><span class="val">双圈扩散</span></div>
+                    <span class="fld">左键</span><div class="swatch" style="background:#3E8BFF"></div>
+                    <span class="fld">右键</span><div class="swatch" style="background:#F0B840"></div>
+                    <span class="fld">光圈</span>
+                    <div class="slider"><i style="width:64%"></i><b style="left:64%"></b></div>
+                    <span class="tip">120%</span>
+                    <span class="fld">深浅</span>
+                    <div class="slider"><i style="width:70%"></i><b style="left:70%"></b></div>
+                    <span class="tip">70%</span>
+                    <div class="fxprev" id="fxPrev"><span class="halo"></span></div>
+                  </div>
+
+                  <div class="frow" id="encRow">
+                    <span class="fld">编码器</span>
+                    <div class="sel2" id="encSel"><span class="val" id="encVal">自动（Intel QSV 可用）</span></div>
+                    <span class="tip" id="encStatus" style="display:none;color:#8FB4FF">检测中…</span>
+                    <div class="btn-sm" id="btnDetect" style="margin-left:auto">重新检测</div>
+                  </div>
+
+                  <div class="frow">
+                    <span class="fld">视频格式</span>
+                    <div class="sel2" style="max-width:320px"><span class="val">H.265 / HEVC <span style="color:#5A6A87">体积更小</span></span></div>
+                  </div>
+
+                  <div class="frow">
+                    <span class="fld">文件拆分</span>
+                    <div class="sel2" style="max-width:220px"><span class="val">不拆分</span></div>
+                    <span class="tip">超过设定体积自动续接新文件</span>
+                  </div>
+
+                  <div class="frow">
+                    <span class="fld">文件名前缀</span>
+                    <div class="inp" style="max-width:220px">录制</div>
+                    <span class="tip">成片名形如 录制_20261128_101736.mp4</span>
+                  </div>
+
+                  <div class="frow" id="savedRegionRow">
+                    <span class="fld">常用区域</span>
+                    <div class="sel2" id="savedRegionSel" style="max-width:220px"><span class="val" id="savedRegionVal">16:9 · 1920×1080</span></div>
+                    <div class="btn-sm" id="btnSaveRegion">存为常用</div>
+                    <div class="btn-sm" style="width:38px;padding:0">✕</div>
+                    <span class="tip">框选后存一次，之后下拉一键套用</span>
+                  </div>
+
+                  <div class="menu" id="menuRegion" style="min-width:200px">
+                    <div data-item>16:9 · 1920×1080</div>
+                    <div data-item>2024×1138 @ (99,164)</div>
+                    <div data-item>窗口区域 · 1280×720</div>
+                  </div>
+
+                  <div style="height:1px;margin:14px 0 14px;background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.09),rgba(255,255,255,0))"></div>
+
+                  <div class="exp" id="logHead">
+                    <span class="caret2"></span>
+                    <span class="ttl"><b>系统日志</b></span>
+                  </div>
+                  <div id="logBody" style="display:none">
+                    <div class="tip" style="margin-bottom:10px">出问题时复制或导出日志发给作者，比描述现象快得多。</div>
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+                      <span class="tip">共 4 条 · 无错误</span>
+                      <div style="display:flex;gap:8px">
+                        <div class="btn-sm">复制</div>
+                        <div class="btn-sm">导出</div>
+                        <div class="btn-sm">打开目录</div>
+                        <div class="btn-sm">清空</div>
+                      </div>
+                    </div>
+                    <div class="logbox">
+                      <div>10:17:50 [INF] 显卡：<em>Intel(R) Iris(R) Plus Graphics</em></div>
+                      <div>10:17:51 [INF] 编码器探测：<i>QSV/H.264=可用 · QSV/HEVC=可用 · NVENC=不可用</i></div>
+                      <div>10:17:51 [INF] 结论：自动选择 <em>Intel QSV · HEVC</em></div>
+                      <div>10:18:02 [INF] 录制已启动：QSV · HEVC · 1920×1080@30 · cq 23</div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <div class="swfoot">
+              <span class="hint">改动即时生效 · Esc 返回主界面</span>
+              <div class="acts">
+                <div class="btn-quiet" id="btnBack">返回</div>
+                <div class="btn-soft" id="btnDone">保存设置</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== 收尾 ==================== -->
+      <div class="outro" id="outro">
+        <div class="box">
+          <div class="mark2">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="6" width="13" height="12" rx="2.4"/><path d="M16 10.5 21 8v8l-5-2.5"/>
+            </svg>
+          </div>
+          <h2>MicaRec · 轻录屏</h2>
+          <p>免费、无水印、装完就能录 —— 硬件加速自动适配，录不出片之前先告诉你原因</p>
+          <div class="pills">
+            <span>全屏 / 区域 / 指定窗口</span>
+            <span>系统声音 + 麦克风 + 摄像头</span>
+            <span>点击特效可调颜色与光圈</span>
+            <span>常用区域一键复用</span>
+            <span>全局热键 1 / 2 / 3</span>
+            <span>日志可复制可导出</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="cursor" id="cursor">
+        <svg viewBox="0 0 24 24" width="22" height="22">
+          <path d="M5 3l14 8.2-6.1 1.3L9.7 19 5 3z" fill="#fff" stroke="#0A101C" stroke-width="1.2" stroke-linejoin="round"/>
+        </svg>
+        <span class="ripple"></span>
+      </div>
+
+      <div class="caption" id="caption">
+        <span class="num" id="capNum">01</span>
+        <span class="tx" id="capTx"></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button id="btnReplay">重新播放</button>
+    <button id="btnSnd">🔊 音效 开</button>
+    <span class="sndhint" id="sndHint">点一下页面开启音效</span>
+    <div class="dots" id="dots"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const $ = (id) => document.getElementById(id);
+  const stage = $('stage');
+
+  /* ================= 音效引擎（WebAudio 合成，无外部音频文件） ================= */
+  const SND = (function(){
+    let ctx = null, on = true, unlocked = false;
+
+    function ac(){
+      if (!ctx){
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) return null;
+        try { ctx = new AC(); } catch(e){ return null; }
+      }
+      if (ctx.state === 'suspended') ctx.resume();
+      return ctx;
+    }
+
+    function beep(freq, dur, opt){
+      opt = opt || {};
+      if (!on || !unlocked) return;
+      const c = ac(); if (!c) return;
+      const t0 = c.currentTime + (opt.delay || 0);
+      const o = c.createOscillator(), g = c.createGain();
+      o.type = opt.type || 'sine';
+      o.frequency.setValueAtTime(freq, t0);
+      if (opt.to) o.frequency.exponentialRampToValueAtTime(Math.max(40, opt.to), t0 + dur);
+      const peak = opt.gain == null ? .09 : opt.gain;
+      g.gain.setValueAtTime(.0001, t0);
+      g.gain.exponentialRampToValueAtTime(peak, t0 + (opt.attack || .008));
+      g.gain.exponentialRampToValueAtTime(.0001, t0 + dur);
+      o.connect(g); g.connect(c.destination);
+      o.start(t0); o.stop(t0 + dur + .03);
+    }
+
+    function noise(dur, opt){
+      opt = opt || {};
+      if (!on || !unlocked) return;
+      const c = ac(); if (!c) return;
+      const t0 = c.currentTime + (opt.delay || 0);
+      const len = Math.max(1, Math.floor(c.sampleRate * dur));
+      const buf = c.createBuffer(1, len, c.sampleRate);
+      const ch = buf.getChannelData(0);
+      for (let i = 0; i < len; i++) ch[i] = (Math.random() * 2 - 1) * (1 - i / len);
+      const src = c.createBufferSource(); src.buffer = buf;
+      const bp = c.createBiquadFilter();
+      bp.type = opt.filter || 'bandpass';
+      bp.Q.value = opt.q || 1.2;
+      bp.frequency.setValueAtTime(opt.from || 600, t0);
+      if (opt.to) bp.frequency.exponentialRampToValueAtTime(opt.to, t0 + dur);
+      const g = c.createGain();
+      g.gain.setValueAtTime(opt.gain == null ? .05 : opt.gain, t0);
+      g.gain.exponentialRampToValueAtTime(.0001, t0 + dur);
+      src.connect(bp); bp.connect(g); g.connect(c.destination);
+      src.start(t0); src.stop(t0 + dur + .02);
+    }
+
+    return {
+      get on(){ return on; },
+      toggle(){
+        on = !on;
+        if (on){ unlocked = true; beep(880, .09, { gain:.07, to:1180 }); }
+        return on;
+      },
+      unlock(){ unlocked = true; ac(); if (on) beep(1040, .07, { gain:.05 }); },
+      click(){ beep(1500, .045, { type:'triangle', gain:.05, to:1050 }); },
+      pop(){ beep(520, .08, { gain:.065, to:760 }); },
+      pick(){ beep(900, .07, { gain:.07, to:1240 }); },
+      toggleCk(){ beep(620, .055, { type:'triangle', gain:.06, to:880 }); },
+      start(){
+        beep(520, .12, { gain:.1 });
+        beep(780, .14, { gain:.1, delay:.11 });
+        beep(130, .18, { type:'sine', gain:.1, delay:.02 });
+      },
+      pause(){ beep(720, .13, { gain:.09, to:400 }); },
+      resume(){ beep(430, .13, { gain:.09, to:720 }); },
+      stop(){
+        beep(700, .1, { type:'triangle', gain:.08 });
+        beep(540, .1, { type:'triangle', gain:.08, delay:.09 });
+        beep(400, .16, { type:'triangle', gain:.075, delay:.18 });
+      },
+      save(){
+        beep(660, .1, { gain:.075 });
+        beep(880, .1, { gain:.075, delay:.09 });
+        beep(1320, .16, { gain:.07, delay:.18 });
+      },
+      detect(){
+        noise(.5, { from:420, to:2400, gain:.045, q:2 });
+        [0, .14, .28].forEach((d, i) => beep(700 + i * 160, .05, { gain:.04, delay:d }));
+      },
+      confirm(){ beep(980, .09, { gain:.07, to:1300 }); beep(1300, .08, { gain:.05, delay:.08 }); },
+      swoosh(){
+        noise(.36, { from:300, to:2200, gain:.05, filter:'lowpass', q:.8 });
+      },
+      key(){ beep(1250, .035, { type:'triangle', gain:.05 }); },
+      ping(){ beep(1650, .09, { gain:.06, to:900 }); },
+      drag(){ beep(420, .05, { type:'sine', gain:.035, to:520 }); },
+      outro(){
+        [523.25, 659.25, 783.99, 1046.5].forEach((f, i) =>
+          beep(f, 1.1, { gain:.045, delay:i * .07, attack:.05 }));
+      }
+    };
+  })();
+
+  window.addEventListener('pointerdown', function once(){
+    SND.unlock();
+    const h = $('sndHint'); if (h) h.style.display = 'none';
+  });
+  window.addEventListener('keydown', function(){
+    SND.unlock();
+    const h = $('sndHint'); if (h) h.style.display = 'none';
+  });
+
+  /* ---------------- 状态 ---------------- */
+  const S = {
+    mode:'full', quality:'balanced', fps:'30', fmt:'MP4',
+    sys:true, mic:false, cam:false,
+    rec:'idle', sec:0,
+    save:'C:\\Users\\Administrator\\Videos',
+    win:'久伴 Agent · 功能演示 — Mozilla Firefox',
+    region:'1280 × 720 @ (150,120)'
+  };
+
+  const QNAME = { high:'高质量', balanced:'均衡', compact:'小体积' };
+  const MODE = { full:'全屏', region:'区域', window:'窗口' };
+
+  function audioText(){
+    const a = [];
+    if (S.sys) a.push('系统声音');
+    if (S.mic) a.push('麦克风');
+    if (S.cam) a.push('摄像头');
+    return a.length ? a.join(' + ') : '无声';
+  }
+
+  function render(){
+    document.querySelectorAll('#modes .chipbtn').forEach(b => b.classList.toggle('on', b.dataset.mode === S.mode));
+    document.querySelectorAll('#quals .chipbtn').forEach(b => b.classList.toggle('on', b.dataset.q === S.quality));
+    document.querySelectorAll('.check[data-ck]').forEach(b => {
+      const k = b.dataset.ck;
+      b.classList.toggle('on', !!S[k]);
+    });
+    $('windowRow').style.display = S.mode === 'window' ? 'flex' : 'none';
+    $('regionRow').style.display = S.mode === 'region' ? 'flex' : 'none';
+    $('fpsText').textContent = S.fps + ' FPS' + (S.fps === '30' ? '（演示课件）' : S.fps === '60' ? '（高流畅）' : '');
+    $('fmtText').textContent = S.fmt;
+    $('savePath').textContent = S.save;
+    $('swPath').textContent = S.save;
+    $('regionText').textContent = S.region;
+
+    // 参数胶囊
+    $('pMode').textContent = MODE[S.mode];
+    const size = $('pSize'), dot = $('pDot');
+    if (S.mode === 'region'){ size.textContent = S.region; size.style.display=''; dot.style.display=''; }
+    else if (S.mode === 'window'){ size.textContent = S.win; size.style.display=''; dot.style.display=''; }
+    else { size.style.display='none'; dot.style.display='none'; }
+    $('pQuality').textContent = QNAME[S.quality];
+    $('pFps').textContent = S.fps + ' FPS';
+    $('pFmt').textContent = S.fmt;
+    $('pAudio').textContent = audioText();
+
+    // GIF 专有行
+    $('gifRow').style.display = S.fmt === 'GIF' ? 'flex' : 'none';
+  }
+
+  /* ---------------- 时序 ---------------- */
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  let runId = 0, paused = false;
+
+  async function wait(ms){
+    const id = runId;
+    let left = ms;
+    while (left > 0){
+      await sleep(40);
+      if (id !== runId) throw 'cancel';
+      if (!paused) left -= 40;
+    }
+  }
+
+  function cap(n, html){ $('capNum').textContent = n; $('capTx').innerHTML = html; }
+
+  const STEPS = 16;
+  for (let i = 0; i < STEPS; i++) $('dots').appendChild(document.createElement('i'));
+  function dotStep(i){
+    Array.from($('dots').children).forEach((d, k) => d.classList.toggle('on', k === i));
+  }
+
+  /* ---------------- 光标 ---------------- */
+  function stageRect(){ return stage.getBoundingClientRect(); }
+  function centerOf(el){
+    const r = el.getBoundingClientRect(), s = stageRect();
+    return { x: r.left - s.left + r.width / 2, y: r.top - s.top + r.height / 2, r };
+  }
+  async function moveCursor(x, y, ms){
+    const c = $('cursor');
+    c.classList.add('show');
+    c.style.transitionDuration = (ms || 620) + 'ms';
+    c.style.transform = 'translate(' + x + 'px,' + y + 'px)';
+    await wait((ms || 620) + 80);
+  }
+  async function clickAt(){
+    SND.click();
+    const c = $('cursor');
+    c.classList.remove('click'); void c.offsetWidth; c.classList.add('click');
+    await wait(320);
+  }
+  async function tap(el, dx, dy){
+    const p = centerOf(el);
+    await moveCursor(p.x + (dx || 0), p.y + (dy || 0), 560);
+    await clickAt();
+    await wait(140);
+  }
+  function hideCursor(){ $('cursor').classList.remove('show'); }
+
+  /* ---------------- 下拉 ---------------- */
+  function openMenu(menuId, anchor){
+    const menu = $(menuId);
+    const r = anchor.getBoundingClientRect(), s = stageRect();
+    menu.style.left = (r.left - s.left) + 'px';
+    menu.style.top = (r.bottom - s.top + 6) + 'px';
+    menu.style.width = Math.max(r.width, 180) + 'px';
+    // 若空间不够就向上翻
+    const stageH = s.height;
+    if (r.bottom - s.top + 6 + menu.offsetHeight > stageH - 60){
+      menu.style.top = (r.top - s.top - menu.offsetHeight - 6) + 'px';
+    }
+    menu.classList.add('open');
+  }
+  function closeMenus(){
+    document.querySelectorAll('.menu').forEach(m => m.classList.remove('open'));
+  }
+
+  /* ---------------- 计时 ---------------- */
+  let timer = null;
+  function startClock(){
+    stopClock();
+    S.sec = 0; paintClock();
+    timer = setInterval(() => { S.sec++; paintClock(); }, 1000);
+  }
+  function paintClock(){
+    const h = String(Math.floor(S.sec / 3600)).padStart(2,'0');
+    const m = String(Math.floor(S.sec / 60) % 60).padStart(2,'0');
+    const s = String(S.sec % 60).padStart(2,'0');
+    $('clockText').textContent = h + ':' + m + ':' + s;
+    $('stateStats').textContent = S.fps + ' fps · ' + (6100 + (S.sec % 4) * 130) + ' kbps · ' +
+      (11.6 + S.sec * .42).toFixed(1) + ' MB';
+  }
+  function stopClock(){ if (timer){ clearInterval(timer); timer = null; } }
+
+  /* ---------------- 点击特效 ---------------- */
+  function fxAt(el, x, y){
+    const f = document.createElement('div');
+    f.className = 'fx';
+    f.style.left = x + 'px'; f.style.top = y + 'px';
+    const core = document.createElement('div');
+    core.className = 'fx core';
+    core.style.left = x + 'px'; core.style.top = y + 'px';
+    el.appendChild(f); el.appendChild(core);
+    setTimeout(() => { f.remove(); core.remove(); }, 900);
+  }
+
+  /* ---------------- 复位 ---------------- */
+  function reset(){
+    runId++;
+    stopClock(); paused = false;
+    Object.assign(S, {
+      mode:'full', quality:'balanced', fps:'30', fmt:'MP4',
+      sys:true, mic:false, cam:false, rec:'idle', sec:0,
+      save:'C:\\Users\\Administrator\\Videos',
+      win:'久伴 Agent · 功能演示 — Mozilla Firefox',
+      region:'1280 × 720 @ (150,120)'
+    });
+    render();
+
+    $('gpu').className = 'gpu busy';
+    $('gpuText').textContent = '检测中…';
+    $('clock').classList.remove('on');
+    $('clockText').textContent = '00:00:00';
+    $('btnPause').classList.remove('show');
+    $('btnPause').textContent = '暂停';
+    $('recText').textContent = '开始录制';
+    $('state').className = 'state';
+    $('marqueeLayer').classList.remove('show');
+    $('marquee').style.width = '0px'; $('marquee').style.height = '0px';
+    $('resultBar').classList.remove('show');
+    $('errBar').classList.remove('show');
+    $('settings').classList.remove('show');
+    $('outro').classList.remove('show');
+    $('win').classList.remove('dimmed');
+    $('swinner').style.transform = 'translateY(0)';
+    $('logBody').style.display = 'none';
+    $('logHead').classList.remove('open');
+    $('fxDetail').style.display = 'none';
+    $('ckFx').classList.remove('on');
+    $('encStatus').style.display = 'none';
+    $('encVal').textContent = '自动（Intel QSV 可用）';
+    $('hkStart').innerHTML = 'Ctrl + Alt + 1';
+    $('hkStart').classList.remove('focus');
+    document.querySelectorAll('.scard').forEach(c => c.classList.remove('hi'));
+    $('fxLayer').innerHTML = '';
+    closeMenus();
+    hideCursor();
+    dotStep(0);
+  }
+
+  /* ---------------- 滚动设置内容 ---------------- */
+  function scrollToEl(el, pad){
+    const inner = $('swinner');
+    const target = Math.max(0, el.offsetTop - (pad || 16));
+    inner.style.transform = 'translateY(' + (-target) + 'px)';
+  }
+  function scrollBottom(){
+    const inner = $('swinner'), body = $('swbody');
+    const d = Math.max(0, inner.scrollHeight - body.clientHeight);
+    inner.style.transform = 'translateY(' + (-d) + 'px)';
+  }
+
+  /* ---------------- 主时间线 ---------------- */
+  async function play(){
+    reset();
+    const id = runId;
+    const guard = () => { if (id !== runId) throw 'cancel'; };
+
+    try{
+      /* 01 启动探测 */
+      cap('01', '启动先做一件事：<b>探测这台机器能走哪一路硬件编码</b>，结果直接写在顶栏胶囊里');
+      dotStep(0);
+      await wait(800); guard();
+      $('gpu').className = 'gpu ok';
+      $('gpuText').textContent = 'QSV 可用';
+      SND.confirm();
+      await wait(900); guard();
+
+      /* 02 指定窗口 */
+      cap('02', '三种范围：全屏 / 区域框选 / <b>指定窗口</b> —— 长标题自动省略，不会顶到下拉箭头');
+      dotStep(1);
+      await tap(document.querySelector('[data-mode="window"]'));
+      S.mode = 'window'; render();
+      await wait(420); guard();
+      await tap($('winSelect'));
+      openMenu('menuWin', $('winSelect'));
+      SND.pop();
+      await wait(700); guard();
+      await tap($('menuWin').querySelectorAll('[data-item]')[0]);
+      closeMenus();
+      S.win = '久伴 Agent · 功能演示 — Mozilla Firefox';
+      $('winText').textContent = S.win;
+      render();
+      SND.pick();
+      await wait(760); guard();
+
+      /* 03 区域框选 */
+      cap('03', '区域：拖一下就好，<b>尺寸实时跟着鼠标走</b>，松手立刻生效');
+      dotStep(2);
+      await tap(document.querySelector('[data-mode="region"]'));
+      S.mode = 'region'; render();
+      await wait(420); guard();
+      await tap($('pickRegion'));
+
+      const pr = $('preview').getBoundingClientRect(), s = stageRect();
+      const px = pr.left - s.left, py = pr.top - s.top;
+      const W = pr.width - 8, H = pr.height - 8;
+      const x0 = Math.round(W * .16), y0 = Math.round(H * .2);
+      const x1 = Math.round(W * .84), y1 = Math.round(H * .68);
+      SND.drag();
+      $('marqueeLayer').classList.add('show');
+      $('marquee').style.left = (x0 + 4) + 'px';
+      $('marquee').style.top = (y0 + 4) + 'px';
+      $('marquee').style.width = '1px';
+      $('marquee').style.height = '1px';
+      await moveCursor(px + x0 + 4, py + y0 + 4, 560);
+      await wait(100); guard();
+      for (const k of [.35, .7, 1]){
+        const cw = Math.round((x1 - x0) * k), ch = Math.round((y1 - y0) * k);
+        $('marquee').style.width = cw + 'px';
+        $('marquee').style.height = ch + 'px';
+        $('sizeTag').textContent = Math.round(cw * (1920 / (x1 - x0))) + ' × ' + Math.round(ch * (1080 / (y1 - y0)));
+        $('cursor').style.transform = 'translate(' + (px + x0 + cw) + 'px,' + (py + y0 + ch) + 'px)';
+        await wait(280); guard();
+      }
+      $('sizeTag').textContent = '1920 × 1080 @ (150,120)';
+      S.region = '1920 × 1080 @ (150,120)';
+      render();
+      SND.confirm();
+      await wait(700); guard();
+      $('marqueeLayer').classList.remove('show');
+
+      /* 04 音频 */
+      cap('04', '声音三路分开控制：<b>系统声音 + 麦克风</b>同时录，参数条上立刻能看到');
+      dotStep(3);
+      await tap(document.querySelector('.check[data-ck="mic"]'));
+      S.mic = true; render();
+      SND.toggleCk();
+      await wait(700); guard();
+
+      /* 05 画质 / 帧率 / 格式 */
+      cap('05', '画质档位 + 帧率 + 格式：换 GIF 时参数条同步，<b>GIF 专用宽度</b>才出现在设置里');
+      dotStep(4);
+      await tap(document.querySelector('[data-q="high"]'));
+      S.quality = 'high'; render();
+      SND.toggleCk();
+      await wait(420); guard();
+      await tap($('fpsField'));
+      openMenu('menuFps', $('fpsField'));
+      SND.pop();
+      await wait(520); guard();
+      await tap($('menuFps').querySelectorAll('[data-item]')[3]);
+      closeMenus();
+      S.fps = '60'; render();
+      SND.pick();
+      await wait(420); guard();
+      await tap($('fmtField'));
+      openMenu('menuFmt', $('fmtField'));
+      await wait(520); guard();
+      await tap($('menuFmt').querySelectorAll('[data-item]')[1]);
+      closeMenus();
+      S.fmt = 'GIF'; render();
+      SND.pick();
+      await wait(760); guard();
+
+      /* 06 保存位置 */
+      cap('06', '保存位置就在手边：路径一行看清，<b>修改 / 打开目录</b>一步到位');
+      dotStep(5);
+      await tap($('btnBrowse'));
+      S.save = 'D:\\录屏\\2026-11';
+      render();
+      SND.confirm();
+      $('savePath').parentElement.classList.add('flash');
+      await wait(900); guard();
+      $('savePath').parentElement.classList.remove('flash');
+      await wait(200); guard();
+
+      /* 07 开始录制 */
+      cap('07', '开始录制：<b>计时起跑</b>、主按钮换成暂停、画面正中给出实时码率与体积');
+      dotStep(6);
+      await tap($('btnRec'));
+      S.rec = 'rec';
+      SND.start();
+      $('btnPause').classList.add('show');
+      $('recText').textContent = '停止录制';
+      $('state').classList.add('show');
+      $('state').classList.remove('paused');
+      $('stateText').textContent = '录制中';
+      $('clock').classList.add('on');
+      $('gpu').className = 'gpu rec';
+      $('gpuText').textContent = '录制中';
+      startClock();
+      hideCursor();
+      await wait(1800); guard();
+
+      /* 08 点击特效 */
+      cap('08', '可选<b>鼠标点击特效</b>：讲课、演示时观众一眼看清你点在了哪');
+      dotStep(7);
+      const fx = $('fxLayer');
+      SND.ping();
+      fxAt(fx, Math.round(W * .38), Math.round(H * .40));
+      await wait(700); guard();
+      SND.ping();
+      fxAt(fx, Math.round(W * .62), Math.round(H * .58));
+      await wait(800); guard();
+
+      /* 09 暂停 */
+      cap('09', '<b>Ctrl + Alt + 2</b> 随时暂停，接电话、切窗口都不影响成片');
+      dotStep(8);
+      await tap($('btnPause'));
+      S.rec = 'paused';
+      SND.pause();
+      $('state').classList.add('paused');
+      $('stateText').textContent = '已暂停';
+      $('btnPause').textContent = '继续';
+      $('clock').classList.remove('on');
+      $('gpu').className = 'gpu';
+      $('gpuText').textContent = '已暂停';
+      stopClock();
+      await wait(1400); guard();
+
+      await tap($('btnPause'));
+      S.rec = 'rec';
+      $('state').classList.remove('paused');
+      $('stateText').textContent = '录制中';
+      $('btnPause').textContent = '暂停';
+      $('clock').classList.add('on');
+      $('gpu').className = 'gpu rec';
+      $('gpuText').textContent = '录制中';
+      timer = setInterval(() => { S.sec++; paintClock(); }, 1000);
+      SND.resume();
+      await wait(1200); guard();
+
+      /* 10 停止 + 结果 */
+      cap('10', '停止后立刻封装成片：<b>文件名、体积、时长</b>一条说清，点一下就打开目录');
+      dotStep(9);
+      await tap($('btnRec'));
+      S.rec = 'idle';
+      stopClock();
+      $('clockText').textContent = '00:00:00';
+      $('state').classList.remove('show');
+      $('btnPause').classList.remove('show');
+      $('btnPause').textContent = '暂停';
+      $('recText').textContent = '开始录制';
+      $('clock').classList.remove('on');
+      $('gpu').className = 'gpu ok';
+      $('gpuText').textContent = 'QSV 可用';
+      $('resultText').innerHTML = '已保存 <b>录制_20261128_101736.gif</b> · 6.8 MB · 时长 00:00:09';
+      $('resultBar').classList.add('show');
+      SND.stop();
+      setTimeout(() => SND.save(), 340);
+      hideCursor();
+      await wait(1700); guard();
+
+      /* 11 设置页：只放低频项 */
+      cap('11', '设置页只管低频项：<b>保存与输出 / 设备 / 行为 / 快捷键</b>，主界面有的不再重复');
+      dotStep(10);
+      $('resultBar').classList.remove('show');
+      $('settings').classList.add('show');
+      SND.swoosh();
+      await wait(700); guard();
+      for (const cid of ['swSave', 'swDevice', 'swBehavior', 'swHotkey']){
+        $(cid).classList.add('hi');
+        await wait(420); guard();
+        $(cid).classList.remove('hi');
+      }
+      await wait(200); guard();
+
+      /* 12 快捷键键入 */
+      cap('12', '全局快捷键：点一下输入框，<b>直接按键就能录入组合键</b>');
+      dotStep(11);
+      await tap($('hkStart'));
+      $('hkStart').classList.add('focus');
+      $('hkStart').innerHTML = '<span class="ph">按下快捷键…</span><span class="caret"></span>';
+      await wait(600); guard();
+      const combo = ['Ctrl', 'Ctrl + Alt', 'Ctrl + Alt + 1'];
+      for (let i = 0; i < combo.length; i++){
+        $('hkStart').innerHTML = combo[i] + '<span class="caret"></span>';
+        $('hkStart').classList.add('focus');
+        SND.key();
+        await wait(420); guard();
+      }
+      $('hkStart').innerHTML = 'Ctrl + Alt + 1';
+      await wait(600); guard();
+      $('hkStart').classList.remove('focus');
+
+      /* 13 点击特效设置 + 实时预览 */
+      cap('13', '点击特效可自定义：<b>样式、左右键颜色、光圈大小与深浅</b>，右侧即时预览');
+      dotStep(12);
+      $('swAdvanced').classList.add('hi');
+      await wait(700); guard();
+      await tap($('ckFx'));
+      $('ckFx').classList.add('on');
+      SND.toggleCk();
+      $('fxDetail').style.display = 'flex';
+      $('swAdvanced').classList.remove('hi');
+      await wait(700); guard();
+      const r = $('fxPrev').getBoundingClientRect();
+      const s2 = stageRect();
+      await moveCursor(r.left - s2.left + r.width * .45, r.top - s2.top + r.height * .5, 520);
+      await clickAt();
+      SND.ping();
+      fxAt($('fxPrev'), r.width * .45, r.height * .5);
+      await wait(800); guard();
+      fxAt($('fxPrev'), r.width * .68, r.height * .36);
+      await wait(700); guard();
+
+      /* 14 重新检测编码器 */
+      cap('14', '换机器？点<b>重新检测</b>重跑一遍，各选项后面会直接标出可用 / 不可用');
+      dotStep(13);
+      await tap($('btnDetect'));
+      SND.detect();
+      $('encStatus').style.display = '';
+      $('encStatus').textContent = '检测中…';
+      $('encVal').textContent = '检测中…';
+      await wait(1100); guard();
+      $('encVal').textContent = '自动（Intel QSV 可用）';
+      $('encStatus').textContent = 'QSV 可用';
+      await wait(700); guard();
+      $('encStatus').style.display = 'none';
+      await wait(200); guard();
+
+      /* 15 常用区域 + 日志 */
+      cap('15', '常用区域一键套用；日志可<b>复制 / 导出</b>，出问题不用靠嘴描述');
+      dotStep(14);
+      await tap($('savedRegionSel'));
+      openMenu('menuRegion', $('savedRegionSel'));
+      await wait(600); guard();
+      await tap($('menuRegion').querySelectorAll('[data-item]')[0]);
+      closeMenus();
+      $('savedRegionVal').textContent = '16:9 · 1920×1080';
+      SND.pick();
+      S.region = '1920 × 1080 @ (150,120)';
+      render();
+      await wait(600); guard();
+      await tap($('logHead'));
+      $('logBody').style.display = 'block';
+      SND.pop();
+      $('logHead').classList.add('open');
+      await wait(320); guard();
+      scrollBottom();
+      await wait(1200); guard();
+
+      /* 16 返回 → 收尾 */
+      cap('16', '整理完毕：<b>一个窗口搞定日常录制</b>，要调细节再进设置');
+      dotStep(15);
+      await tap($('btnBack'));
+      $('settings').classList.remove('show');
+      await wait(600); guard();
+      hideCursor();
+      $('win').classList.add('dimmed');
+      $('outro').classList.add('show');
+      SND.outro();
+      await wait(3800); guard();
+      $('outro').classList.remove('show');
+      $('win').classList.remove('dimmed');
+      await wait(500); guard();
+      play();
+
+    }catch(e){
+      if (e !== 'cancel') console.error(e);
+    }
+  }
+
+  /* ---------------- 舞台自适应 ---------------- */
+  function fit(){
+    const sx = (window.innerWidth - 40) / 1280;
+    const sy = (window.innerHeight - 130) / 800;
+    const k = Math.min(1, Math.max(.42, Math.min(sx, sy)));
+    $('stageWrap').style.transform = 'scale(' + k + ')';
+    $('stageWrap').style.margin = ((k - 1) * 800 / 2) + 'px 0';
+  }
+  window.addEventListener('resize', fit);
+
+  /* ---------------- 交互 ---------------- */
+  $('btnSnd').addEventListener('click', () => {
+    const on = SND.toggle();
+    const b = $('btnSnd');
+    b.textContent = on ? '🔊 音效 开' : '🔇 音效 关';
+    b.classList.toggle('off', !on);
+    $('sndHint').style.display = 'none';
+  });
+  $('btnReplay').addEventListener('click', () => { paused = false; play(); });
+  window.addEventListener('keydown', e => {
+    if (e.code === 'Space'){ e.preventDefault(); paused = !paused; }
+    if (e.code === 'KeyR'){ paused = false; play(); }
+  });
+
+  fit();
+  play();
+})();
+</script>
+</body>
+</html>
+
+
+
+
+
+
