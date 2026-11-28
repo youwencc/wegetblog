@@ -25,7 +25,7 @@
 本地 phpStudy 里建 MySQL 数据库，记下主机、端口、库名、用户名、密码。字符集选 `utf8mb4`：
 
 ```bash
-mysql -u root -p -e "CREATE DATABASE chenyu_blog CHARACTER SET utf8mb4"
+mysql -u root -p -e "CREATE DATABASE wegetblog CHARACTER SET utf8mb4"
 ```
 
 ## 二、初始化与写配置
@@ -62,7 +62,7 @@ mysql -u root -p -e "CREATE DATABASE chenyu_blog CHARACTER SET utf8mb4"
     'base_url'  => 'https://你的域名',   // 不要以斜杠结尾
     'name'      => '电脑小百科 · 技术笔记',
     'author'    => '电脑小百科',
-    'email'     => 'hello@chenyu.me',
+    'email'     => '2591735711@qq.com',
     'github'    => 'https://github.com/你的账号',
     'dist_dir'  => dirname(__DIR__) . '/dist',
     'seed_file' => __DIR__ . '/content/seed.json',
@@ -161,7 +161,7 @@ git push
 
 ### 自定义域名
 
-Pages → Custom domain 填 `chenyu.me`，DNS 加 CNAME 指向 `你的账号.github.io`，勾选 Enforce HTTPS。`site.base_url` 必须和最终域名一致，否则 canonical、sitemap、RSS 里的链接会错。
+Pages → Custom domain 填 `weget.site`，DNS 加 CNAME 指向 `你的账号.github.io`，勾选 Enforce HTTPS。`site.base_url` 必须和最终域名一致，否则 canonical、sitemap、RSS 里的链接会错。
 
 ## 七、本地开发
 
@@ -190,7 +190,7 @@ Alias /install.php "F:/web-code/blog/public/install.php"
 
 ```bash
 # 建库
-mysql -u root -p -e "CREATE DATABASE chenyu_blog CHARACTER SET utf8mb4"
+mysql -u root -p -e "CREATE DATABASE wegetblog CHARACTER SET utf8mb4"
 
 # 配置：复制 config.example.php 为 config.php，改 db 段
 

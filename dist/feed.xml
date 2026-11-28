@@ -2,15 +2,15 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
 <channel>
 <title>电脑小百科 · 技术笔记</title>
-<link>https://chenyu.me/</link>
+<link>https://weget.site/</link>
 <description>桌面软件、像素游戏与工程实践的个人技术博客</description>
 <language>zh-cn</language>
 <lastBuildDate>Fri, 27 Nov 2026 00:00:00 +0800</lastBuildDate>
-<atom:link href="https://chenyu.me/feed.xml" rel="self" type="application/rss+xml"/>
+<atom:link href="https://weget.site/feed.xml" rel="self" type="application/rss+xml"/>
 <item>
 <title>让 AI 保持目录整洁：四种乱法与一套对策</title>
-<link>https://chenyu.me/posts/ai-workspace-hygiene.html</link>
-<guid isPermaLink="true">https://chenyu.me/posts/ai-workspace-hygiene.html</guid>
+<link>https://weget.site/posts/ai-workspace-hygiene.html</link>
+<guid isPermaLink="true">https://weget.site/posts/ai-workspace-hygiene.html</guid>
 <pubDate>Fri, 27 Nov 2026 00:00:00 +0800</pubDate>
 <category>AI</category>
 <category>智能体</category>
@@ -65,8 +65,8 @@
 </item>
 <item>
 <title>上下文窗口不是内存，是工作台</title>
-<link>https://chenyu.me/posts/context-window-budget.html</link>
-<guid isPermaLink="true">https://chenyu.me/posts/context-window-budget.html</guid>
+<link>https://weget.site/posts/context-window-budget.html</link>
+<guid isPermaLink="true">https://weget.site/posts/context-window-budget.html</guid>
 <pubDate>Thu, 26 Nov 2026 00:00:00 +0800</pubDate>
 <category>AI</category>
 <category>Agent</category>
@@ -100,8 +100,8 @@
 </item>
 <item>
 <title>「先规划后执行」听着很美，账算下来吓一跳</title>
-<link>https://chenyu.me/posts/planning-loop-cost.html</link>
-<guid isPermaLink="true">https://chenyu.me/posts/planning-loop-cost.html</guid>
+<link>https://weget.site/posts/planning-loop-cost.html</link>
+<guid isPermaLink="true">https://weget.site/posts/planning-loop-cost.html</guid>
 <pubDate>Thu, 26 Nov 2026 00:00:00 +0800</pubDate>
 <category>AI</category>
 <category>Agent</category>
@@ -135,8 +135,8 @@
 </item>
 <item>
 <title>调试 Agent 不能靠猜：给工具调用装一块仪表盘</title>
-<link>https://chenyu.me/posts/tool-calling-observability.html</link>
-<guid isPermaLink="true">https://chenyu.me/posts/tool-calling-observability.html</guid>
+<link>https://weget.site/posts/tool-calling-observability.html</link>
+<guid isPermaLink="true">https://weget.site/posts/tool-calling-observability.html</guid>
 <pubDate>Thu, 26 Nov 2026 00:00:00 +0800</pubDate>
 <category>AI</category>
 <category>Agent</category>
@@ -174,8 +174,8 @@
 </item>
 <item>
 <title>学 Agent 原理最省事的办法：先别用框架</title>
-<link>https://chenyu.me/posts/agent-loop-from-scratch.html</link>
-<guid isPermaLink="true">https://chenyu.me/posts/agent-loop-from-scratch.html</guid>
+<link>https://weget.site/posts/agent-loop-from-scratch.html</link>
+<guid isPermaLink="true">https://weget.site/posts/agent-loop-from-scratch.html</guid>
 <pubDate>Thu, 26 Nov 2026 00:00:00 +0800</pubDate>
 <category>AI</category>
 <category>Agent</category>
@@ -217,8 +217,8 @@ while true:
 </item>
 <item>
 <title>把 60 帧塞进一台 2013 年的笔记本</title>
-<link>https://chenyu.me/posts/pixijs-frame-budget.html</link>
-<guid isPermaLink="true">https://chenyu.me/posts/pixijs-frame-budget.html</guid>
+<link>https://weget.site/posts/pixijs-frame-budget.html</link>
+<guid isPermaLink="true">https://weget.site/posts/pixijs-frame-budget.html</guid>
 <pubDate>Wed, 18 Nov 2026 00:00:00 +0800</pubDate>
 <category>PixiJS</category>
 <category>性能</category>
@@ -347,8 +347,8 @@ document.addEventListener('visibilitychange', () =&gt; {
 </item>
 <item>
 <title>我的 WPF 应用为什么会吃掉 800 MB 内存</title>
-<link>https://chenyu.me/posts/wpf-memory.html</link>
-<guid isPermaLink="true">https://chenyu.me/posts/wpf-memory.html</guid>
+<link>https://weget.site/posts/wpf-memory.html</link>
+<guid isPermaLink="true">https://weget.site/posts/wpf-memory.html</guid>
 <pubDate>Tue, 27 Oct 2026 00:00:00 +0800</pubDate>
 <category>WPF</category>
 <category>性能</category>
@@ -441,8 +441,8 @@ document.addEventListener('visibilitychange', () =&gt; {
 </item>
 <item>
 <title>TileMap 换成 TileMapLayer 之后，我踩的五个坑</title>
-<link>https://chenyu.me/posts/godot-tilemap.html</link>
-<guid isPermaLink="true">https://chenyu.me/posts/godot-tilemap.html</guid>
+<link>https://weget.site/posts/godot-tilemap.html</link>
+<guid isPermaLink="true">https://weget.site/posts/godot-tilemap.html</guid>
 <pubDate>Tue, 15 Sep 2026 00:00:00 +0800</pubDate>
 <category>Godot</category>
 <category>游戏开发</category>
@@ -508,8 +508,8 @@ func _process(delta: float) -&gt; void:
 </item>
 <item>
 <title>给桌面小工具写一个 200 行状态机</title>
-<link>https://chenyu.me/posts/wpf-state-machine.html</link>
-<guid isPermaLink="true">https://chenyu.me/posts/wpf-state-machine.html</guid>
+<link>https://weget.site/posts/wpf-state-machine.html</link>
+<guid isPermaLink="true">https://weget.site/posts/wpf-state-machine.html</guid>
 <pubDate>Sun, 02 Aug 2026 00:00:00 +0800</pubDate>
 <category>架构</category>
 <category>C#</category>

@@ -209,23 +209,34 @@ if ($action !== '' && $action !== 'login' && $action !== 'logout') {
 
     if ($action === 'import_full') {
         require_once __DIR__ . '/../app/lib/install.php';
+        // 长操作：先释放会话锁，防止期间并发请求阻塞在 session_start() 超时
+        set_time_limit(0);
+        session_write_close();
         try {
             $import = import_seed_full();
             $publish = publish_site();
+            start_session();
             flash('ok', sprintf('全量导入完成：%d 篇文章、%d 个作品、%d 个分类，已重新生成 %d 页静态站。',
                 $import['posts'], $import['works'], $import['categories'], $publish['pages']));
         } catch (Throwable $e) {
+            start_session();
             flash('error', '全量导入失败：' . $e->getMessage());
         }
         redirect('admin.php');
     }
 
     if ($action === 'publish') {
+        // 长操作：先释放会话文件锁，避免生成期间浏览器任何请求
+        // （刷新、跳转、静态资源同进程）阻塞在 session_start() 上直至超时卡死
+        set_time_limit(0);
+        session_write_close();
         try {
             $stats = publish_site();
+            start_session();
             flash('ok', sprintf('静态站已生成：%d 个页面（%d 篇文章、%d 个作品），输出到 %s。接下来同步到 GitHub 即可。',
                 $stats['pages'], $stats['posts'], $stats['works'], $stats['dist']));
         } catch (Throwable $e) {
+            start_session();
             flash('error', '生成失败：' . $e->getMessage());
         }
         redirect('admin.php');

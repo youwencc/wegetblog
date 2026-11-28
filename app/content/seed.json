@@ -33,7 +33,7 @@
         "label": "给桌面小工具写一个 200 行状态机"
       },
       "nav": "\n        <a href=\"wpf-memory.html\">\n          <span class=\"dir\">← 上一篇</span>\n          <span class=\"t\">我的 WPF 应用为什么会吃掉 800 MB 内存</span>\n        </a>\n        <a href=\"wpf-state-machine.html\">\n          <span class=\"dir\">下一篇 →</span>\n          <span class=\"t\">给桌面小工具写一个 200 行状态机</span>\n        </a>\n      ",
-      "canonical": "https://chenyu.me/posts/godot-tilemap.html"
+      "canonical": "https://weget.site/posts/godot-tilemap.html"
     },
     {
       "slug": "pixijs-frame-budget",
@@ -63,7 +63,7 @@
         "label": "我的 WPF 应用为什么会吃掉 800 MB 内存"
       },
       "nav": "\n        <a href=\"../blog.html\">\n          <span class=\"dir\">← 返回列表</span>\n          <span class=\"t\">全部文章</span>\n        </a>\n        <a href=\"wpf-memory.html\">\n          <span class=\"dir\">下一篇 →</span>\n          <span class=\"t\">我的 WPF 应用为什么会吃掉 800 MB 内存</span>\n        </a>\n      ",
-      "canonical": "https://chenyu.me/posts/pixijs-frame-budget.html"
+      "canonical": "https://weget.site/posts/pixijs-frame-budget.html"
     },
     {
       "slug": "wpf-memory",
@@ -97,7 +97,7 @@
         "label": "TileMap 换成 TileMapLayer 之后，我踩的五个坑"
       },
       "nav": "\n        <a href=\"pixijs-frame-budget.html\">\n          <span class=\"dir\">← 上一篇</span>\n          <span class=\"t\">把 60 帧塞进一台 2013 年的笔记本</span>\n        </a>\n        <a href=\"godot-tilemap.html\">\n          <span class=\"dir\">下一篇 →</span>\n          <span class=\"t\">TileMap 换成 TileMapLayer 之后，我踩的五个坑</span>\n        </a>\n      ",
-      "canonical": "https://chenyu.me/posts/wpf-memory.html"
+      "canonical": "https://weget.site/posts/wpf-memory.html"
     },
     {
       "slug": "wpf-state-machine",
@@ -131,7 +131,7 @@
         "label": "全部文章"
       },
       "nav": "\n        <a href=\"godot-tilemap.html\">\n          <span class=\"dir\">← 上一篇</span>\n          <span class=\"t\">TileMap 换成 TileMapLayer 之后，我踩的五个坑</span>\n        </a>\n        <a href=\"../blog.html\">\n          <span class=\"dir\">返回 →</span>\n          <span class=\"t\">全部文章</span>\n        </a>\n      ",
-      "canonical": "https://chenyu.me/posts/wpf-state-machine.html"
+      "canonical": "https://weget.site/posts/wpf-state-machine.html"
     }
   ],
   "works": [
@@ -212,7 +212,7 @@
         "dir": "下一个项目 →",
         "label": "久伴 Agent · 桌面编码智能体工作台"
       },
-      "canonical": "https://chenyu.me/works/pixel-workshop.html"
+      "canonical": "https://weget.site/works/pixel-workshop.html"
     },
     {
       "slug": "tinyplayer",
@@ -291,7 +291,7 @@
         "dir": "下一个项目 →",
         "label": "像素数码工坊 · 网页像素经营游戏"
       },
-      "canonical": "https://chenyu.me/works/tinyplayer.html"
+      "canonical": "https://weget.site/works/tinyplayer.html"
     },
     {
       "slug": "winlite",
@@ -334,7 +334,7 @@
         },
         {
           "label": "代码",
-          "value": "github.com/chenyu"
+          "value": "github.com/youwencc"
         }
       ],
       "body_html": "<h2 id=\"origin\">起因：一台开机三分钟的机器</h2>\n        <p>家里那台 2013 年的笔记本，4GB 内存，机械硬盘，装完 Windows 10 之后冷启动要三分十二秒。我给它清过启动项、关过服务、删过预装软件，每次都要重新查一遍「这个服务能不能关」，而且关错了没有后悔药。</p>\n        <p>市面上的「一键优化」工具我试过三个，共同点是把改动藏起来：你不知道它关了什么，出了问题也说不清怎么退回去。有一个甚至把打印服务关了，家里老人后来要打印照片，折腾了一晚上。</p>\n        <p>所以我想写一个反过来的工具：不猜、不替他做决定、每一步都能看见。</p>\n\n        <h2 id=\"design\">反向设计：不做「一键优化」</h2>\n        <p>界面上没有那个大按钮。用户看到的是三段式布局：左边是分类（服务、计划任务、启动项、系统组件），中间是一张清单，每一项都有中文说明、影响范围、风险等级和默认建议；右边是变更预览，列出这次操作将要执行的命令原文。</p>\n        <p>「一键优化」的问题不在功能，在决策权。用户点下去，是把判断交给了我；但我并不知道他这台机器上跑着什么、连着什么打印机、用什么输入法。清单式设计把判断还给他，代价是慢一点。</p>\n\n        <h2 id=\"rollback\">可撤销是怎么做到的</h2>\n        <p>三件事：</p>\n        <ul>\n          <li><strong>动手前建还原点。</strong>调用 <code>Checkpoint-Computer</code>，失败就中止，不提供「跳过」选项。</li>\n          <li><strong>每一步写日志。</strong>执行前把原始值记录下来（服务启动类型、注册表键值、计划任务状态），写成一个 JSON，和操作一起落盘。</li>\n          <li><strong>回滚按逆序执行。</strong>日志里每条变更都有配对的反向操作，回滚时倒着跑，中途失败就停在那一步并提示。</li>\n        </ul>\n        <p>规则库是 JSON，一条规则长这样：</p>\n        <pre><code>{\n  \"id\": \"svc.diagtrack\",\n  \"kind\": \"service\",\n  \"name\": \"DiagTrack\",\n  \"desc\": \"遥测服务，关闭可省 30-60MB 内存\",\n  \"risk\": \"low\",\n  \"apply\": \"sc config DiagTrack start= disabled\",\n  \"revert\": \"sc config DiagTrack start= auto\"\n}</code></pre>\n        <p>规则和代码分开的好处很实际：用户在 issue 里说「某个服务不该关」，改一行 JSON 就能发版，不用重新编译。代价是规则写错也不会有编译错误，所以每条规则在启动时会做一次静态校验——命令必须以 <code>sc</code>、<code>schtasks</code>、<code>reg</code> 这几个前缀开头，否则拒绝加载。</p>\n\n        <h2 id=\"tech\">技术上的几个选择</h2>\n        <p><strong>WPF 但不用框架。</strong>MVVM 是我手写的，大概六百行，只做了属性通知和命令绑定。为一个单窗口工具引入 Prism 或 MVVM Toolkit，学它的时间比写它长。</p>\n        <p><strong>.NET 8 单文件，但不裁剪。</strong>试过 <code>PublishTrimmed</code>，WPF 的 XAML 反射会漏掉类型，跑起来随机崩。最后用 self-contained 不 trim，包 12MB，能接受。</p>\n        <p><strong>PowerShell 走 5.1。</strong>现场很多机器没装 PowerShell 7，我不想让工具在第一步就报错。所有脚本按 5.1 的语法写，执行前先跑一次 dry-run，只读扫描，确认没有权限问题再真正执行。</p>\n\n        <h2 id=\"numbers\">数字</h2>\n        <p>目标机器：i5-3230M / 4GB / 机械硬盘 / Windows 10 22H2。</p>\n        <ul>\n          <li>冷启动（按下电源到桌面可操作）：3 分 12 秒 → 48 秒；</li>\n          <li>空闲内存：1.9GB → 780MB；</li>\n          <li>系统盘占用：24.6GB → 17.8GB（主要是组件清理和休眠文件）；</li>\n          <li>开机自启项：31 个 → 7 个。</li>\n        </ul>\n        <p>这些数字只对这台机器成立。我从来不把「省了多少」写成通用承诺，因为同样的操作在另一台机器上可能只省 200MB。</p>\n\n        <h2 id=\"risk\">边界与风险</h2>\n        <p>明确不做的几件事：不碰激活、不碰驱动、不删 WinSxS、不做注册表「一键清理」。最后一条的原因很直接：收益低，风险高，出了问题无法解释。</p>\n        <p>高风险项（比如关闭 Windows Defender 的实时保护、禁用系统还原）默认不勾选，勾选时二次确认并提示后果。我宁愿被说「不够彻底」，也不想让一个不懂电脑的人把机器搞成只能重装的状态。</p>\n\n        <h2 id=\"now\">现在的状态</h2>\n        <p>v1.4，1.4k star。issue 每周看一次，功能性的 PR 基本不收，因为维护精力只够保证「三年后还能编译、还能回滚」。这句话写在 README 第一段，省得双方都抱错期待。</p>",
@@ -372,7 +372,7 @@
         "dir": "下一个项目 →",
         "label": "TinyPlayer · 常驻托盘的极简播放器"
       },
-      "canonical": "https://chenyu.me/works/winlite.html"
+      "canonical": "https://weget.site/works/winlite.html"
     },
     {
       "slug": "jiuban-agent",
@@ -443,7 +443,7 @@
         "dir": "下一个项目 →",
         "label": "MicaRec · 轻录屏"
       },
-      "canonical": "https://chenyu.me/works/jiuban-agent.html"
+      "canonical": "https://weget.site/works/jiuban-agent.html"
     },
     {
       "slug": "micarec",
@@ -514,7 +514,7 @@
         "dir": "回到列表 →",
         "label": "全部作品"
       },
-      "canonical": "https://chenyu.me/works/micarec.html"
+      "canonical": "https://weget.site/works/micarec.html"
     }
   ]
 }
