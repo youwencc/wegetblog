@@ -112,11 +112,21 @@
   /* ---- 作品演示：全屏 ---- */
   var demoBox = document.querySelector(".work-demo");
   if (demoBox) {
+    /* 兜底：旧数据里 iframe 缺 fullscreen 授权时在运行时补上（移动端浏览器强制要求） */
+    var demoFrame = demoBox.querySelector("iframe");
+    if (demoFrame) {
+      var allow = demoFrame.getAttribute("allow") || "";
+      if (allow.indexOf("fullscreen") === -1) {
+        demoFrame.setAttribute("allow", (allow ? allow + "; fullscreen" : "fullscreen"));
+        demoFrame.setAttribute("allowfullscreen", "");
+      }
+    }
     var demoFs = demoBox.querySelector(".demo-fs");
     if (demoFs) {
       demoFs.addEventListener("click", function () {
-        if (document.fullscreenElement) {
-          document.exitFullscreen();
+        var fsEl = document.fullscreenElement || document.webkitFullscreenElement;
+        if (fsEl) {
+          (document.exitFullscreen || document.webkitExitFullscreen).call(document);
         } else if (demoBox.requestFullscreen) {
           demoBox.requestFullscreen();
         } else if (demoBox.webkitRequestFullscreen) {

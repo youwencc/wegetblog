@@ -544,6 +544,8 @@
   body:fullscreen .demo-fs .ic-expand{display:none;}
 
   @media (max-width:1320px),(max-height:900px){ .hero{transform:scale(.94);} }
+  /* 窄视口（作品页 16:9 iframe）：隐藏演示页自身标题，为舞台腾出高度 */
+  @media (max-width:720px){ .hero{display:none;} .page{padding:10px;gap:8px;} }
 </style>
 </head>
 <body>
@@ -1633,9 +1635,12 @@
 
   /* ---------------- 舞台自适应 ---------------- */
   function fit(){
-    const sx = (window.innerWidth - 40) / 1280;
-    const sy = (window.innerHeight - 130) / 800;
-    const k = Math.min(1, Math.max(.42, Math.min(sx, sy)));
+    /* 窄视口（作品页 iframe ≈16:9）：隐藏 hero 后只需少量边距；去掉缩放下限，保证舞台完整可见 */
+    var compact = window.innerWidth < 720;
+    var padY = compact ? 16 : 130;
+    var sx = (window.innerWidth - 24) / 1280;
+    var sy = (window.innerHeight - padY) / 800;
+    var k = Math.min(1, Math.min(sx, sy));
     $('stageWrap').style.transform = 'scale(' + k + ')';
     $('stageWrap').style.margin = ((k - 1) * 800 / 2) + 'px 0';
   }

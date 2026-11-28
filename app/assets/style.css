@@ -354,7 +354,7 @@ button { font: inherit; }
   display: flex;
   align-items: center;
   gap: 2px;
-  padding: 6px 0;
+  padding: 0;
 }
 .nav-drop-label {
   font-size: 13px;
@@ -1097,6 +1097,8 @@ html[data-theme="dark"] .theme-toggle .i-moon { display: none; }
 }
 .work-demo:fullscreen .demo-stage { flex: 1; display: flex; min-height: 0; }
 .work-demo:fullscreen iframe { flex: 1; height: auto; aspect-ratio: auto; }
+.work-demo:-webkit-full-screen .demo-stage { flex: 1; display: flex; min-height: 0; }
+.work-demo:-webkit-full-screen iframe { flex: 1; height: auto; aspect-ratio: auto; }
 .works li:hover .work-mark {
   border-color: var(--accent);
   background: var(--paper-3);
@@ -1869,9 +1871,15 @@ html[data-theme="dark"] .theme-toggle .i-moon { display: none; }
     border-top: 1px solid var(--rule);
   }
   .site-nav::-webkit-scrollbar { display: none; }
-  .site-nav a { font-size: 12px; white-space: nowrap; }
+  .site-nav a { font-size: 12px; white-space: nowrap; padding: 8px 0; }
+  /* 移动端防溢出：表格 / 嵌入内容（代码块已有横向滚动） */
+  .prose { overflow-wrap: break-word; }
+  .prose table { display: block; width: max-content; max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .prose iframe, .prose video { max-width: 100%; }
+  /* 触控目标 ≥36px */
+  .filter-btn { min-height: 36px; }
   /* 移动端：二级菜单不悬浮，展开时独占一行就地展开 */
-  .site-nav .nav-drop { flex: 0 0 auto; padding: 6px 0 0; }
+    .site-nav .nav-drop { flex: 0 0 auto; padding: 0; }
   .site-nav .nav-drop.is-open { flex: 0 0 100%; }
   .site-nav .nav-drop-label,
   .site-nav .nav-drop-toggle { font-size: 12px; }
@@ -1909,7 +1917,11 @@ html[data-theme="dark"] .theme-toggle .i-moon { display: none; }
   .post-nav a:last-child { text-align: left; }
   .notes { grid-template-columns: 1fr; }
   .stack { grid-template-columns: 1fr; }
-  .footer-grid { grid-template-columns: 1fr; gap: 26px; }
+  .footer-grid { grid-template-columns: 1fr 1fr 1fr; gap: 18px; }
+  .footer-name { font-size: 17px; margin-bottom: 6px; }
+  .footer-note { font-size: 12px; }
+  .f-label { margin-bottom: 8px; }
+  .f-links { font-size: 13px; }
   .columns { text-align: left; font-size: 16.5px; }
   .colophon { flex-direction: column; }
   .wordmark { flex-direction: column; align-items: flex-start; gap: 10px; }
@@ -1917,13 +1929,14 @@ html[data-theme="dark"] .theme-toggle .i-moon { display: none; }
 }
 
 @media (max-width: 560px) {
-  .work { grid-template-columns: 1fr; gap: 12px; }
-  .work-mark { display: none; }
-  .work-meta { grid-column: 1; }
   .sprite svg { width: 84px; height: 84px; }
   .sprite { flex-direction: row; align-items: flex-end; align-self: flex-start; gap: 12px; }
   .sprite-cap { letter-spacing: .12em; padding-bottom: 4px; }
   .now { padding: 20px 18px 12px; }
+  /* 页脚窄屏收窄：品牌字与分隔间距压缩，栏目间距收紧 */
+  .wordmark { padding-bottom: 14px; margin-bottom: 24px; }
+  .wm-name { font-size: 30px; }
+  .footer-grid { gap: 20px; }
 }
 
 @media (max-width: 420px) {
@@ -1932,7 +1945,15 @@ html[data-theme="dark"] .theme-toggle .i-moon { display: none; }
   .page-title { font-size: 30px; }
   .post-title { font-size: 26px; }
   .prose { font-size: 16.5px; }
-  .cols { }
+}
+
+@media (max-width: 360px) {
+  .shell { width: calc(100% - 28px); }
+  .figures { grid-template-columns: 1fr; }
+  .figures div:nth-child(even) { padding-left: 0; border-left: 0; }
+  .actions { flex-direction: column; align-items: stretch; }
+  .btn { width: 100%; justify-content: center; }
+  .link-quiet { align-self: flex-start; }
 }
 
 /* ---------- 12 打印 ---------- */
@@ -2162,7 +2183,7 @@ html[data-theme="dark"] .theme-toggle .i-moon { display: none; }
 /* 中窄屏：状态与日期从右栏移到正文下方，正文不再被 196px 挤成一条缝 */
 @media (max-width: 1100px) {
   .work {
-    grid-template-columns: 76px minmax(0, 1fr);
+    grid-template-columns: 76px minmax(0, 1fr) auto;
     gap: 8px 20px;
     padding: 26px 0;
     align-items: start;
@@ -2187,7 +2208,7 @@ html[data-theme="dark"] .theme-toggle .i-moon { display: none; }
 }
 
 @media (max-width: 560px) {
-  .work { grid-template-columns: 56px minmax(0, 1fr); gap: 6px 14px; }
+  .work { grid-template-columns: 56px minmax(0, 1fr) auto; gap: 6px 12px; }
   .work-mark { width: 56px; height: 46px; }
   .work-mark svg { width: 40px; height: 30px; }
   .work-title h2, .work-title h3 { font-size: 18px; }
